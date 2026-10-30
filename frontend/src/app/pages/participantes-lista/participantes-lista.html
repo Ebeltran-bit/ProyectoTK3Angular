@@ -5,13 +5,29 @@
   </div>
 
   <div class="filtros" role="group" aria-label="Filtrar por estado">
-    <button type="button" [class.seleccionado]="filtro() === 'todos'" (click)="filtro.set('todos')">Todos</button>
-    <button type="button" [class.seleccionado]="filtro() === 'activos'" (click)="filtro.set('activos')">Activos</button>
-    <button type="button" [class.seleccionado]="filtro() === 'inactivos'" (click)="filtro.set('inactivos')">Inactivos</button>
+    <button type="button" [class.seleccionado]="filtro() === 'todos'" (click)="filtro.set('todos')">
+      Todos
+    </button>
+    <button
+      type="button"
+      [class.seleccionado]="filtro() === 'activos'"
+      (click)="filtro.set('activos')"
+    >
+      Activos
+    </button>
+    <button
+      type="button"
+      [class.seleccionado]="filtro() === 'inactivos'"
+      (click)="filtro.set('inactivos')"
+    >
+      Inactivos
+    </button>
   </div>
 
   @if (error()) {
-    <p class="mensaje-error">{{ error() }} <button type="button" (click)="cargar()">Reintentar</button></p>
+    <p class="mensaje-error">
+      {{ error() }} <button type="button" (click)="cargar()">Reintentar</button>
+    </p>
   }
 
   @if (cargando()) {
@@ -21,14 +37,23 @@
       @for (p of visibles(); track p.id) {
         <li [class.inactivo]="!p.activo">
           @if (p.logo && !logosRotos().has(p.id)) {
-            <img [src]="p.logo" [alt]="'Logo de ' + p.nick" class="logo" (error)="marcarLogoRoto(p.id)" />
+            <img
+              [src]="p.logo"
+              [alt]="'Logo de ' + p.nick"
+              class="logo"
+              (error)="marcarLogoRoto(p.id)"
+            />
           } @else {
             <span class="logo sin-logo" aria-hidden="true">{{ p.nick.charAt(0) }}</span>
           }
           <span class="nick">{{ p.nick }}</span>
-          <span class="estado" [class.activo]="p.activo">{{ p.activo ? 'Activo' : 'Inactivo' }}</span>
+          <span class="estado" [class.activo]="p.activo">{{
+            p.activo ? 'Activo' : 'Inactivo'
+          }}</span>
           <a [routerLink]="['/participantes', p.id, 'editar']">Editar</a>
-          <button type="button" (click)="cambiarEstado(p)">{{ p.activo ? 'Desactivar' : 'Activar' }}</button>
+          <button type="button" (click)="cambiarEstado(p)">
+            {{ p.activo ? 'Desactivar' : 'Activar' }}
+          </button>
         </li>
       } @empty {
         <li class="vacio">No hay participantes en esta vista.</li>

@@ -74,7 +74,13 @@ export class TorneoForm implements OnInit {
   }
 
   seleccionarTodos(): void {
-    this.seleccionados.set(new Set(this.disponibles().filter((p) => p.activo).map((p) => p.id)));
+    this.seleccionados.set(
+      new Set(
+        this.disponibles()
+          .filter((p) => p.activo)
+          .map((p) => p.id),
+      ),
+    );
   }
 
   ninguno(): void {

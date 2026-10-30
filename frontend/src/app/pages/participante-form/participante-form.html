@@ -18,7 +18,11 @@
         <input type="url" formControlName="logo" placeholder="https://…" />
       </label>
       @if (formulario.controls.logo.value) {
-        <img [src]="formulario.controls.logo.value" alt="Vista previa del logo" class="vista-previa" />
+        <img
+          [src]="formulario.controls.logo.value"
+          alt="Vista previa del logo"
+          class="vista-previa"
+        />
       }
 
       @if (error()) {
@@ -26,7 +30,9 @@
       }
 
       <div class="acciones">
-        <button type="submit" [disabled]="guardando()">{{ guardando() ? 'Guardando…' : 'Guardar' }}</button>
+        <button type="submit" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando…' : 'Guardar' }}
+        </button>
         <a routerLink="/participantes">Cancelar</a>
       </div>
     </form>

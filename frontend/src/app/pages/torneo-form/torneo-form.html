@@ -7,7 +7,13 @@
     <form (ngSubmit)="guardar()">
       <label>
         Nombre del torneo
-        <input type="text" name="nombre" maxlength="60" [ngModel]="nombre()" (ngModelChange)="nombre.set($event)" />
+        <input
+          type="text"
+          name="nombre"
+          maxlength="60"
+          [ngModel]="nombre()"
+          (ngModelChange)="nombre.set($event)"
+        />
       </label>
       @if (intentado() && !nombreValido()) {
         <p class="mensaje-error">El nombre es obligatorio.</p>
@@ -22,7 +28,11 @@
         </div>
         @for (p of disponibles(); track p.id) {
           <label class="opcion" [class.inactivo]="!p.activo">
-            <input type="checkbox" [checked]="seleccionados().has(p.id)" (change)="alternar(p.id)" />
+            <input
+              type="checkbox"
+              [checked]="seleccionados().has(p.id)"
+              (change)="alternar(p.id)"
+            />
             {{ p.nick }}
             @if (!p.activo) {
               <span>(inactivo: quítalo del torneo)</span>
@@ -41,8 +51,12 @@
       }
 
       <div class="acciones">
-        <button type="submit" [disabled]="guardando()">{{ guardando() ? 'Guardando…' : 'Guardar' }}</button>
-        <a [routerLink]="idEditando() === null ? '/torneos' : ['/torneos', idEditando()]">Cancelar</a>
+        <button type="submit" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando…' : 'Guardar' }}
+        </button>
+        <a [routerLink]="idEditando() === null ? '/torneos' : ['/torneos', idEditando()]"
+          >Cancelar</a
+        >
       </div>
     </form>
   }

@@ -5,7 +5,9 @@
   </div>
 
   @if (error()) {
-    <p class="mensaje-error">{{ error() }} <button type="button" (click)="cargar()">Reintentar</button></p>
+    <p class="mensaje-error">
+      {{ error() }} <button type="button" (click)="cargar()">Reintentar</button>
+    </p>
   }
 
   @if (cargando()) {

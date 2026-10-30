@@ -33,7 +33,11 @@ export class TorneosService {
   }
 
   /** Guarda el ganador de un combate. El backend decide si avanza de ronda o cierra el torneo. */
-  registrarGanador(idTorneo: number, idCombate: number, idGanador: number): Observable<TorneoDetalle> {
+  registrarGanador(
+    idTorneo: number,
+    idCombate: number,
+    idGanador: number,
+  ): Observable<TorneoDetalle> {
     return this.http.post<TorneoDetalle>(`${this.url}/${idTorneo}/combates/${idCombate}/ganador`, {
       id_ganador: idGanador,
     });

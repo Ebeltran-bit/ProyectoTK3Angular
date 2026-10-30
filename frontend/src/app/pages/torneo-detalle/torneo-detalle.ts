@@ -68,7 +68,11 @@ export class TorneoDetalle implements OnInit {
     if (this.registrando()) {
       return;
     }
-    if (!confirm(`¿Confirmas que ${ganador.nick} gana este combate? El resultado no se podrá cambiar.`)) {
+    if (
+      !confirm(
+        `¿Confirmas que ${ganador.nick} gana este combate? El resultado no se podrá cambiar.`,
+      )
+    ) {
       return;
     }
     this.registrando.set(true);

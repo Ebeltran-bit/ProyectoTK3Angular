@@ -13,13 +13,19 @@
                 {{ c.participante2.nick }}
               </button>
             } @else {
-              <div class="jugador" [class.ganador]="c.id_ganador === c.participante1.id"
-                [class.perdedor]="c.id_ganador !== null && c.id_ganador !== c.participante1.id">
+              <div
+                class="jugador"
+                [class.ganador]="c.id_ganador === c.participante1.id"
+                [class.perdedor]="c.id_ganador !== null && c.id_ganador !== c.participante1.id"
+              >
                 {{ c.participante1.nick }}
               </div>
               @if (c.participante2) {
-                <div class="jugador" [class.ganador]="c.id_ganador === c.participante2.id"
-                  [class.perdedor]="c.id_ganador !== null && c.id_ganador !== c.participante2.id">
+                <div
+                  class="jugador"
+                  [class.ganador]="c.id_ganador === c.participante2.id"
+                  [class.perdedor]="c.id_ganador !== null && c.id_ganador !== c.participante2.id"
+                >
                   {{ c.participante2.nick }}
                 </div>
               } @else {

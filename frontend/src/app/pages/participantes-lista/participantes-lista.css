@@ -1,13 +1,57 @@
 /* Estilos provisionales: solo lo necesario para que se distingan los estados. */
-.cabecera { display: flex; justify-content: space-between; align-items: center; }
-.filtros { display: flex; gap: 0.5rem; margin: 1rem 0; }
-.filtros .seleccionado { font-weight: bold; text-decoration: underline; }
-.lista { list-style: none; padding: 0; }
-.lista li { display: flex; align-items: center; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid #ddd; }
-.lista li.inactivo { opacity: 0.5; }
-.logo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-.sin-logo { display: inline-flex; align-items: center; justify-content: center; background: #ddd; font-weight: bold; }
-.nick { flex: 1; }
-.estado { font-size: 0.85rem; padding: 0.1rem 0.5rem; border: 1px solid currentColor; border-radius: 1rem; }
-.estado.activo { color: green; }
-.vacio { color: #666; }
+.cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.filtros {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+.filtros .seleccionado {
+  font-weight: bold;
+  text-decoration: underline;
+}
+.lista {
+  list-style: none;
+  padding: 0;
+}
+.lista li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #ddd;
+}
+.lista li.inactivo {
+  opacity: 0.5;
+}
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.sin-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ddd;
+  font-weight: bold;
+}
+.nick {
+  flex: 1;
+}
+.estado {
+  font-size: 0.85rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: 1rem;
+}
+.estado.activo {
+  color: green;
+}
+.vacio {
+  color: #666;
+}

@@ -2,7 +2,9 @@
   <a routerLink="/torneos">← Torneos</a>
 
   @if (error()) {
-    <p class="mensaje-error">{{ error() }} <button type="button" (click)="cargar()">Reintentar</button></p>
+    <p class="mensaje-error">
+      {{ error() }} <button type="button" (click)="cargar()">Reintentar</button>
+    </p>
   }
 
   @if (cargando()) {
@@ -32,11 +34,17 @@
           {{ generando() ? 'Sorteando…' : 'Generar cuadro' }}
         </button>
       </div>
-      <p class="ayuda">El cuadro se sortea al azar. Con {{ t.num_participantes }} participantes habrá {{ t.total_rondas }} rondas.</p>
+      <p class="ayuda">
+        El cuadro se sortea al azar. Con {{ t.num_participantes }} participantes habrá
+        {{ t.total_rondas }} rondas.
+      </p>
     } @else {
       <h3>Cuadro</h3>
       @if (t.estado === 'cuadro_generado') {
-        <p class="ayuda">Pulsa el nombre del ganador de cada combate. Cuando una ronda se completa, se genera la siguiente.</p>
+        <p class="ayuda">
+          Pulsa el nombre del ganador de cada combate. Cuando una ronda se completa, se genera la
+          siguiente.
+        </p>
       }
       <app-cuadro
         [combates]="t.combates"
