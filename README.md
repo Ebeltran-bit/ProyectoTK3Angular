@@ -119,18 +119,22 @@ Abre <http://localhost:4200>.
 | POST | `/api/torneos` | Crea un torneo en preparación (`{"nombre": "...", "participantes": [1, 2, 3]}`) |
 | PUT | `/api/torneos/{id}` | Cambia nombre y participantes (solo en preparación) |
 | POST | `/api/torneos/{id}/cuadro` | Sortea la primera ronda con BYE y cierra las inscripciones |
+| POST | `/api/torneos/{id}/combates/{idCombate}/ganador` | Guarda el ganador (`{"id_ganador": 3}`). Si la ronda queda completa, genera la siguiente o cierra el torneo con su campeón |
 
 No hay DELETE a propósito: el enunciado dice que desactivar no es borrar.
 
 ## Pruebas automáticas
 
 Desde `backend/`, con el entorno virtual activado: `python -m pytest`. Comprueban el sorteo del cuadro
-con entre 2 y 32 participantes (nadie repetido, número correcto de BYE, posiciones correctas).
+con entre 2 y 32 participantes (nadie repetido, número correcto de BYE, posiciones correctas), el
+emparejamiento de las rondas siguientes y torneos completos simulados de 2 a 16 participantes hasta el
+campeón (número de rondas correcto, nadie pierde dos veces).
 
 ## Decisiones tomadas
 
-Todas las decisiones de esta lista están **aprobadas por Eva** (fases 1 y 2, 30/10/2026).
-Las de las fases 1 y 2 que propuso Claude se revisaron y aprobaron en bloque.
+Todas las decisiones de esta lista están **aprobadas por Eva** (30/10/2026).
+Las de las fases 1 y 2 las propuso Claude y Eva las aprobó en bloque; las de la fase 3 se aprobaron
+antes de programarlas.
 
 **Tecnología y datos**
 - FastAPI con SQL directo (PyMySQL), sin ORM. Angular 21. Contraseña de la base de datos en `backend/.env`.
@@ -150,15 +154,22 @@ Las de las fases 1 y 2 que propuso Claude se revisaron y aprobaron en bloque.
 - Cada combate tiene ronda y posición. El ganador de la posición *i* pasa a la posición *i ÷ 2* de la
   ronda siguiente.
 
+- Fase 3: el avance de ronda es **automático**: al resolverse el último combate de una ronda se genera
+  la siguiente. Al resolverse la final, el torneo pasa a `finalizado` con su campeón.
+- Fase 3: solo se guarda el ganador (sin marcador). El ganador tiene que ser uno de los dos participantes.
+- Fase 3: un resultado guardado **no se puede corregir**; por eso se pide confirmación antes de guardarlo.
+
 **Interfaz**
 - Pantallas: participantes (lista y formulario) y torneos (lista, formulario y detalle con el cuadro).
 - El cuadro se muestra en columnas por ronda (Cuartos, Semifinales, Final…), con huecos "Por decidir".
   Antes de sortear se pide confirmación.
+- En un combate pendiente se pulsa el nombre del ganador. Los perdedores aparecen tachados y el campeón
+  se muestra arriba del torneo.
 - Los estilos son provisionales y mínimos: el diseño visual está por decidir.
 
 ## Estado por fases
 
 - [x] Fase 1 · Participantes: crear, consultar, editar, activar/desactivar, persistencia.
 - [x] Fase 2 · Torneos y cuadro KO: crear, consultar y editar torneos, solo activos, sorteo con BYE.
-- [ ] Fase 3 · Combates, rondas y campeón.
+- [x] Fase 3 · Combates, rondas y campeón: registrar ganadores, avance automático, campeón y torneo cerrado.
 - [ ] Fase 4 · Informes y entrega.

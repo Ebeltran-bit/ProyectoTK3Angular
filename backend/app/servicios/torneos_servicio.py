@@ -104,3 +104,43 @@ def generar_cuadro(id_torneo: int) -> dict:
     if not torneos_repo.guardar_cuadro(id_torneo, combates):
         raise Conflicto("El cuadro de este torneo ya está generado")
     return obtener_detalle(id_torneo)
+
+
+def registrar_ganador(id_torneo: int, id_combate: int, id_ganador: int) -> dict:
+    """Guarda el ganador de un combate y, si la ronda queda completa, avanza.
+
+    - Si era la final, el torneo pasa a 'finalizado' con su campeón.
+    - Si no, se genera la ronda siguiente automáticamente.
+    Un resultado guardado no se puede cambiar.
+    """
+    torneo = _obtener_o_404(id_torneo)
+    if torneo["estado"] == "preparacion":
+        raise Conflicto("El torneo todavía no tiene cuadro")
+    if torneo["estado"] == "finalizado":
+        raise Conflicto("El torneo está finalizado y no admite más cambios")
+
+    combate = torneos_repo.obtener_combate(id_combate)
+    if combate is None or combate["id_torneo"] != id_torneo:
+        raise NoEncontrado("Combate no encontrado en este torneo")
+    if combate["estado"] == "resuelto":
+        raise Conflicto("Este combate ya tiene ganador")
+    if id_ganador not in (combate["id_participante1"], combate["id_participante2"]):
+        raise ErrorDeNegocio("El ganador tiene que ser uno de los dos participantes del combate")
+
+    if not torneos_repo.registrar_ganador(id_combate, id_ganador):
+        raise Conflicto("Este combate ya tiene ganador")
+
+    _avanzar_si_ronda_completa(id_torneo, combate["ronda"])
+    return obtener_detalle(id_torneo)
+
+
+def _avanzar_si_ronda_completa(id_torneo: int, ronda: int) -> None:
+    combates = torneos_repo.combates_de_ronda(id_torneo, ronda)
+    if any(c["estado"] != "resuelto" for c in combates):
+        return  # Solo se avanza cuando la ronda está completa
+
+    siguiente = cuadro.generar_siguiente_ronda(combates)
+    if siguiente:
+        torneos_repo.guardar_ronda(id_torneo, siguiente)
+    else:
+        torneos_repo.finalizar(id_torneo, combates[0]["id_ganador"])

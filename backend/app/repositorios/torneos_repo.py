@@ -3,6 +3,8 @@
 Aquí solo hay consultas. Las reglas (quién se puede inscribir, cuándo se
 puede sortear...) están en app/servicios/torneos_servicio.py.
 """
+import pymysql
+
 from app.database import obtener_conexion
 
 # Torneo + número de inscritos + datos del campeón (si lo hay)
@@ -98,6 +100,21 @@ def editar(id_torneo: int, nombre: str, ids_participantes: list[int]) -> None:
         )
 
 
+def _insertar_combates(cursor, id_torneo: int, combates_ronda: list[dict]) -> None:
+    cursor.executemany(
+        """
+        INSERT INTO tk3_combates
+            (id_torneo, ronda, posicion, id_participante1, id_participante2, id_ganador, es_bye, estado)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """,
+        [
+            (id_torneo, c["ronda"], c["posicion"], c["id_participante1"], c["id_participante2"],
+             c["id_ganador"], c["es_bye"], c["estado"])
+            for c in combates_ronda
+        ],
+    )
+
+
 def guardar_cuadro(id_torneo: int, combates_ronda: list[dict]) -> bool:
     """Guarda los combates y pasa el torneo a 'cuadro_generado', todo junto.
 
@@ -111,16 +128,75 @@ def guardar_cuadro(id_torneo: int, combates_ronda: list[dict]) -> bool:
         )
         if cursor.rowcount != 1:
             return False
-        cursor.executemany(
-            """
-            INSERT INTO tk3_combates
-                (id_torneo, ronda, posicion, id_participante1, id_participante2, id_ganador, es_bye, estado)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """,
-            [
-                (id_torneo, c["ronda"], c["posicion"], c["id_participante1"], c["id_participante2"],
-                 c["id_ganador"], c["es_bye"], c["estado"])
-                for c in combates_ronda
-            ],
-        )
+        _insertar_combates(cursor, id_torneo, combates_ronda)
         return True
+
+
+# ---------------------------------------------------------------------
+# Fase 3: resultados y avance de rondas
+# ---------------------------------------------------------------------
+
+
+def obtener_combate(id_combate: int) -> dict | None:
+    with obtener_conexion() as conexion, conexion.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT id, id_torneo, ronda, posicion, id_participante1, id_participante2,
+                   id_ganador, es_bye, estado
+            FROM tk3_combates WHERE id = %s
+            """,
+            (id_combate,),
+        )
+        return cursor.fetchone()
+
+
+def registrar_ganador(id_combate: int, id_ganador: int) -> bool:
+    """Guarda el ganador. Devuelve False si el combate ya estaba resuelto."""
+    with obtener_conexion() as conexion, conexion.cursor() as cursor:
+        cursor.execute(
+            """
+            UPDATE tk3_combates SET id_ganador = %s, estado = 'resuelto'
+            WHERE id = %s AND estado = 'pendiente'
+            """,
+            (id_ganador, id_combate),
+        )
+        return cursor.rowcount == 1
+
+
+def combates_de_ronda(id_torneo: int, ronda: int) -> list[dict]:
+    with obtener_conexion() as conexion, conexion.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT id, ronda, posicion, id_ganador, estado
+            FROM tk3_combates WHERE id_torneo = %s AND ronda = %s
+            ORDER BY posicion
+            """,
+            (id_torneo, ronda),
+        )
+        return cursor.fetchall()
+
+
+def guardar_ronda(id_torneo: int, combates_ronda: list[dict]) -> bool:
+    """Inserta una ronda nueva. Devuelve False si esa ronda ya existía.
+
+    La restricción UNIQUE (id_torneo, ronda, posicion) impide que se
+    dupliquen rondas aunque lleguen dos peticiones a la vez.
+    """
+    try:
+        with obtener_conexion() as conexion, conexion.cursor() as cursor:
+            _insertar_combates(cursor, id_torneo, combates_ronda)
+        return True
+    except pymysql.err.IntegrityError:
+        return False
+
+
+def finalizar(id_torneo: int, id_campeon: int) -> None:
+    """Guarda el campeón y cierra el torneo."""
+    with obtener_conexion() as conexion, conexion.cursor() as cursor:
+        cursor.execute(
+            """
+            UPDATE tk3_torneos SET estado = 'finalizado', id_campeon = %s
+            WHERE id = %s AND estado = 'cuadro_generado'
+            """,
+            (id_campeon, id_torneo),
+        )

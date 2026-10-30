@@ -94,7 +94,7 @@ en respuestas HTTP.
 | --- | --- | --- |
 | 1. Base y participantes | 23–30 oct | Hecha |
 | 2. Torneos y cuadro KO | 2–13 nov | Hecha |
-| 3. Combates, rondas y campeón | 16–20 nov | Pendiente |
+| 3. Combates, rondas y campeón | 16–20 nov | Hecha |
 | 4. Informes y entrega | 23 nov–2 dic | Pendiente |
 
 Entrega final: vídeo de 5 minutos o más el **miércoles 2 de diciembre de

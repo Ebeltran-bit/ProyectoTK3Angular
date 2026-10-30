@@ -1,6 +1,12 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 
-import { Combate } from '../../models/torneo';
+import { Combate, ParticipanteResumen } from '../../models/torneo';
+
+/** Lo que emite el cuadro cuando se pulsa el ganador de un combate. */
+export interface GanadorElegido {
+  combate: Combate;
+  ganador: ParticipanteResumen;
+}
 
 interface Ronda {
   numero: number;
@@ -10,7 +16,10 @@ interface Ronda {
   pendientes: number;
 }
 
-/** Dibuja el cuadro KO: una columna por ronda. Solo muestra datos; no llama a la API. */
+/**
+ * Dibuja el cuadro KO: una columna por ronda.
+ * Solo muestra datos y avisa de los clics; no llama a la API (eso lo hace la pantalla).
+ */
 @Component({
   selector: 'app-cuadro',
   templateUrl: './cuadro.html',
@@ -19,6 +28,9 @@ interface Ronda {
 export class Cuadro {
   readonly combates = input.required<Combate[]>();
   readonly totalRondas = input.required<number>();
+  /** Si es true, en los combates pendientes se puede pulsar el nombre del ganador. */
+  readonly editable = input(false);
+  readonly ganadorElegido = output<GanadorElegido>();
 
   protected readonly rondas = computed<Ronda[]>(() => {
     const total = this.totalRondas();
@@ -43,6 +55,10 @@ export class Cuadro {
     if (quedan === 1) return 'Semifinales';
     if (quedan === 2) return 'Cuartos de final';
     return `Ronda ${numero}`;
+  }
+
+  protected elegir(combate: Combate, ganador: ParticipanteResumen): void {
+    this.ganadorElegido.emit({ combate, ganador });
   }
 
   protected huecos(cantidad: number): number[] {

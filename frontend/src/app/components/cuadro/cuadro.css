@@ -7,5 +7,8 @@
 .jugador { padding: 0.35rem 0.5rem; }
 .jugador + .jugador { border-top: 1px solid #ddd; }
 .ganador { font-weight: bold; }
+.perdedor { text-decoration: line-through; color: #888; }
+button.jugador { display: block; width: 100%; text-align: left; font: inherit; background: none; border: none; cursor: pointer; }
+button.jugador:hover, button.jugador:focus-visible { background: #eee; }
 .marca-bye { font-style: italic; color: #666; }
 .combate.vacio { border-style: dashed; color: #999; }

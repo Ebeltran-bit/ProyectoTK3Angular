@@ -5,7 +5,7 @@ el servicio lanza un ErrorDeNegocio y main.py lo convierte en respuesta HTTP.
 """
 from fastapi import APIRouter, status
 
-from app.modelos import TorneoDetalle, TorneoEntrada, TorneoResumen
+from app.modelos import GanadorEntrada, TorneoDetalle, TorneoEntrada, TorneoResumen
 from app.servicios import torneos_servicio
 
 router = APIRouter(prefix="/api/torneos", tags=["Torneos"])
@@ -37,3 +37,9 @@ def editar_torneo(id_torneo: int, datos: TorneoEntrada):
 def generar_cuadro(id_torneo: int):
     """Sortea la primera ronda (con BYE si hace falta) y cierra las inscripciones."""
     return torneos_servicio.generar_cuadro(id_torneo)
+
+
+@router.post("/{id_torneo}/combates/{id_combate}/ganador", response_model=TorneoDetalle)
+def registrar_ganador(id_torneo: int, id_combate: int, datos: GanadorEntrada):
+    """Guarda el ganador de un combate. Si la ronda queda completa, genera la siguiente o cierra el torneo."""
+    return torneos_servicio.registrar_ganador(id_torneo, id_combate, datos.id_ganador)

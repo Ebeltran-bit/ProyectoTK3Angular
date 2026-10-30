@@ -63,6 +63,12 @@ class TorneoEntrada(BaseModel):
         return valor
 
 
+class GanadorEntrada(BaseModel):
+    """Ganador de un combate (fase 3)."""
+
+    id_ganador: int
+
+
 class ParticipanteResumen(BaseModel):
     """Lo mínimo de un participante para pintarlo en el cuadro."""
 

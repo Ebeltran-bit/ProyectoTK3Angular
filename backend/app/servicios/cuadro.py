@@ -72,3 +72,33 @@ def generar_primera_ronda(ids_participantes: list[int], aleatorio: random.Random
                 "estado": "pendiente",
             })
     return combates
+
+
+def generar_siguiente_ronda(combates_ronda: list[dict]) -> list[dict]:
+    """Empareja a los ganadores de una ronda completa.
+
+    combates_ronda: todos los combates de la ronda, ya resueltos, con
+    {ronda, posicion, id_ganador}. El ganador de la posición i va a la
+    posición i // 2 de la ronda siguiente: 0 y 1 -> 0, 2 y 3 -> 1...
+
+    Devuelve [] si la ronda era la final (un solo combate).
+    """
+    if len(combates_ronda) <= 1:
+        return []
+    if any(c["id_ganador"] is None for c in combates_ronda):
+        raise ValueError("La ronda no está completa")
+
+    ordenados = sorted(combates_ronda, key=lambda c: c["posicion"])
+    ronda = ordenados[0]["ronda"] + 1
+    combates = []
+    for posicion in range(len(ordenados) // 2):
+        combates.append({
+            "ronda": ronda,
+            "posicion": posicion,
+            "id_participante1": ordenados[2 * posicion]["id_ganador"],
+            "id_participante2": ordenados[2 * posicion + 1]["id_ganador"],
+            "id_ganador": None,
+            "es_bye": False,
+            "estado": "pendiente",
+        })
+    return combates

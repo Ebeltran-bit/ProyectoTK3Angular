@@ -15,6 +15,7 @@
 
     @if (t.campeon) {
       <p class="campeon">Campeón: {{ t.campeon.nick }}</p>
+      <p class="ayuda">El torneo está finalizado y no admite más cambios.</p>
     }
 
     <h3>Participantes ({{ t.num_participantes }})</h3>
@@ -34,7 +35,15 @@
       <p class="ayuda">El cuadro se sortea al azar. Con {{ t.num_participantes }} participantes habrá {{ t.total_rondas }} rondas.</p>
     } @else {
       <h3>Cuadro</h3>
-      <app-cuadro [combates]="t.combates" [totalRondas]="t.total_rondas" />
+      @if (t.estado === 'cuadro_generado') {
+        <p class="ayuda">Pulsa el nombre del ganador de cada combate. Cuando una ronda se completa, se genera la siguiente.</p>
+      }
+      <app-cuadro
+        [combates]="t.combates"
+        [totalRondas]="t.total_rondas"
+        [editable]="t.estado === 'cuadro_generado' && !registrando()"
+        (ganadorElegido)="registrarGanador($event)"
+      />
     }
   }
 </section>

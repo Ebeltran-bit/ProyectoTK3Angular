@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
-import { Cuadro } from '../../components/cuadro/cuadro';
+import { Cuadro, GanadorElegido } from '../../components/cuadro/cuadro';
 import { NOMBRE_ESTADO, TorneoDetalle as Torneo } from '../../models/torneo';
 import { mensajeError } from '../../services/mensaje-error';
 import { TorneosService } from '../../services/torneos.service';
@@ -19,6 +19,7 @@ export class TorneoDetalle implements OnInit {
   protected readonly torneo = signal<Torneo | null>(null);
   protected readonly cargando = signal(true);
   protected readonly generando = signal(false);
+  protected readonly registrando = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly nombreEstado = NOMBRE_ESTADO;
 
@@ -59,6 +60,27 @@ export class TorneoDetalle implements OnInit {
       error: (e) => {
         this.error.set(mensajeError(e));
         this.generando.set(false);
+      },
+    });
+  }
+
+  registrarGanador({ combate, ganador }: GanadorElegido): void {
+    if (this.registrando()) {
+      return;
+    }
+    if (!confirm(`¿Confirmas que ${ganador.nick} gana este combate? El resultado no se podrá cambiar.`)) {
+      return;
+    }
+    this.registrando.set(true);
+    this.error.set(null);
+    this.servicio.registrarGanador(this.id, combate.id, ganador.id).subscribe({
+      next: (t) => {
+        this.torneo.set(t);
+        this.registrando.set(false);
+      },
+      error: (e) => {
+        this.error.set(mensajeError(e));
+        this.registrando.set(false);
       },
     });
   }
