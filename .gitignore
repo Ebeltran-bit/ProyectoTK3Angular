@@ -12,3 +12,6 @@ frontend/.angular/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Carpeta temporal para sincronizar el portátil
+.sync/
