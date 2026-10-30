@@ -105,3 +105,34 @@ class TorneoDetalle(TorneoResumen):
     participantes: list[Participante]
     total_rondas: int
     combates: list[Combate]
+
+
+
+# ---------------------------------------------------------------------
+# Usuarios y sesión (modo combate, etapa 1)
+# ---------------------------------------------------------------------
+
+
+class CredencialesEntrada(BaseModel):
+    """Datos para registrarse o iniciar sesión."""
+
+    nombre_usuario: str = Field(min_length=1, max_length=30)
+    contrasena: str = Field(min_length=1, max_length=128)
+
+    @field_validator("nombre_usuario")
+    @classmethod
+    def limpiar_nombre(cls, valor: str) -> str:
+        return valor.strip()
+
+
+class Usuario(BaseModel):
+    id: int
+    nombre_usuario: str
+    id_participante: int
+
+
+class SesionRespuesta(BaseModel):
+    """Lo que devuelve el login: el token y el usuario."""
+
+    token: str
+    usuario: Usuario

@@ -1,0 +1,24 @@
+<section class="acceso">
+  <h2>Crear cuenta</h2>
+  <form [formGroup]="formulario" (ngSubmit)="enviar()">
+    <label>
+      Nombre de usuario
+      <input type="text" formControlName="nombre_usuario" autocomplete="username" maxlength="30" />
+    </label>
+    <label>
+      Contraseña
+      <input type="password" formControlName="contrasena" autocomplete="new-password" />
+    </label>
+    <p class="ayuda">Tu nombre de usuario será también el nick de tu personaje.</p>
+    @if (formulario.touched && formulario.invalid) {
+      <p class="mensaje-error">Escribe un usuario y una contraseña de al menos 8 caracteres.</p>
+    }
+    @if (error()) {
+      <p class="mensaje-error">{{ error() }}</p>
+    }
+    <button type="submit" [disabled]="enviando()">
+      {{ enviando() ? 'Un momento…' : 'Crear cuenta' }}
+    </button>
+  </form>
+  <p>¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a></p>
+</section>

@@ -16,3 +16,9 @@ nav a.activo {
 main {
   padding: 1rem;
 }
+.sesion {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}

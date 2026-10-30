@@ -1,9 +1,15 @@
 <header>
   <h1>TK3 Tournament Manager</h1>
-  <nav>
-    <a routerLink="/participantes" routerLinkActive="activo">Participantes</a>
-    <a routerLink="/torneos" routerLinkActive="activo">Torneos</a>
-  </nav>
+  @if (auth.usuario(); as usuario) {
+    <nav>
+      <a routerLink="/participantes" routerLinkActive="activo">Participantes</a>
+      <a routerLink="/torneos" routerLinkActive="activo">Torneos</a>
+    </nav>
+    <div class="sesion">
+      <span>{{ usuario.nombre_usuario }}</span>
+      <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
+    </div>
+  }
 </header>
 
 <main>

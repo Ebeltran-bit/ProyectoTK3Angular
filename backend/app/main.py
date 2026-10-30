@@ -4,12 +4,13 @@ Arranque (desde la carpeta backend):  uvicorn app.main:app --reload
 Documentación interactiva:            http://localhost:8000/docs
 """
 import pymysql
-from fastapi import FastAPI, Request, status
+from fastapi import Depends, FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app import config
-from app.routers import participantes, torneos
+from app.dependencias import usuario_actual
+from app.routers import auth, participantes, torneos
 from app.servicios.errores import ErrorDeNegocio
 
 app = FastAPI(title="TK3 Tournament Manager API")
@@ -22,8 +23,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(participantes.router)
-app.include_router(torneos.router)
+# Registro y login son públicos; el resto de la API exige sesión
+app.include_router(auth.router)
+app.include_router(participantes.router, dependencies=[Depends(usuario_actual)])
+app.include_router(torneos.router, dependencies=[Depends(usuario_actual)])
 
 
 @app.exception_handler(ErrorDeNegocio)

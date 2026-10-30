@@ -23,3 +23,9 @@ class Conflicto(ErrorDeNegocio):
     """La operación no se permite en el estado actual (por ejemplo, editar un torneo ya sorteado)."""
 
     codigo_http = 409
+
+
+class NoAutenticado(ErrorDeNegocio):
+    """Falta la sesión, ha caducado o los datos de acceso no son correctos."""
+
+    codigo_http = 401

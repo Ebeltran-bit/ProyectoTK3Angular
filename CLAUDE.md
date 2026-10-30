@@ -43,6 +43,8 @@ no aparece en él, propónla como ampliación y espera la aprobación de Eva.
 | Acceso a datos | SQL directo con PyMySQL, **sin ORM** | Consultas siempre parametrizadas (`%s`) |
 | Base de datos | MariaDB, gestionada con MySQL Workbench | Scripts en `database/` |
 | Pruebas backend | pytest | `backend/tests/` |
+| Pruebas del juego | Vitest (aprobado para el modo combate) | Se añadirá en la etapa 3 |
+| Seguridad | `hashlib.scrypt` y `secrets` de Python estándar | Sin librerías externas de cifrado |
 
 No añadas dependencias nuevas (librerías de UI, ORM, frameworks de
 estado…) sin consultarlo antes con Eva.
@@ -74,9 +76,20 @@ base de datos y **las reglas del torneo viven en el backend**.
 | Servicios Python | `backend/app/servicios/` | Reglas del torneo, validaciones, estados, sorteo | Saber de HTTP o de SQL |
 | Repositorios | `backend/app/repositorios/` | Ejecutar SQL | Saber de HTTP o de reglas |
 
-Los errores de reglas se lanzan como `ErrorDeNegocio`, `NoEncontrado` o
-`Conflicto` (`backend/app/servicios/errores.py`), y `main.py` los convierte
-en respuestas HTTP.
+Los errores de reglas se lanzan como `ErrorDeNegocio`, `NoEncontrado`,
+`Conflicto` o `NoAutenticado` (`backend/app/servicios/errores.py`), y `main.py`
+los convierte en respuestas HTTP.
+
+### Sesión
+
+- Toda la API exige sesión salvo registro, login y `/api/salud`. Se protege
+  en `main.py` con la dependencia `usuario_actual` (`app/dependencias.py`).
+- En Angular, `guards/auth.guard.ts` bloquea las pantallas sin sesión e
+  `interceptors/auth.interceptor.ts` añade el token y lleva al login si la API
+  responde 401.
+- **Nunca** guardes, devuelvas ni registres en logs una contraseña o un token
+  en claro. En la base de datos solo van el hash scrypt de la contraseña y el
+  SHA-256 del token.
 
 ### Convenciones
 
@@ -96,6 +109,11 @@ en respuestas HTTP.
 | 2. Torneos y cuadro KO | 2–13 nov | Hecha |
 | 3. Combates, rondas y campeón | 16–20 nov | Hecha |
 | 4. Informes y entrega | 23 nov–2 dic | Pendiente |
+| Ampliación: modo combate | — | Etapa 1 (sesión) hecha; etapas 2 a 6 pendientes |
+
+El modo combate es una ampliación aprobada por Eva (decisiones D1–D11 en el
+README). Su análisis está en el documento *TK3 · Análisis del modo combate
+pixel art*. La fase 4 sigue siendo obligatoria para la entrega.
 
 Entrega final: vídeo de 5 minutos o más el **miércoles 2 de diciembre de
 2026**. Del 30/11 al 02/12 solo se corrigen errores; no se añaden

@@ -84,3 +84,39 @@ CREATE TABLE IF NOT EXISTS tk3_combates (
     CONSTRAINT fk_tk3_combates_p2 FOREIGN KEY (id_participante2) REFERENCES tk3_participantes (id),
     CONSTRAINT fk_tk3_combates_ganador FOREIGN KEY (id_ganador) REFERENCES tk3_participantes (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- =====================================================================
+-- Modo combate (ampliación) · Etapa 1: usuarios y sesiones
+-- =====================================================================
+
+-- ---------------------------------------------------------------------
+-- Usuarios. Cada usuario tiene un participante vinculado: su personaje
+-- es ese participante y puede jugar torneos.
+-- La contraseña NUNCA se guarda: solo su hash scrypt con una sal propia,
+-- en el formato  scrypt$n$r$p$sal_hex$hash_hex
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS tk3_usuarios (
+    id               INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    nombre_usuario   VARCHAR(30)   NOT NULL,
+    hash_contrasena  VARCHAR(255)  NOT NULL,
+    id_participante  INT UNSIGNED  NOT NULL,
+    creado_en        DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    CONSTRAINT uq_tk3_usuarios_nombre UNIQUE (nombre_usuario),
+    CONSTRAINT uq_tk3_usuarios_participante UNIQUE (id_participante),
+    CONSTRAINT fk_tk3_usuarios_participante FOREIGN KEY (id_participante) REFERENCES tk3_participantes (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- Sesiones abiertas. Se guarda el hash SHA-256 del token, no el token:
+-- si alguien leyera la tabla, no podría usar esos valores para entrar.
+-- Cerrar sesión borra la fila.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS tk3_sesiones (
+    hash_token  CHAR(64)      NOT NULL,
+    id_usuario  INT UNSIGNED  NOT NULL,
+    creada_en   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    caduca_en   DATETIME      NOT NULL,
+    PRIMARY KEY (hash_token),
+    CONSTRAINT fk_tk3_sesiones_usuario FOREIGN KEY (id_usuario) REFERENCES tk3_usuarios (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;

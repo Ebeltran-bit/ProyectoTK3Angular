@@ -1,0 +1,24 @@
+<section class="acceso">
+  <h2>Iniciar sesión</h2>
+  <form [formGroup]="formulario" (ngSubmit)="enviar()">
+    <label>
+      Nombre de usuario
+      <input type="text" formControlName="nombre_usuario" autocomplete="username" maxlength="30" />
+    </label>
+    <label>
+      Contraseña
+      <input type="password" formControlName="contrasena" autocomplete="current-password" />
+    </label>
+
+    @if (formulario.touched && formulario.invalid) {
+      <p class="mensaje-error">Escribe tu usuario y tu contraseña.</p>
+    }
+    @if (error()) {
+      <p class="mensaje-error">{{ error() }}</p>
+    }
+    <button type="submit" [disabled]="enviando()">
+      {{ enviando() ? 'Un momento…' : 'Entrar' }}
+    </button>
+  </form>
+  <p>¿No tienes cuenta? <a routerLink="/registro">Regístrate</a></p>
+</section>

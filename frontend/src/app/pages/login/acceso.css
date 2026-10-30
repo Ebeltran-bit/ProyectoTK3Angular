@@ -1,0 +1,19 @@
+/* Estilos provisionales de las pantallas de acceso. */
+.acceso {
+  max-width: 360px;
+  margin: 2rem auto;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.ayuda {
+  color: #666;
+  margin: 0;
+}

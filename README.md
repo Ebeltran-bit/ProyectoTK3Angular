@@ -20,7 +20,8 @@ tk3/
 │   ├── requirements.txt       Librerías necesarias
 │   ├── .env.example           Plantilla de configuración (copiar como .env)
 │   └── app/
-│       ├── main.py            Arranque de la API, CORS y errores generales
+│       ├── main.py            Arranque de la API, CORS, errores y qué rutas exigen sesión
+│       ├── dependencias.py    Comprobación de sesión que usan los routers
 │       ├── config.py          Lee la configuración del .env
 │       ├── database.py        Abre y cierra conexiones a MariaDB
 │       ├── modelos.py         Forma de los datos que entran y salen (JSON)
@@ -33,7 +34,9 @@ tk3/
     └── src/app/
         ├── api.config.ts      Dirección de la API
         ├── models/            Interfaces TypeScript (forma de los datos)
-        ├── services/          Comunicación con la API (HttpClient)
+        ├── services/          Comunicación con la API (HttpClient) y sesión
+        ├── guards/            Bloquean pantallas si no hay sesión
+        ├── interceptors/      Añaden el token a cada petición
         ├── components/        Piezas reutilizables (el cuadro KO)
         └── pages/             Pantallas (componentes con vista)
 ```
@@ -68,7 +71,7 @@ Cada capa tiene una sola responsabilidad:
    Cuando una fase añade tablas nuevas, vuelve a ejecutar este mismo script: solo crea lo que falta.
 3. Opcional: lo mismo con `database/02_datos_prueba.sql`.
 4. Comprueba que en `2DAM_alumno03` aparecen las tablas `tk3_participantes`, `tk3_torneos`,
-   `tk3_inscripciones` y `tk3_combates`.
+   `tk3_inscripciones`, `tk3_combates`, `tk3_usuarios` y `tk3_sesiones`.
 
 > El nombre `2DAM_alumno03` empieza por un número, así que en SQL siempre va entre comillas invertidas:
 > `` USE `2DAM_alumno03`; ``
@@ -90,7 +93,8 @@ uvicorn app.main:app --reload
 ```
 
 Comprueba que funciona en <http://localhost:8000/docs>: es una página donde puedes probar
-todos los endpoints sin Angular.
+todos los endpoints sin Angular. Casi todos exigen sesión: primero llama a `/api/auth/login` (o
+`/api/auth/registro`), copia el `token` y pégalo en el botón **Authorize**... o, más fácil, usa la app.
 
 La próxima vez solo hace falta `cd backend`, `venv\Scripts\activate` y `uvicorn app.main:app --reload`.
 
@@ -102,12 +106,20 @@ npm install
 npx ng serve
 ```
 
-Abre <http://localhost:4200>.
+Abre <http://localhost:4200>. La primera vez, pulsa **Regístrate** para crear tu cuenta: tu nombre de
+usuario será también el nick de tu personaje.
 
 ## API disponible
 
+Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, exigen la cabecera
+`Authorization: Bearer <token>`. Sin ella responden **401**.
+
 | Método | URL | Qué hace |
 | --- | --- | --- |
+| POST | `/api/auth/registro` | Crea el usuario y su participante, y abre sesión (`{"nombre_usuario": "...", "contrasena": "..."}`) |
+| POST | `/api/auth/login` | Inicia sesión y devuelve `{"token": "...", "usuario": {...}}` |
+| POST | `/api/auth/logout` | Cierra la sesión (el token deja de valer) |
+| GET | `/api/auth/yo` | Usuario de la sesión actual |
 | GET | `/api/participantes` | Lista todos (`?activo=true` o `?activo=false` para filtrar) |
 | GET | `/api/participantes/{id}` | Un participante |
 | POST | `/api/participantes` | Crea uno (`{"nick": "...", "logo": "..."}`) → 409 si el nick ya existe |
@@ -128,7 +140,9 @@ No hay DELETE a propósito: el enunciado dice que desactivar no es borrar.
 Desde `backend/`, con el entorno virtual activado: `python -m pytest`. Comprueban el sorteo del cuadro
 con entre 2 y 32 participantes (nadie repetido, número correcto de BYE, posiciones correctas), el
 emparejamiento de las rondas siguientes y torneos completos simulados de 2 a 16 participantes hasta el
-campeón (número de rondas correcto, nadie pierde dos veces).
+campeón (número de rondas correcto, nadie pierde dos veces), el cifrado de contraseñas y las reglas de
+registro y sesión. Las pruebas de sesión usan un repositorio en memoria: no necesitan MariaDB ni dejan
+usuarios de prueba en la base de datos.
 
 ## Decisiones tomadas
 
@@ -166,6 +180,33 @@ antes de programarlas.
 - En un combate pendiente se pulsa el nombre del ganador. Los perdedores aparecen tachados y el campeón
   se muestra arriba del torneo.
 - Los estilos son provisionales y mínimos: el diseño visual está por decidir.
+
+## Modo combate (ampliación)
+
+Ampliación aprobada por Eva el 30/10/2026, fuera de lo que pide el enunciado: usuarios con sesión, editor
+de personaje pixel art y lucha 2D contra la IA. Análisis completo:
+[TK3 · Análisis del modo combate pixel art](https://claude.ai/artifact/RoArG9gNiueECdTukJsqJW).
+
+**Decisiones aprobadas (D1–D11)**
+- D1. Cada usuario tiene un participante vinculado: su personaje es ese participante.
+- D2. Primero un modo arcade aparte contra la IA; al final, un botón "Jugar" en los combates del torneo.
+- D3. Hace falta sesión para todo y todos los usuarios pueden hacerlo todo (sin roles).
+- D4. Sesión con un token aleatorio; en `tk3_sesiones` se guarda su SHA-256 y caduca a los 7 días.
+- D5. Contraseñas cifradas con `hashlib.scrypt` (Python estándar) y una sal distinta por usuario.
+- D6. Motor de juego propio en TypeScript sobre canvas, sin librerías.
+- D7. Sprites generados por código desde cuadrículas de píxeles y paletas; sonidos generados por el navegador.
+  Todo el arte es original.
+- D8. Solo se personaliza el aspecto (colores, peinado, accesorio); todos luchan igual.
+- D9. Controles A/D, W, S, J, K y L (especial con barra de energía); al mejor de 3 rondas de 60 s.
+- D10. IA con 3 niveles basada en una máquina de estados.
+- D11. La lógica del juego se prueba con Vitest.
+
+**Detalles decididos por Claude en la etapa 1:** el nombre de usuario admite de 3 a 30 letras, números,
+`-` y `_`; la contraseña, al menos 8 caracteres. El login responde "Usuario o contraseña incorrectos" en
+ambos casos, para no revelar qué usuarios existen. Los participantes creados antes del login siguen
+existiendo, sin usuario.
+
+**Etapas:** 1 sesión (hecha) · 2 personaje · 3 lucha base · 4 IA · 5 efectos y sonido · 6 historial y torneo.
 
 ## Estado por fases
 
