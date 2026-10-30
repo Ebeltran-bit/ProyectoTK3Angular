@@ -120,3 +120,21 @@ CREATE TABLE IF NOT EXISTS tk3_sesiones (
     PRIMARY KEY (hash_token),
     CONSTRAINT fk_tk3_sesiones_usuario FOREIGN KEY (id_usuario) REFERENCES tk3_usuarios (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- =====================================================================
+-- Modo combate · Etapa 2: aspecto del personaje
+-- Un personaje por participante. Los colores son códigos hexadecimales
+-- (#rrggbb); peinado y accesorio, una de las opciones del editor.
+-- =====================================================================
+CREATE TABLE IF NOT EXISTS tk3_personajes (
+    id_participante  INT UNSIGNED NOT NULL,
+    piel             CHAR(7)      NOT NULL,
+    pelo             CHAR(7)      NOT NULL,
+    ropa             CHAR(7)      NOT NULL,
+    pantalon         CHAR(7)      NOT NULL,
+    peinado          VARCHAR(20)  NOT NULL,
+    accesorio        VARCHAR(20)  NOT NULL,
+    actualizado_en   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_participante),
+    CONSTRAINT fk_tk3_personajes_participante FOREIGN KEY (id_participante) REFERENCES tk3_participantes (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;

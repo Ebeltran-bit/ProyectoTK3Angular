@@ -109,7 +109,7 @@ los convierte en respuestas HTTP.
 | 2. Torneos y cuadro KO | 2–13 nov | Hecha |
 | 3. Combates, rondas y campeón | 16–20 nov | Hecha |
 | 4. Informes y entrega | 23 nov–2 dic | Pendiente |
-| Ampliación: modo combate | — | Etapa 1 (sesión) hecha; etapas 2 a 6 pendientes |
+| Ampliación: modo combate | — | Etapas 1 (sesión) y 2 (personaje) hechas; 3 a 6 pendientes |
 
 El modo combate es una ampliación aprobada por Eva (decisiones D1–D11 en el
 README). Su análisis está en el documento *TK3 · Análisis del modo combate

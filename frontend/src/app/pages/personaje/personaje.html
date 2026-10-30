@@ -1,0 +1,86 @@
+<section>
+  <h2>Mi personaje</h2>
+
+  @if (cargando()) {
+    <p class="mensaje-carga">Cargando personaje…</p>
+  } @else if (apariencia(); as a) {
+    <div class="editor">
+      <div class="vista">
+        <app-vista-personaje [apariencia]="a" [escala]="6" />
+        <p class="nick">{{ nick() }}</p>
+        <div class="acciones">
+          <button type="button" (click)="probar('punetazo')">Probar puñetazo</button>
+          <button type="button" (click)="probar('patada')">Probar patada</button>
+        </div>
+      </div>
+
+      <div class="opciones">
+        @for (c of colores; track c.campo) {
+          <fieldset>
+            <legend>{{ c.nombre }}</legend>
+            <div class="muestras">
+              @for (color of paletas[c.campo]; track color) {
+                <button
+                  type="button"
+                  class="muestra"
+                  [class.elegida]="a[c.campo] === color"
+                  [style.background]="color"
+                  [attr.aria-label]="c.nombre + ' ' + color"
+                  [attr.aria-pressed]="a[c.campo] === color"
+                  (click)="cambiar(c.campo, color)"
+                ></button>
+              }
+            </div>
+          </fieldset>
+        }
+
+        <fieldset>
+          <legend>Peinado</legend>
+          <div class="botones">
+            @for (p of peinados; track p.valor) {
+              <button
+                type="button"
+                [class.elegida]="a.peinado === p.valor"
+                [attr.aria-pressed]="a.peinado === p.valor"
+                (click)="cambiar('peinado', p.valor)"
+              >
+                {{ p.nombre }}
+              </button>
+            }
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Accesorio</legend>
+          <div class="botones">
+            @for (x of accesorios; track x.valor) {
+              <button
+                type="button"
+                [class.elegida]="a.accesorio === x.valor"
+                [attr.aria-pressed]="a.accesorio === x.valor"
+                (click)="cambiar('accesorio', x.valor)"
+              >
+                {{ x.nombre }}
+              </button>
+            }
+          </div>
+        </fieldset>
+
+        @if (error()) {
+          <p class="mensaje-error">{{ error() }}</p>
+        }
+        <div class="acciones">
+          <button type="button" (click)="aleatorio()">Aleatorio</button>
+          <button type="button" (click)="guardar()" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando…' : 'Guardar personaje' }}
+          </button>
+          @if (guardado()) {
+            <span>Guardado.</span>
+          }
+        </div>
+      </div>
+    </div>
+  } @else if (error()) {
+    <p class="mensaje-error">{{ error() }}</p>
+  }
+</section>

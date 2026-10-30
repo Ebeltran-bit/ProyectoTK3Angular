@@ -1,5 +1,6 @@
 """Modelos de datos de la API (lo que entra y sale en JSON)."""
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -136,3 +137,27 @@ class SesionRespuesta(BaseModel):
 
     token: str
     usuario: Usuario
+
+
+
+# ---------------------------------------------------------------------
+# Personaje (modo combate, etapa 2)
+# ---------------------------------------------------------------------
+
+PATRON_COLOR = r"^#[0-9a-fA-F]{6}$"
+
+
+class Apariencia(BaseModel):
+    """Aspecto del personaje pixel art. Todos los personajes luchan igual (D8)."""
+
+    piel: str = Field(pattern=PATRON_COLOR)
+    pelo: str = Field(pattern=PATRON_COLOR)
+    ropa: str = Field(pattern=PATRON_COLOR)
+    pantalon: str = Field(pattern=PATRON_COLOR)
+    peinado: Literal["corto", "pinchos", "coleta", "calvo"]
+    accesorio: Literal["ninguno", "cinta", "gorra", "mascara"]
+
+
+class Personaje(Apariencia):
+    id_participante: int
+    nick: str

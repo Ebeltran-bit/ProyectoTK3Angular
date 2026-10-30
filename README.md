@@ -37,7 +37,8 @@ tk3/
         ├── services/          Comunicación con la API (HttpClient) y sesión
         ├── guards/            Bloquean pantallas si no hay sesión
         ├── interceptors/      Añaden el token a cada petición
-        ├── components/        Piezas reutilizables (el cuadro KO)
+        ├── components/        Piezas reutilizables (el cuadro KO, la vista del personaje)
+        ├── juego/             Modo combate: sprites pixel art (y más adelante el motor de lucha)
         └── pages/             Pantallas (componentes con vista)
 ```
 
@@ -71,7 +72,7 @@ Cada capa tiene una sola responsabilidad:
    Cuando una fase añade tablas nuevas, vuelve a ejecutar este mismo script: solo crea lo que falta.
 3. Opcional: lo mismo con `database/02_datos_prueba.sql`.
 4. Comprueba que en `2DAM_alumno03` aparecen las tablas `tk3_participantes`, `tk3_torneos`,
-   `tk3_inscripciones`, `tk3_combates`, `tk3_usuarios` y `tk3_sesiones`.
+   `tk3_inscripciones`, `tk3_combates`, `tk3_usuarios`, `tk3_sesiones` y `tk3_personajes`.
 
 > El nombre `2DAM_alumno03` empieza por un número, así que en SQL siempre va entre comillas invertidas:
 > `` USE `2DAM_alumno03`; ``
@@ -120,6 +121,8 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | POST | `/api/auth/login` | Inicia sesión y devuelve `{"token": "...", "usuario": {...}}` |
 | POST | `/api/auth/logout` | Cierra la sesión (el token deja de valer) |
 | GET | `/api/auth/yo` | Usuario de la sesión actual |
+| GET | `/api/personaje` | Aspecto del personaje del usuario (o el inicial si aún no lo ha guardado) |
+| PUT | `/api/personaje` | Guarda colores (`#rrggbb`), peinado y accesorio del personaje del usuario |
 | GET | `/api/participantes` | Lista todos (`?activo=true` o `?activo=false` para filtrar) |
 | GET | `/api/participantes/{id}` | Un participante |
 | POST | `/api/participantes` | Crea uno (`{"nick": "...", "logo": "..."}`) → 409 si el nick ya existe |
@@ -141,7 +144,7 @@ Desde `backend/`, con el entorno virtual activado: `python -m pytest`. Comprueba
 con entre 2 y 32 participantes (nadie repetido, número correcto de BYE, posiciones correctas), el
 emparejamiento de las rondas siguientes y torneos completos simulados de 2 a 16 participantes hasta el
 campeón (número de rondas correcto, nadie pierde dos veces), el cifrado de contraseñas y las reglas de
-registro y sesión. Las pruebas de sesión usan un repositorio en memoria: no necesitan MariaDB ni dejan
+registro y sesión, y la validación del aspecto del personaje. Las pruebas de sesión usan un repositorio en memoria: no necesitan MariaDB ni dejan
 usuarios de prueba en la base de datos.
 
 ## Decisiones tomadas
@@ -206,7 +209,14 @@ de personaje pixel art y lucha 2D contra la IA. Análisis completo:
 ambos casos, para no revelar qué usuarios existen. Los participantes creados antes del login siguen
 existiendo, sin usuario.
 
-**Etapas:** 1 sesión (hecha) · 2 personaje · 3 lucha base · 4 IA · 5 efectos y sonido · 6 historial y torneo.
+**Detalles decididos por Claude en la etapa 2:** el sprite mide 48 × 56 píxeles y se dibuja por código
+(`juego/sprites/`): un esqueleto de puntos por pose y, encima, piel, ropa, pelo y accesorio, con sombras,
+brillos y contorno de 1 píxel. Paletas: 6 tonos de piel y 8 de pelo, camiseta y pantalón. Peinados: corto,
+pinchos, coleta y rapado. Accesorios: ninguno, cinta, gorra y máscara (la cinta y la gorra usan el color
+de la camiseta). Aspecto inicial: piel media, pelo negro, camiseta roja, pantalón azul oscuro, pelo corto
+y cinta.
+
+**Etapas:** 1 sesión (hecha) · 2 personaje (hecha) · 3 lucha base · 4 IA · 5 efectos y sonido · 6 historial y torneo.
 
 ## Estado por fases
 
