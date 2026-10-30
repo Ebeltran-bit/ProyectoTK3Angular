@@ -129,19 +129,31 @@ con entre 2 y 32 participantes (nadie repetido, número correcto de BYE, posicio
 
 ## Decisiones tomadas
 
-- FastAPI con SQL directo (PyMySQL), sin ORM.
+Todas las decisiones de esta lista están **aprobadas por Eva** (fases 1 y 2, 30/10/2026).
+Las de las fases 1 y 2 que propuso Claude se revisaron y aprobaron en bloque.
+
+**Tecnología y datos**
+- FastAPI con SQL directo (PyMySQL), sin ORM. Angular 21. Contraseña de la base de datos en `backend/.env`.
 - Todas las tablas en `2DAM_alumno03` con prefijo `tk3_`.
 - El nick es único (lo garantiza la base de datos con `UNIQUE`).
 - El logo es una URL de imagen opcional. Si no hay logo o no carga, se muestra la inicial del nick.
+- Un torneo tiene nombre (máximo 60 caracteres) y fecha de creación automática.
+
+**Reglas del torneo**
 - Estados del torneo: `preparacion` → `cuadro_generado` → `finalizado`.
 - Mientras está en preparación se pueden cambiar nombre y participantes; al generar el cuadro ya no.
-  El cuadro no se puede volver a sortear.
+  El cuadro no se puede volver a sortear y los torneos no se borran.
+- Solo se inscriben participantes activos. Si un inscrito se desactiva después, puede seguir en el torneo.
 - El sorteo se hace en el backend (`servicios/cuadro.py`). El tamaño del cuadro es la siguiente potencia
   de 2; los huecos que sobran son BYE y se reparten al azar en la primera ronda.
 - Un BYE se guarda como un combate con un solo participante, ya resuelto: ese participante pasa directo.
 - Cada combate tiene ronda y posición. El ganador de la posición *i* pasa a la posición *i ÷ 2* de la
   ronda siguiente.
+
+**Interfaz**
+- Pantallas: participantes (lista y formulario) y torneos (lista, formulario y detalle con el cuadro).
 - El cuadro se muestra en columnas por ronda (Cuartos, Semifinales, Final…), con huecos "Por decidir".
+  Antes de sortear se pide confirmación.
 - Los estilos son provisionales y mínimos: el diseño visual está por decidir.
 
 ## Estado por fases
