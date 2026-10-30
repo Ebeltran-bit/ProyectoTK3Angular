@@ -9,7 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app import config
-from app.routers import participantes
+from app.routers import participantes, torneos
+from app.servicios.errores import ErrorDeNegocio
 
 app = FastAPI(title="TK3 Tournament Manager API")
 
@@ -22,6 +23,13 @@ app.add_middleware(
 )
 
 app.include_router(participantes.router)
+app.include_router(torneos.router)
+
+
+@app.exception_handler(ErrorDeNegocio)
+def error_de_negocio(request: Request, error: ErrorDeNegocio):
+    """Una regla del torneo no se cumple: respondemos con su código y su mensaje."""
+    return JSONResponse(status_code=error.codigo_http, content={"detail": error.mensaje})
 
 
 @app.exception_handler(pymysql.err.OperationalError)

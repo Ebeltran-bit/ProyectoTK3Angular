@@ -1,0 +1,30 @@
+<section>
+  <div class="cabecera">
+    <h2>Torneos</h2>
+    <a routerLink="/torneos/nuevo">Nuevo torneo</a>
+  </div>
+
+  @if (error()) {
+    <p class="mensaje-error">{{ error() }} <button type="button" (click)="cargar()">Reintentar</button></p>
+  }
+
+  @if (cargando()) {
+    <p class="mensaje-carga">Cargando torneos…</p>
+  } @else {
+    <ul class="lista">
+      @for (t of torneos(); track t.id) {
+        <li>
+          <a [routerLink]="['/torneos', t.id]" class="nombre">{{ t.nombre }}</a>
+          <span>{{ t.num_participantes }} participantes</span>
+          <span class="estado" [attr.data-estado]="t.estado">{{ nombreEstado[t.estado] }}</span>
+          @if (t.campeon) {
+            <span>Campeón: {{ t.campeon.nick }}</span>
+          }
+          <span class="fecha">{{ t.creado_en | date: 'dd/MM/yyyy' }}</span>
+        </li>
+      } @empty {
+        <li class="vacio">Todavía no hay torneos.</li>
+      }
+    </ul>
+  }
+</section>

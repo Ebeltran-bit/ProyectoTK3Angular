@@ -1,0 +1,49 @@
+<section>
+  <h2>{{ idEditando() === null ? 'Nuevo torneo' : 'Editar torneo' }}</h2>
+
+  @if (cargando()) {
+    <p class="mensaje-carga">Cargando…</p>
+  } @else {
+    <form (ngSubmit)="guardar()">
+      <label>
+        Nombre del torneo
+        <input type="text" name="nombre" maxlength="60" [ngModel]="nombre()" (ngModelChange)="nombre.set($event)" />
+      </label>
+      @if (intentado() && !nombreValido()) {
+        <p class="mensaje-error">El nombre es obligatorio.</p>
+      }
+
+      <fieldset>
+        <legend>Participantes ({{ seleccionados().size }} seleccionados)</legend>
+        <p class="ayuda">Solo aparecen los participantes activos.</p>
+        <div class="acciones-seleccion">
+          <button type="button" (click)="seleccionarTodos()">Todos</button>
+          <button type="button" (click)="ninguno()">Ninguno</button>
+        </div>
+        @for (p of disponibles(); track p.id) {
+          <label class="opcion" [class.inactivo]="!p.activo">
+            <input type="checkbox" [checked]="seleccionados().has(p.id)" (change)="alternar(p.id)" />
+            {{ p.nick }}
+            @if (!p.activo) {
+              <span>(inactivo: quítalo del torneo)</span>
+            }
+          </label>
+        } @empty {
+          <p>No hay participantes activos. Crea o activa alguno primero.</p>
+        }
+      </fieldset>
+      @if (intentado() && !suficientes()) {
+        <p class="mensaje-error">Selecciona al menos 2 participantes.</p>
+      }
+
+      @if (error()) {
+        <p class="mensaje-error">{{ error() }}</p>
+      }
+
+      <div class="acciones">
+        <button type="submit" [disabled]="guardando()">{{ guardando() ? 'Guardando…' : 'Guardar' }}</button>
+        <a [routerLink]="idEditando() === null ? '/torneos' : ['/torneos', idEditando()]">Cancelar</a>
+      </div>
+    </form>
+  }
+</section>

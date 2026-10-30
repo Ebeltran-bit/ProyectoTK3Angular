@@ -3,6 +3,7 @@ backend/venv/
 backend/.env
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # Frontend (Angular ya trae su propio .gitignore en frontend/)
 frontend/node_modules/

@@ -1,0 +1,7 @@
+/* Estilos provisionales. */
+.cabecera { display: flex; justify-content: space-between; align-items: center; }
+.lista { list-style: none; padding: 0; }
+.lista li { display: flex; align-items: center; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid #ddd; }
+.nombre { flex: 1; font-weight: bold; }
+.estado { font-size: 0.85rem; padding: 0.1rem 0.5rem; border: 1px solid currentColor; border-radius: 1rem; }
+.fecha, .vacio { color: #666; }

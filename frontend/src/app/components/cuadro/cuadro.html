@@ -1,0 +1,25 @@
+<div class="cuadro">
+  @for (ronda of rondas(); track ronda.numero) {
+    <div class="ronda">
+      <h3>{{ ronda.nombre }}</h3>
+      <div class="combates">
+      @for (c of ronda.combates; track c.id) {
+        <div class="combate" [class.bye]="c.es_bye" [class.resuelto]="c.estado === 'resuelto'">
+          <div class="jugador" [class.ganador]="c.id_ganador === c.participante1.id">{{ c.participante1.nick }}</div>
+          @if (c.participante2) {
+            <div class="jugador" [class.ganador]="c.id_ganador === c.participante2.id">{{ c.participante2.nick }}</div>
+          } @else {
+            <div class="jugador marca-bye">BYE · pasa directo</div>
+          }
+        </div>
+      }
+      @for (h of huecos(ronda.pendientes); track h) {
+        <div class="combate vacio">
+          <div class="jugador">Por decidir</div>
+          <div class="jugador">Por decidir</div>
+        </div>
+      }
+      </div>
+    </div>
+  }
+</div>

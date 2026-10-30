@@ -60,3 +60,16 @@ def cambiar_estado(id_participante: int, activo: bool) -> None:
             "UPDATE tk3_participantes SET activo = %s WHERE id = %s",
             (activo, id_participante),
         )
+
+
+def listar_por_ids(ids: list[int]) -> list[dict]:
+    """Devuelve los participantes cuyos ids están en la lista (los que existan)."""
+    if not ids:
+        return []
+    marcadores = ", ".join(["%s"] * len(ids))
+    with obtener_conexion() as conexion, conexion.cursor() as cursor:
+        cursor.execute(
+            f"SELECT {COLUMNAS} FROM tk3_participantes WHERE id IN ({marcadores})",
+            tuple(ids),
+        )
+        return [_a_participante(fila) for fila in cursor.fetchall()]

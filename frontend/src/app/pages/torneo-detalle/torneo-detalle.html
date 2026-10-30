@@ -1,0 +1,40 @@
+<section>
+  <a routerLink="/torneos">← Torneos</a>
+
+  @if (error()) {
+    <p class="mensaje-error">{{ error() }} <button type="button" (click)="cargar()">Reintentar</button></p>
+  }
+
+  @if (cargando()) {
+    <p class="mensaje-carga">Cargando torneo…</p>
+  } @else if (torneo(); as t) {
+    <div class="cabecera">
+      <h2>{{ t.nombre }}</h2>
+      <span class="estado">{{ nombreEstado[t.estado] }}</span>
+    </div>
+
+    @if (t.campeon) {
+      <p class="campeon">Campeón: {{ t.campeon.nick }}</p>
+    }
+
+    <h3>Participantes ({{ t.num_participantes }})</h3>
+    <p class="inscritos">
+      @for (p of t.participantes; track p.id; let ultimo = $last) {
+        {{ p.nick }}{{ ultimo ? '' : ', ' }}
+      }
+    </p>
+
+    @if (t.estado === 'preparacion') {
+      <div class="acciones">
+        <a [routerLink]="['/torneos', t.id, 'editar']">Editar torneo</a>
+        <button type="button" (click)="generarCuadro()" [disabled]="generando()">
+          {{ generando() ? 'Sorteando…' : 'Generar cuadro' }}
+        </button>
+      </div>
+      <p class="ayuda">El cuadro se sortea al azar. Con {{ t.num_participantes }} participantes habrá {{ t.total_rondas }} rondas.</p>
+    } @else {
+      <h3>Cuadro</h3>
+      <app-cuadro [combates]="t.combates" [totalRondas]="t.total_rondas" />
+    }
+  }
+</section>

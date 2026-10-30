@@ -1,0 +1,11 @@
+/* Estilos provisionales: columnas por ronda, centradas en vertical. */
+.cuadro { display: flex; gap: 2rem; overflow-x: auto; padding-bottom: 1rem; }
+.ronda { display: flex; flex-direction: column; gap: 0.75rem; min-width: 180px; }
+.combates { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 1rem; }
+.ronda h3 { margin: 0; font-size: 1rem; text-align: center; }
+.combate { border: 1px solid #999; border-radius: 4px; }
+.jugador { padding: 0.35rem 0.5rem; }
+.jugador + .jugador { border-top: 1px solid #ddd; }
+.ganador { font-weight: bold; }
+.marca-bye { font-style: italic; color: #666; }
+.combate.vacio { border-style: dashed; color: #999; }
