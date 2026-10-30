@@ -1,0 +1,4 @@
+/* Estilos provisionales. */
+header { display: flex; align-items: center; gap: 2rem; padding: 0 1rem; border-bottom: 1px solid #ddd; }
+nav a.activo { font-weight: bold; }
+main { padding: 1rem; }

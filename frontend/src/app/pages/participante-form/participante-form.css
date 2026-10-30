@@ -1,0 +1,5 @@
+/* Estilos provisionales. */
+form { display: flex; flex-direction: column; gap: 0.75rem; max-width: 400px; }
+label { display: flex; flex-direction: column; gap: 0.25rem; }
+.vista-previa { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
+.acciones { display: flex; gap: 1rem; align-items: center; }

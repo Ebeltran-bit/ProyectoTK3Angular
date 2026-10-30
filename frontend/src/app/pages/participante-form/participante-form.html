@@ -1,0 +1,34 @@
+<section>
+  <h2>{{ idEditando() === null ? 'Nuevo participante' : 'Editar participante' }}</h2>
+
+  @if (cargando()) {
+    <p class="mensaje-carga">Cargando…</p>
+  } @else {
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+      <label>
+        Nick
+        <input type="text" formControlName="nick" maxlength="30" />
+      </label>
+      @if (formulario.controls.nick.touched && formulario.controls.nick.invalid) {
+        <p class="mensaje-error">El nick es obligatorio (máximo 30 caracteres).</p>
+      }
+
+      <label>
+        Logo (URL de una imagen, opcional)
+        <input type="url" formControlName="logo" placeholder="https://…" />
+      </label>
+      @if (formulario.controls.logo.value) {
+        <img [src]="formulario.controls.logo.value" alt="Vista previa del logo" class="vista-previa" />
+      }
+
+      @if (error()) {
+        <p class="mensaje-error">{{ error() }}</p>
+      }
+
+      <div class="acciones">
+        <button type="submit" [disabled]="guardando()">{{ guardando() ? 'Guardando…' : 'Guardar' }}</button>
+        <a routerLink="/participantes">Cancelar</a>
+      </div>
+    </form>
+  }
+</section>

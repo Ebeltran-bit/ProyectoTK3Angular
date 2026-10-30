@@ -1,0 +1,4 @@
+/* Estilos globales provisionales. El diseño visual es tuyo: cambia lo que quieras. */
+body { font-family: system-ui, sans-serif; margin: 0; }
+.mensaje-error { color: #b00020; }
+.mensaje-carga { color: #666; }
