@@ -1,0 +1,60 @@
+<h2>Combate</h2>
+
+@if (cargando()) {
+  <p>Cargando tu personaje…</p>
+} @else if (error(); as mensaje) {
+  <p class="error">{{ mensaje }}</p>
+} @else {
+  <div class="pantalla">
+    <canvas #lienzo [width]="ancho" [height]="alto" aria-label="Combate"></canvas>
+
+    @if (pausa()) {
+      <div class="capa">
+        <p class="titulo">PAUSA</p>
+        <button type="button" (click)="pausa.set(false)">Seguir</button>
+      </div>
+    }
+    @if (ganador(); as nombre) {
+      <div class="capa">
+        <p class="titulo">{{ ganaJugador() ? '¡Has ganado!' : 'Has perdido' }}</p>
+        <p>Gana el combate {{ nombre }}</p>
+        <div class="botones">
+          <button type="button" (click)="empezar()">Revancha</button>
+          <a routerLink="/personaje">Cambiar personaje</a>
+        </div>
+      </div>
+    }
+  </div>
+
+  <dl class="controles">
+    <div>
+      <dt>A / D</dt>
+      <dd>Moverse</dd>
+    </div>
+    <div>
+      <dt>W</dt>
+      <dd>Saltar</dd>
+    </div>
+    <div>
+      <dt>S</dt>
+      <dd>Bloquear</dd>
+    </div>
+    <div>
+      <dt>J</dt>
+      <dd>Puñetazo</dd>
+    </div>
+    <div>
+      <dt>K</dt>
+      <dd>Patada</dd>
+    </div>
+    <div>
+      <dt>L</dt>
+      <dd>Especial (con la energía llena)</dd>
+    </div>
+    <div>
+      <dt>Esc / P</dt>
+      <dd>Pausa</dd>
+    </div>
+  </dl>
+  <p class="nota">De momento el rival no se mueve: la IA llega en la siguiente etapa.</p>
+}

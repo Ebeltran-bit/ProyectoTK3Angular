@@ -43,7 +43,7 @@ no aparece en él, propónla como ampliación y espera la aprobación de Eva.
 | Acceso a datos | SQL directo con PyMySQL, **sin ORM** | Consultas siempre parametrizadas (`%s`) |
 | Base de datos | MariaDB, gestionada con MySQL Workbench | Scripts en `database/` |
 | Pruebas backend | pytest | `backend/tests/` |
-| Pruebas del juego | Vitest (aprobado para el modo combate) | Se añadirá en la etapa 3 |
+| Pruebas del juego | Vitest (aprobado para el modo combate) | `frontend/src/app/juego/**/*.spec.ts` |
 | Seguridad | `hashlib.scrypt` y `secrets` de Python estándar | Sin librerías externas de cifrado |
 
 No añadas dependencias nuevas (librerías de UI, ORM, frameworks de
@@ -109,7 +109,7 @@ los convierte en respuestas HTTP.
 | 2. Torneos y cuadro KO | 2–13 nov | Hecha |
 | 3. Combates, rondas y campeón | 16–20 nov | Hecha |
 | 4. Informes y entrega | 23 nov–2 dic | Pendiente |
-| Ampliación: modo combate | — | Etapas 1 (sesión) y 2 (personaje) hechas; 3 a 6 pendientes |
+| Ampliación: modo combate | — | Etapas 1 (sesión), 2 (personaje) y 3 (lucha base) hechas; 4 a 6 pendientes |
 
 El modo combate es una ampliación aprobada por Eva (decisiones D1–D11 en el
 README). Su análisis está en el documento *TK3 · Análisis del modo combate
@@ -182,6 +182,7 @@ lo que corresponda al cambio:
 | Comprobación | Comando |
 | --- | --- |
 | Tests del backend | `cd backend && python -m pytest` |
+| Tests del juego | `cd frontend && npm test` |
 | Compilación del frontend | `cd frontend && npx ng build` |
 | API arrancada | `uvicorn app.main:app --reload` y probar en `http://localhost:8000/docs` |
 | Recorrido completo | Backend + `npx ng serve` + MariaDB, probando en el navegador |

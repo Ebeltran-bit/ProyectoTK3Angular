@@ -38,7 +38,11 @@ tk3/
         ├── guards/            Bloquean pantallas si no hay sesión
         ├── interceptors/      Añaden el token a cada petición
         ├── components/        Piezas reutilizables (el cuadro KO, la vista del personaje)
-        ├── juego/             Modo combate: sprites pixel art (y más adelante el motor de lucha)
+        ├── juego/             Modo combate (sin Angular, TypeScript puro)
+        │   ├── motor/         Reglas y lógica de la lucha, con sus tests (Vitest)
+        │   ├── dibujo/        Escenario, luchadores, chispas y marcador en el canvas
+        │   ├── sprites/       Personajes pixel art: aspecto, poses y dibujo
+        │   └── teclado.ts     Traduce las teclas a acciones del luchador
         └── pages/             Pantallas (componentes con vista)
 ```
 
@@ -147,6 +151,11 @@ campeón (número de rondas correcto, nadie pierde dos veces), el cifrado de con
 registro y sesión, y la validación del aspecto del personaje. Las pruebas de sesión usan un repositorio en memoria: no necesitan MariaDB ni dejan
 usuarios de prueba en la base de datos.
 
+Desde `frontend/`: `npm test`. Ejecuta con Vitest los tests de la lógica de la lucha
+(`juego/motor/combate.spec.ts`): inicio de ronda, movimiento y paredes, alcance y daño de cada golpe,
+que un golpe solo cuente una vez, aturdimiento, bloqueo de cara y de espaldas, el especial con y sin
+energía, K.O., fin por tiempo (incluido el empate), cambio de ronda y victoria al mejor de 3.
+
 ## Decisiones tomadas
 
 Todas las decisiones de esta lista están **aprobadas por Eva** (30/10/2026).
@@ -216,7 +225,24 @@ pinchos, coleta y rapado. Accesorios: ninguno, cinta, gorra y máscara (la cinta
 de la camiseta). Aspecto inicial: piel media, pelo negro, camiseta roja, pantalón azul oscuro, pelo corto
 y cinta.
 
-**Etapas:** 1 sesión (hecha) · 2 personaje (hecha) · 3 lucha base · 4 IA · 5 efectos y sonido · 6 historial y torneo.
+**Detalles decididos por Claude en la etapa 3:**
+
+- La lógica va en funciones puras (`juego/motor/combate.ts`) que avanzan el combate un *tick*, 60 veces
+  por segundo, a ritmo fijo aunque la pantalla vaya más rápida o más lenta. El dibujo solo lee ese estado,
+  y por eso la lógica se puede probar sin navegador y la IA podrá usar la misma entrada que el teclado.
+- Todos los números del juego están en `juego/motor/reglas.ts`. Cada golpe tiene arranque (antes de
+  poder dar), ventana activa y recuperación (castigo si falla): puñetazo rápido, 6 de daño; patada más
+  lenta, 10; especial, 20, solo con la energía llena (se gana golpeando y recibiendo).
+- Bloquear (S) solo sirve de cara al rival y deja pasar el 15 % del daño. Al recibir un golpe te quedas
+  aturdido unos instantes y te empuja hacia atrás.
+- Rondas de 60 s; gana la ronda quien deja al otro sin vida o tiene más vida al acabar el tiempo (con la
+  misma vida, nadie suma). Gana el combate quien gana 2 rondas.
+- Escenario pixel art propio (atardecer, montañas y suelo de madera), barras de vida con la parte
+  perdida en rojo, reloj, rondas ganadas, energía, mensajes de ronda/K.O./tiempo y pausa con Esc o P.
+- Pantalla nueva `/combate` con el enlace "Combate" en el menú. Al acabar: "Revancha" o "Cambiar
+  personaje". En esta etapa el rival (CPU, aspecto al azar) no se mueve; la IA llega en la etapa 4.
+
+**Etapas:** 1 sesión (hecha) · 2 personaje (hecha) · 3 lucha base (hecha) · 4 IA · 5 efectos y sonido · 6 historial y torneo.
 
 ## Estado por fases
 

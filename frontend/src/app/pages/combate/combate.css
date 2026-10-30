@@ -1,0 +1,65 @@
+/* Estilos provisionales: el diseño visual lo decide Eva */
+.pantalla {
+  position: relative;
+  max-width: 960px;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  background: #000;
+}
+
+.capa {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+}
+
+.titulo {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.botones {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.botones a {
+  color: #fff;
+}
+
+.controles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.controles div {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.controles dt {
+  font-weight: bold;
+}
+
+.controles dd {
+  margin: 0;
+}
+
+.nota {
+  color: #666;
+}
