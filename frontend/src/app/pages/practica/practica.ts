@@ -71,6 +71,7 @@ export class Practica implements OnInit, OnDestroy {
   /** Instante (en segundos del AudioContext) en que empieza la canción. */
   private inicio = 0;
   private ultimaPulsacion = -Infinity;
+  private ultimaTecla: Tecla | null = null;
   /** Todas las pulsaciones de la partida: es lo único que se manda al backend. */
   private pulsaciones: Pulsacion[] = [];
   private animacion = 0;
@@ -172,6 +173,7 @@ export class Practica implements OnInit, OnDestroy {
     const r = pulsar(this.partida, ms, tecla);
     this.partida = r.partida;
     this.ultimaPulsacion = this.audio.currentTime;
+    this.ultimaTecla = tecla;
     this.musica.efecto(r.juicio);
     this.mostrar(r.juicio);
   }
@@ -216,6 +218,7 @@ export class Practica implements OnInit, OnDestroy {
         notas: [],
         teclas: [],
         desdePulsacion: Infinity,
+        ultimaTecla: null,
       });
       return;
     }
@@ -236,6 +239,7 @@ export class Practica implements OnInit, OnDestroy {
       })),
       teclas: cancion.notas.map((n) => n.tecla),
       desdePulsacion: this.audio.currentTime - this.ultimaPulsacion,
+      ultimaTecla: this.ultimaTecla,
     });
     if (pulso >= 0 && pulso < cancion.cuenta_atras) this.cuentaAtras(c, Math.floor(pulso) + 1);
     if (pulso > cancion.fin + 1) this.terminar();

@@ -155,3 +155,20 @@ export function persona(
   elip(c, x + 4 * mira, y - 25.5, 1.6, 0.9, '#ff9eb0', 0, false);
   o.gorro?.(c, x, y - 29);
 }
+
+/** Estrella de cinco puntas con centro en (x, y). */
+export function estrella(
+  c: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  r: number,
+  relleno: string,
+): void {
+  const puntos: number[] = [];
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    const radio = i % 2 ? r * 0.45 : r;
+    puntos.push(x + Math.cos(a) * radio, y + Math.sin(a) * radio);
+  }
+  poli(c, puntos, relleno);
+}

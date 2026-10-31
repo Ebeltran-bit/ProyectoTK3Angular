@@ -13,6 +13,8 @@ export interface VistaEscena {
   teclas: ('accion' | 'alterna')[];
   /** Segundos desde la última pulsación del jugador (Infinity si no ha pulsado). */
   desdePulsacion: number;
+  /** Tecla de la última pulsación (null si no ha pulsado). */
+  ultimaTecla: 'accion' | 'alterna' | null;
 }
 
 export type DibujarEscena = (c: CanvasRenderingContext2D, vista: VistaEscena) => void;

@@ -272,7 +272,7 @@ beatmaps, SQL y decisiones pendientes):
 | --- | --- | --- |
 | 1. Sesión | Registro, login, sesión y contraseñas cifradas | Hecha |
 | Limpieza | Retirar el editor de personajes y la lucha (tabla, backend, frontend y tests) | Hecha |
-| 3. Motor de ritmo v1 | Escenario con personajes fijos, reproductor rítmico, evaluación de pulsaciones y marcador | Hecha. Escenarios fáciles y medios listos (6 de 9); faltan los 3 difíciles |
+| 3. Motor de ritmo v1 | Escenario con personajes fijos, reproductor rítmico, evaluación de pulsaciones y marcador | Hecha, con los 9 escenarios jugables en *Práctica* |
 | 4. Rival CPU | El jugador 2 sigue la pista con una precisión que depende de la ronda | Pendiente |
 | 5. Música, efectos y sonido | Canciones por nivel, sonidos de acierto y fallo, textos "PERFECT!" y "MISS!" | Pendiente |
 | 6. Conexión con el torneo | Botón "Jugar" en el cuadro, canción según la ronda, validación en el backend y avance del cuadro | Pendiente |
@@ -308,6 +308,10 @@ Detalles que decidí yo (Claude) en esta etapa:
 - Ramen a contratiempo: J corta en el pulso y K echa la cebolleta a la olla en el contratiempo (la tapa se
   levanta para avisar). Correos exprés: J sella cada carta bajo el sello; las urgentes, en rojo, van a
   contratiempo. Paso de patitos: J hace saltar el charco a cada patito y K al segundo de una pareja.
+- Estrellas fugaces (`observatorio`): J fotografía cada estrella al pasar por la mira y K los cometas.
+  Gatos en el tejado: llamada y respuesta de cuatro pulsos; el aviso de cada nota es el coletazo del gato
+  naranja (`aviso_antes: 4`) y J barre la cola a la izquierda y K a la derecha. La mecanógrafa: líneas de
+  cuatro pulsos con J para cada letra y K para la campanilla.
 
 **Récords por canción (aprobado por Eva el 31/10/2026).** Cada partida terminada en *Práctica* se guarda
 en la tabla nueva `tk3_partidas`. El navegador solo manda las pulsaciones y el backend calcula la
