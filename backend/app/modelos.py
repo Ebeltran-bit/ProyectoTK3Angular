@@ -1,5 +1,6 @@
 """Modelos de datos de la API (lo que entra y sale en JSON)."""
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -149,3 +150,59 @@ class SesionRespuesta(BaseModel):
 
     token: str
     usuario: Usuario
+
+
+# ---------------------------------------------------------------------
+# Duelo de ritmo · Etapa 3: canciones (beatmaps)
+# Los tiempos van en pulsos; el frontend los pasa a milisegundos con el BPM.
+# ---------------------------------------------------------------------
+
+
+class Nota(BaseModel):
+    """Un momento en el que el jugador tiene que pulsar. accion = J, alterna = K."""
+
+    pulso: float = Field(ge=0)
+    tecla: Literal["accion", "alterna"]
+
+
+class Pista(BaseModel):
+    """Una pista de la música. Cada nota es [altura MIDI, pulso, duración en pulsos]."""
+
+    instrumento: Literal["bajo", "melodia", "bombo", "charles"]
+    volumen: float = Field(ge=0, le=1)
+    notas: list[tuple[float, float, float]]
+
+
+class Musica(BaseModel):
+    """La música se genera en el navegador; el patrón se repite cada repetir_cada pulsos."""
+
+    repetir_cada: int = Field(gt=0)
+    pistas: list[Pista]
+
+
+class CancionResumen(BaseModel):
+    """Canción tal como aparece en la lista, sin notas ni música."""
+
+    id: str
+    titulo: str
+    nivel: Literal["facil", "media", "dificil"]
+    bpm: int = Field(ge=40, le=240)
+    escenario: str
+    num_notas: int
+
+
+class Cancion(BaseModel):
+    """Beatmap completo: lo que hay que pulsar y cómo suena."""
+
+    id: str
+    titulo: str
+    nivel: Literal["facil", "media", "dificil"]
+    bpm: int = Field(ge=40, le=240)
+    pulsos_por_compas: int = Field(gt=0)
+    cuenta_atras: int = Field(ge=0)
+    fin: float = Field(gt=0)
+    escenario: str
+    audio: str | None = None
+    aviso_antes: float = Field(default=1, ge=0)
+    notas: list[Nota]
+    musica: Musica

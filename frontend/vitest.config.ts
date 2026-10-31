@@ -5,7 +5,5 @@ export default defineConfig({
   test: {
     include: ['src/app/juego/**/*.spec.ts'],
     environment: 'node',
-    // Hasta que llegue el motor de ritmo (etapa 3) no hay tests del juego
-    passWithNoTests: true,
   },
 });

@@ -26,6 +26,7 @@ tk3/
 │       ├── config.py          Lee la configuración del .env
 │       ├── database.py        Abre y cierra conexiones a MariaDB
 │       ├── modelos.py         Forma de los datos que entran y salen (JSON)
+│       ├── beatmaps/          Canciones del duelo de ritmo en JSON
 │       ├── routers/           Endpoints HTTP (qué URL hace qué)
 │       ├── servicios/         Reglas del torneo (sorteo, validaciones, estados, estadísticas)
 │       └── repositorios/      Consultas SQL (lo único que toca la base de datos)
@@ -38,6 +39,7 @@ tk3/
         ├── services/          Comunicación con la API (HttpClient) y sesión
         ├── guards/            Bloquean pantallas si no hay sesión
         ├── interceptors/      Añaden el token a cada petición
+        ├── juego/             Duelo de ritmo: reglas, evaluación, música y escenarios
         ├── components/        Piezas reutilizables (el cuadro KO)
         └── pages/             Pantallas (componentes con vista)
 ```
@@ -135,6 +137,8 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | PUT | `/api/torneos/{id}` | Cambia nombre y participantes (solo en preparación) |
 | POST | `/api/torneos/{id}/cuadro` | Sortea la primera ronda con BYE y cierra las inscripciones |
 | POST | `/api/torneos/{id}/combates/{idCombate}/ganador` | Guarda el ganador (`{"id_ganador": 3}`). Si la ronda queda completa, genera la siguiente o cierra el torneo con su campeón |
+| GET | `/api/canciones` | Canciones del duelo de ritmo, sin notas: título, nivel, BPM y escenario (etapa 3) |
+| GET | `/api/canciones/{id}` | Beatmap completo: notas que hay que pulsar y pistas de la música (etapa 3) |
 | GET | `/api/estadisticas/participantes` | Combates, victorias, derrotas y torneos ganados de cada participante (fase 4). Los BYE no cuentan |
 
 No hay DELETE a propósito: el enunciado dice que desactivar no es borrar.
@@ -149,8 +153,12 @@ registro y sesión, y las estadísticas de la fase 4 (los BYE y los combates pen
 los inactivos y los participantes sin combates). Las pruebas de sesión y de estadísticas usan un repositorio en memoria: no necesitan MariaDB ni dejan
 usuarios de prueba en la base de datos.
 
-Desde `frontend/`: `npm test`. Ejecuta con Vitest los tests de la lógica del juego. Ahora mismo no hay
-ninguno: los de la lucha se retiraron con ella y los del motor de ritmo llegan en la etapa 3.
+Desde `frontend/`: `npm test`. Ejecuta con Vitest los tests de la lógica del duelo de ritmo
+(`src/app/juego/*.spec.ts`): juicio PERFECT/GREAT/MISS en los límites de 40 y 90 ms, puntos, combo, Hype
+entre 0 y 100, tecla equivocada, pulsaciones sin nota, notas que pasan sin pulsar y una canción de ejemplo.
+
+En pytest también se comprueba que todos los beatmaps de `backend/app/beatmaps/` son válidos y que los mal
+hechos (notas desordenadas, durante la cuenta atrás, nivel o tecla que no existen…) se rechazan.
 
 ## Decisiones tomadas
 
@@ -261,10 +269,36 @@ beatmaps, SQL y decisiones pendientes):
 | --- | --- | --- |
 | 1. Sesión | Registro, login, sesión y contraseñas cifradas | Hecha |
 | Limpieza | Retirar el editor de personajes y la lucha (tabla, backend, frontend y tests) | Hecha |
-| 3. Motor de ritmo v1 | Escenario con personajes fijos, reproductor rítmico, evaluación de pulsaciones y marcador | Pendiente |
+| 3. Motor de ritmo v1 | Escenario con personajes fijos, reproductor rítmico, evaluación de pulsaciones y marcador | Hecha con el Puerto de las gaviotas; faltan los otros 8 escenarios |
 | 4. Rival CPU | El jugador 2 sigue la pista con una precisión que depende de la ronda | Pendiente |
 | 5. Música, efectos y sonido | Canciones por nivel, sonidos de acierto y fallo, textos "PERFECT!" y "MISS!" | Pendiente |
 | 6. Conexión con el torneo | Botón "Jugar" en el cuadro, canción según la ronda, validación en el backend y avance del cuadro | Pendiente |
+
+**Etapa 3 (motor de ritmo v1), hecha el 31/10/2026.** Aprobado por Eva: pantalla *Práctica* en el menú
+para practicar sin que cuente en el torneo, endpoints `GET /api/canciones` y `GET /api/canciones/{id}`,
+canciones en archivos JSON sin tabla nueva y el estilo del boceto del puerto.
+
+| Pieza | Archivo |
+| --- | --- |
+| Números del juego (ventanas, puntos, Hype, teclas) | `frontend/src/app/juego/reglas.ts` |
+| Juicio y marcador, funciones puras con Vitest | `frontend/src/app/juego/evaluacion.ts` |
+| Música generada con Web Audio | `frontend/src/app/juego/musica.ts` |
+| Dibujo de los escenarios en canvas | `frontend/src/app/juego/escenarios/` |
+| Pantalla que junta las piezas | `frontend/src/app/pages/practica/` |
+| Canción del puerto | `backend/app/beatmaps/puerto.json` |
+| Lectura y validación de canciones | `canciones_repo.py`, `canciones_servicio.py`, `routers/canciones.py` |
+
+Detalles que decidí yo (Claude) en esta etapa:
+- Los campos del beatmap van en `snake_case` (`cuenta_atras`, `repetir_cada`…), como el resto de la API,
+  en lugar del `camelCase` del documento de propuesta. Se añaden `fin` (pulso en el que acaba la canción)
+  y `aviso_antes` (pulsos entre el aviso y la nota; en el puerto, el graznido).
+- Las alturas de la música son números MIDI (60 = do central). El patrón se repite cada `repetir_cada`
+  pulsos desde el final de la cuenta atrás.
+- Pulsar con la tecla equivocada en una nota la deja como MISS. Pulsar sin ninguna nota a menos de 90 ms
+  también es MISS, pero no gasta ninguna nota.
+- Si se cambia de pestaña a mitad de canción, la partida se cancela para no contar fallos falsos.
+- El id de una canción solo admite minúsculas, números, `-` y `_`, para que nadie pueda pedir otro archivo.
+- En la v1 no hay calibración del retardo del audio; si hace falta, se añade en la etapa 5.
 
 **Código de la versión anterior.** El editor de personajes (`/api/personaje`, `tk3_personajes`, pantalla
 *Mi personaje*) y la lucha contra la CPU (pantalla *Combate*, `juego/`) se retiraron el 31/10/2026 y siguen

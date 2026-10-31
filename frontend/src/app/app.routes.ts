@@ -5,6 +5,7 @@ import { Estadisticas } from './pages/estadisticas/estadisticas';
 import { Login } from './pages/login/login';
 import { ParticipanteForm } from './pages/participante-form/participante-form';
 import { ParticipantesLista } from './pages/participantes-lista/participantes-lista';
+import { Practica } from './pages/practica/practica';
 import { Registro } from './pages/registro/registro';
 import { TorneoDetalle } from './pages/torneo-detalle/torneo-detalle';
 import { TorneoForm } from './pages/torneo-form/torneo-form';
@@ -29,6 +30,7 @@ export const routes: Routes = [
       { path: 'torneos/:id', component: TorneoDetalle },
       { path: 'torneos/:id/editar', component: TorneoForm },
       { path: 'estadisticas', component: Estadisticas },
+      { path: 'practica', component: Practica },
     ],
   },
   { path: '**', redirectTo: 'participantes' },
