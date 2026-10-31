@@ -43,7 +43,7 @@ no aparece en él, propónla como ampliación y espera la aprobación de Eva.
 | Acceso a datos | SQL directo con PyMySQL, **sin ORM** | Consultas siempre parametrizadas (`%s`) |
 | Base de datos | MariaDB, gestionada con MySQL Workbench | Scripts en `database/` |
 | Pruebas backend | pytest | `backend/tests/` |
-| Pruebas del juego | Vitest (aprobado para el modo combate) | `frontend/src/app/juego/**/*.spec.ts` |
+| Pruebas del juego | Vitest (aprobado para el juego) | `frontend/src/app/juego/**/*.spec.ts` |
 | Seguridad | `hashlib.scrypt` y `secrets` de Python estándar | Sin librerías externas de cifrado |
 
 No añadas dependencias nuevas (librerías de UI, ORM, frameworks de
@@ -109,11 +109,13 @@ los convierte en respuestas HTTP.
 | 2. Torneos y cuadro KO | 2–13 nov | Hecha |
 | 3. Combates, rondas y campeón | 16–20 nov | Hecha |
 | 4. Informes y entrega | 23 nov–2 dic | Pendiente |
-| Ampliación: modo combate | — | Etapas 1 (sesión), 2 (personaje) y 3 (lucha base) hechas; 4 a 6 pendientes |
+| Ampliación: duelo de ritmo | — | Etapa 1 (sesión) hecha; limpieza y etapas 3 a 6 pendientes |
 
-El modo combate es una ampliación aprobada por Eva (decisiones D1–D11 en el
-README). Su análisis está en el documento *TK3 · Análisis del modo combate
-pixel art*. La fase 4 sigue siendo obligatoria para la entrega.
+El duelo de ritmo es una ampliación aprobada por Eva (31/10/2026) que sustituye
+al modo combate anterior: dos participantes siguen la misma canción y gana
+quien la toca con más precisión. Sus decisiones y propuestas pendientes están
+en el README y en el documento *TK3 · Duelo de ritmo: propuesta técnica*.
+La fase 4 sigue siendo obligatoria para la entrega.
 
 Entrega final: vídeo de 5 minutos o más el **miércoles 2 de diciembre de
 2026**. Del 30/11 al 02/12 solo se corrigen errores; no se añaden
@@ -121,6 +123,22 @@ funcionalidades nuevas. Prioridad del enunciado: una aplicación completa y
 comprendida antes que ampliaciones.
 
 Mantén actualizada esta tabla cuando termine una fase.
+
+### Duelo de ritmo
+
+- Se mantienen intactas las fases 1 a 3 y la sesión (etapa 1). El editor
+  de personajes y la lucha se retiran: no añadas nada sobre ellos.
+- Inspirado en el género de *Rhythm Heaven*, pero **todo es original**:
+  minijuegos, personajes, música y nombres. No copies ni recrees nada de
+  ese juego ni de ningún otro.
+- Juicio de cada pulsación con `AudioContext.currentTime`: PERFECT (±40 ms),
+  GREAT (±90 ms) o MISS. Barra de Hype del público y contador de combo.
+- Niveles fácil, media y difícil según la ronda del torneo; las semifinales
+  y la final son difíciles.
+- La puntuación que cuenta para el torneo la calcula el backend a partir de
+  las pulsaciones: el navegador nunca decide quién gana.
+- Los números del juego (ventanas, puntos, Hype) van juntos en un archivo
+  de reglas, y la lógica en funciones puras probadas con Vitest.
 
 ## 4. Análisis previo obligatorio
 

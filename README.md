@@ -193,39 +193,63 @@ antes de programarlas.
   se muestra arriba del torneo.
 - Los estilos son provisionales y mínimos: el diseño visual está por decidir.
 
-## Modo combate (ampliación)
+## Duelo de ritmo (ampliación)
 
-Ampliación aprobada por Eva el 30/10/2026, fuera de lo que pide el enunciado: usuarios con sesión, editor
-de personaje pixel art y lucha 2D contra la IA. Análisis completo:
-[TK3 · Análisis del modo combate pixel art](https://claude.ai/artifact/RoArG9gNiueECdTukJsqJW).
+**Nuevo enfoque, decidido por Eva el 31/10/2026:** el modo combate pasa a ser un duelo de ritmo pixel art,
+inspirado en el género de *Rhythm Heaven* pero con minijuegos, personajes, música y nombres originales. Dos
+participantes siguen la misma canción y gana quien la toca con más precisión. Propuesta técnica (música,
+beatmaps, SQL y decisiones pendientes):
+[TK3 · Duelo de ritmo: propuesta técnica](https://claude.ai/artifact/2ntw6FFsHfhT5s7gqgwBYk).
 
-**Decisiones aprobadas (D1–D11)**
-- D1. Cada usuario tiene un participante vinculado: su personaje es ese participante.
-- D2. Primero un modo arcade aparte contra la IA; al final, un botón "Jugar" en los combates del torneo.
-- D3. Hace falta sesión para todo y todos los usuarios pueden hacerlo todo (sin roles).
-- D4. Sesión con un token aleatorio; en `tk3_sesiones` se guarda su SHA-256 y caduca a los 7 días.
-- D5. Contraseñas cifradas con `hashlib.scrypt` (Python estándar) y una sal distinta por usuario.
-- D6. Motor de juego propio en TypeScript sobre canvas, sin librerías.
-- D7. Sprites generados por código desde cuadrículas de píxeles y paletas; sonidos generados por el navegador.
-  Todo el arte es original.
-- D8. Solo se personaliza el aspecto (colores, peinado, accesorio); todos luchan igual.
-- D9. Controles A/D, W, S, J, K y L (especial con barra de energía); al mejor de 3 rondas de 60 s.
-- D10. IA con 3 niveles basada en una máquina de estados.
-- D11. La lógica del juego se prueba con Vitest.
+**Aprobado por Eva**
+- Se mantienen intactas las fases 1, 2 y 3 (participantes, torneos, cuadro KO con BYE y avance de rondas)
+  y la etapa 1 (registro, login, sesión y contraseñas cifradas), junto con pytest y Vitest.
+- Se retira la personalización: cada escenario tiene sus propios personajes fijos, integrados en el fondo
+  según su temática.
+- Motor de precisión rítmica en el frontend con la Web Audio API (`AudioContext.currentTime`): cada
+  pulsación se juzga como PERFECT (±40 ms), GREAT (±90 ms) o MISS.
+- La barra de vida se sustituye por una barra de Hype del público y un contador de combo.
+- Tres niveles de canción (fácil, media y difícil) según el BPM y la complejidad del ritmo; el nivel de
+  cada duelo depende de la ronda del torneo, y las semifinales y la final son difíciles.
+- En la etapa 6 las pulsaciones se envían al backend en Python, que valida la puntuación y hace avanzar el
+  cuadro.
+- Siguen vigentes D1 (usuario ↔ participante), D3 (sesión obligatoria, sin roles), D4 y D5 (token y
+  scrypt), D6 (motor propio en TypeScript sin librerías), D7 (todo el arte y el sonido originales y
+  generados por código) y D11 (Vitest). D2, D8, D9 y D10 eran de la lucha y quedan sustituidas.
 
-**Detalles decididos por Claude en la etapa 1:** el nombre de usuario admite de 3 a 30 letras, números,
+**Propuestas pendientes de Eva** (R1–R8 en el documento): origen de la música (se recomienda generarla
+por código), teclas (J y K), quién juega cada combate del cuadro, la regla exacta ronda → nivel, el
+desempate, los escenarios, los endpoints nuevos y la retirada de `tk3_personajes`.
+
+**Etapas**
+
+| Etapa | Contenido | Estado |
+| --- | --- | --- |
+| 1. Sesión | Registro, login, sesión y contraseñas cifradas | Hecha |
+| Limpieza | Retirar el editor de personajes y la lucha (tabla, backend, frontend y tests) | Pendiente |
+| 3. Motor de ritmo v1 | Escenario con personajes fijos, reproductor rítmico, evaluación de pulsaciones y marcador | Pendiente |
+| 4. Rival CPU | El jugador 2 sigue la pista con una precisión que depende de la ronda | Pendiente |
+| 5. Música, efectos y sonido | Canciones por nivel, sonidos de acierto y fallo, textos "PERFECT!" y "MISS!" | Pendiente |
+| 6. Conexión con el torneo | Botón "Jugar" en el cuadro, canción según la ronda, validación en el backend y avance del cuadro | Pendiente |
+
+**Código de la versión anterior.** Hasta la limpieza, el repositorio todavía contiene el editor de
+personajes (`/api/personaje`, `tk3_personajes`, pantalla *Mi personaje*) y la lucha contra la CPU
+(pantalla *Combate*, `juego/motor`, `juego/dibujo`, `juego/sprites`). Después seguirá en el historial de
+git. Estos eran los detalles que decidí en esas etapas:
+
+**Etapa 1 (se mantiene):** el nombre de usuario admite de 3 a 30 letras, números,
 `-` y `_`; la contraseña, al menos 8 caracteres. El login responde "Usuario o contraseña incorrectos" en
 ambos casos, para no revelar qué usuarios existen. Los participantes creados antes del login siguen
 existiendo, sin usuario.
 
-**Detalles decididos por Claude en la etapa 2:** el sprite mide 48 × 56 píxeles y se dibuja por código
+**Etapa 2 (se retira):** el sprite mide 48 × 56 píxeles y se dibuja por código
 (`juego/sprites/`): un esqueleto de puntos por pose y, encima, piel, ropa, pelo y accesorio, con sombras,
 brillos y contorno de 1 píxel. Paletas: 6 tonos de piel y 8 de pelo, camiseta y pantalón. Peinados: corto,
 pinchos, coleta y rapado. Accesorios: ninguno, cinta, gorra y máscara (la cinta y la gorra usan el color
 de la camiseta). Aspecto inicial: piel media, pelo negro, camiseta roja, pantalón azul oscuro, pelo corto
 y cinta.
 
-**Detalles decididos por Claude en la etapa 3:**
+**Lucha (se retira):**
 
 - La lógica va en funciones puras (`juego/motor/combate.ts`) que avanzan el combate un *tick*, 60 veces
   por segundo, a ritmo fijo aunque la pantalla vaya más rápida o más lenta. El dibujo solo lee ese estado,
@@ -241,8 +265,6 @@ y cinta.
   perdida en rojo, reloj, rondas ganadas, energía, mensajes de ronda/K.O./tiempo y pausa con Esc o P.
 - Pantalla nueva `/combate` con el enlace "Combate" en el menú. Al acabar: "Revancha" o "Cambiar
   personaje". En esta etapa el rival (CPU, aspecto al azar) no se mueve; la IA llega en la etapa 4.
-
-**Etapas:** 1 sesión (hecha) · 2 personaje (hecha) · 3 lucha base (hecha) · 4 IA · 5 efectos y sonido · 6 historial y torneo.
 
 ## Estado por fases
 
