@@ -52,6 +52,16 @@
         [editable]="t.estado === 'cuadro_generado' && !registrando()"
         (ganadorElegido)="registrarGanador($event)"
       />
+
+      <h3>Historial de combates</h3>
+      @for (r of historial(); track r.nombre) {
+        <h4>{{ r.nombre }}</h4>
+        <ul class="historial">
+          @for (c of r.combates; track c.id) {
+            <li [class.pendiente]="c.estado === 'pendiente'">{{ resultado(c) }}</li>
+          }
+        </ul>
+      }
     }
   }
 </section>

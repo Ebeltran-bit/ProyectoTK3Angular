@@ -22,3 +22,10 @@
   font-weight: bold;
   font-size: 1.2rem;
 }
+
+.historial {
+  margin-top: 0;
+}
+.historial .pendiente {
+  color: #666;
+}

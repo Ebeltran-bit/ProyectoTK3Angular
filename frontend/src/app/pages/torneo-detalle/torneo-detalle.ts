@@ -1,8 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { Cuadro, GanadorElegido } from '../../components/cuadro/cuadro';
-import { NOMBRE_ESTADO, TorneoDetalle as Torneo } from '../../models/torneo';
+import { Combate, NOMBRE_ESTADO, nombreRonda, TorneoDetalle as Torneo } from '../../models/torneo';
 import { mensajeError } from '../../services/mensaje-error';
 import { TorneosService } from '../../services/torneos.service';
 
@@ -22,6 +22,28 @@ export class TorneoDetalle implements OnInit {
   protected readonly registrando = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly nombreEstado = NOMBRE_ESTADO;
+
+  /** Historial de combates agrupado por rondas, en el orden del cuadro (fase 4). */
+  protected readonly historial = computed(() => {
+    const t = this.torneo();
+    if (!t) return [];
+    return Array.from({ length: t.total_rondas }, (_, i) => i + 1)
+      .map((ronda) => ({
+        nombre: nombreRonda(ronda, t.total_rondas),
+        combates: t.combates.filter((c) => c.ronda === ronda),
+      }))
+      .filter((r) => r.combates.length > 0);
+  });
+
+  /** Frase de una línea del historial: quién ganó a quién, BYE o pendiente. */
+  protected resultado(c: Combate): string {
+    if (c.es_bye) return `${c.participante1.nick} pasa por BYE`;
+    const rival = c.participante2!;
+    if (c.id_ganador === null) return `${c.participante1.nick} contra ${rival.nick} · pendiente`;
+    const [ganador, perdedor] =
+      c.id_ganador === c.participante1.id ? [c.participante1, rival] : [rival, c.participante1];
+    return `${ganador.nick} gana a ${perdedor.nick}`;
+  }
 
   private get id(): number {
     return Number(this.ruta.snapshot.paramMap.get('id'));

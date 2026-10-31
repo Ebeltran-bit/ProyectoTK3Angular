@@ -1,6 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
 
-import { Combate, ParticipanteResumen } from '../../models/torneo';
+import { Combate, nombreRonda, ParticipanteResumen } from '../../models/torneo';
 
 /** Lo que emite el cuadro cuando se pulsa el ganador de un combate. */
 export interface GanadorElegido {
@@ -41,21 +41,13 @@ export class Cuadro {
       const esperados = 2 ** (total - numero);
       rondas.push({
         numero,
-        nombre: this.nombreRonda(numero, total),
+        nombre: nombreRonda(numero, total),
         combates,
         pendientes: Math.max(esperados - combates.length, 0),
       });
     }
     return rondas;
   });
-
-  private nombreRonda(numero: number, total: number): string {
-    const quedan = total - numero;
-    if (quedan === 0) return 'Final';
-    if (quedan === 1) return 'Semifinales';
-    if (quedan === 2) return 'Cuartos de final';
-    return `Ronda ${numero}`;
-  }
 
   protected elegir(combate: Combate, ganador: ParticipanteResumen): void {
     this.ganadorElegido.emit({ combate, ganador });

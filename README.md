@@ -27,9 +27,9 @@ tk3/
 │       ├── database.py        Abre y cierra conexiones a MariaDB
 │       ├── modelos.py         Forma de los datos que entran y salen (JSON)
 │       ├── routers/           Endpoints HTTP (qué URL hace qué)
-│       ├── servicios/         Reglas del torneo (sorteo, validaciones, estados)
+│       ├── servicios/         Reglas del torneo (sorteo, validaciones, estados, estadísticas)
 │       └── repositorios/      Consultas SQL (lo único que toca la base de datos)
-│   └── tests/                 Pruebas automáticas del algoritmo del cuadro
+│   └── tests/                 Pruebas automáticas (cuadro, sesión, estadísticas)
 │
 └── frontend/                  Aplicación Angular
     └── src/app/
@@ -135,6 +135,7 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | PUT | `/api/torneos/{id}` | Cambia nombre y participantes (solo en preparación) |
 | POST | `/api/torneos/{id}/cuadro` | Sortea la primera ronda con BYE y cierra las inscripciones |
 | POST | `/api/torneos/{id}/combates/{idCombate}/ganador` | Guarda el ganador (`{"id_ganador": 3}`). Si la ronda queda completa, genera la siguiente o cierra el torneo con su campeón |
+| GET | `/api/estadisticas/participantes` | Combates, victorias, derrotas y torneos ganados de cada participante (fase 4). Los BYE no cuentan |
 
 No hay DELETE a propósito: el enunciado dice que desactivar no es borrar.
 
@@ -144,7 +145,8 @@ Desde `backend/`, con el entorno virtual activado: `python -m pytest`. Comprueba
 con entre 2 y 32 participantes (nadie repetido, número correcto de BYE, posiciones correctas), el
 emparejamiento de las rondas siguientes y torneos completos simulados de 2 a 16 participantes hasta el
 campeón (número de rondas correcto, nadie pierde dos veces), el cifrado de contraseñas y las reglas de
-registro y sesión. Las pruebas de sesión usan un repositorio en memoria: no necesitan MariaDB ni dejan
+registro y sesión, y las estadísticas de la fase 4 (los BYE y los combates pendientes no cuentan, salen
+los inactivos y los participantes sin combates). Las pruebas de sesión y de estadísticas usan un repositorio en memoria: no necesitan MariaDB ni dejan
 usuarios de prueba en la base de datos.
 
 Desde `frontend/`: `npm test`. Ejecuta con Vitest los tests de la lógica del juego. Ahora mismo no hay
@@ -179,8 +181,20 @@ antes de programarlas.
 - Fase 3: solo se guarda el ganador (sin marcador). El ganador tiene que ser uno de los dos participantes.
 - Fase 3: un resultado guardado **no se puede corregir**; por eso se pide confirmación antes de guardarlo.
 
+**Informes (fase 4, aprobado por Eva el 31/10/2026)**
+- Las estadísticas las calcula el backend (`servicios/estadisticas_servicio.py`) a partir de los combates
+  guardados, sin tablas nuevas. Endpoint `GET /api/estadisticas/participantes`.
+- Solo cuentan los combates resueltos que no son BYE: pasar por BYE no suma victoria ni combate jugado.
+- Salen todos los participantes, también los inactivos (marcados como inactivos) y los que no han jugado.
+- Se incluye la columna opcional de torneos ganados (veces que es campeón de un torneo finalizado).
+- La tabla se ordena por victorias; a igualdad, por menos derrotas y luego por nick (detalle decidido por
+  Claude).
+- El historial de combates está en la pantalla de cada torneo, debajo del cuadro, agrupado por rondas.
+  Usa los combates que ya devuelve `GET /api/torneos/{id}`, así que no necesita endpoint propio.
+
 **Interfaz**
-- Pantallas: participantes (lista y formulario) y torneos (lista, formulario y detalle con el cuadro).
+- Pantallas: participantes (lista y formulario), torneos (lista, formulario y detalle con el cuadro y el
+  historial) y estadísticas, con su enlace en el menú.
 - El cuadro se muestra en columnas por ronda (Cuartos, Semifinales, Final…), con huecos "Por decidir".
   Antes de sortear se pide confirmación.
 - En un combate pendiente se pulsa el nombre del ganador. Los perdedores aparecen tachados y el campeón
@@ -290,4 +304,4 @@ y cinta.
 - [x] Fase 1 · Participantes: crear, consultar, editar, activar/desactivar, persistencia.
 - [x] Fase 2 · Torneos y cuadro KO: crear, consultar y editar torneos, solo activos, sorteo con BYE.
 - [x] Fase 3 · Combates, rondas y campeón: registrar ganadores, avance automático, campeón y torneo cerrado.
-- [ ] Fase 4 · Informes y entrega.
+- [ ] Fase 4 · Informes y entrega: estadísticas e historial hechos; quedan la revisión final y el vídeo.

@@ -1,0 +1,49 @@
+<section>
+  <h2>Estadísticas</h2>
+  <p class="ayuda">
+    Victorias y derrotas de cada participante en todos los torneos. Pasar por BYE no cuenta como
+    combate.
+  </p>
+
+  @if (error()) {
+    <p class="mensaje-error">
+      {{ error() }} <button type="button" (click)="cargar()">Reintentar</button>
+    </p>
+  }
+
+  @if (cargando()) {
+    <p class="mensaje-carga">Cargando estadísticas…</p>
+  } @else if (!error()) {
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Participante</th>
+          <th scope="col">Combates</th>
+          <th scope="col">Victorias</th>
+          <th scope="col">Derrotas</th>
+          <th scope="col">Torneos ganados</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (f of filas(); track f.id) {
+          <tr [class.inactivo]="!f.activo">
+            <th scope="row">
+              {{ f.nick }}
+              @if (!f.activo) {
+                <span class="estado">Inactivo</span>
+              }
+            </th>
+            <td>{{ f.combates }}</td>
+            <td>{{ f.victorias }}</td>
+            <td>{{ f.derrotas }}</td>
+            <td>{{ f.torneos_ganados }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="vacio">Todavía no hay participantes.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

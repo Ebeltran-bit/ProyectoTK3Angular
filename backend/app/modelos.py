@@ -108,6 +108,19 @@ class TorneoDetalle(TorneoResumen):
 
 
 
+class EstadisticaParticipante(BaseModel):
+    """Una fila del informe de victorias y derrotas (fase 4)."""
+
+    id: int
+    nick: str
+    logo: str | None
+    activo: bool
+    combates: int
+    victorias: int
+    derrotas: int
+    torneos_ganados: int
+
+
 # ---------------------------------------------------------------------
 # Usuarios y sesión (modo combate, etapa 1)
 # ---------------------------------------------------------------------

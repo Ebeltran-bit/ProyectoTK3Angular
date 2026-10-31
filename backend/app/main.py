@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 
 from app import config
 from app.dependencias import usuario_actual
-from app.routers import auth, participantes, torneos
+from app.routers import auth, estadisticas, participantes, torneos
 from app.servicios.errores import ErrorDeNegocio
 
 app = FastAPI(title="TK3 Tournament Manager API")
@@ -27,6 +27,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(participantes.router, dependencies=[Depends(usuario_actual)])
 app.include_router(torneos.router, dependencies=[Depends(usuario_actual)])
+app.include_router(estadisticas.router, dependencies=[Depends(usuario_actual)])
 
 
 @app.exception_handler(ErrorDeNegocio)

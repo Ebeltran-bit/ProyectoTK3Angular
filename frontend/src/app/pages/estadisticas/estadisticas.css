@@ -1,0 +1,29 @@
+/* Estilos provisionales. */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th,
+td {
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid #ddd;
+  text-align: right;
+}
+th:first-child {
+  text-align: left;
+}
+.inactivo {
+  color: #888;
+}
+.estado {
+  font-size: 0.8rem;
+  font-weight: normal;
+  padding: 0.05rem 0.4rem;
+  margin-left: 0.4rem;
+  border: 1px solid currentColor;
+  border-radius: 1rem;
+}
+.ayuda,
+.vacio {
+  color: #666;
+}

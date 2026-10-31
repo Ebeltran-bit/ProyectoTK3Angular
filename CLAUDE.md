@@ -108,7 +108,7 @@ los convierte en respuestas HTTP.
 | 1. Base y participantes | 23–30 oct | Hecha |
 | 2. Torneos y cuadro KO | 2–13 nov | Hecha |
 | 3. Combates, rondas y campeón | 16–20 nov | Hecha |
-| 4. Informes y entrega | 23 nov–2 dic | Pendiente |
+| 4. Informes y entrega | 23 nov–2 dic | En curso: estadísticas e historial hechos; faltan revisión final y vídeo |
 | Ampliación: duelo de ritmo | — | Etapa 1 (sesión) y limpieza hechas; etapas 3 a 6 pendientes |
 
 El duelo de ritmo es una ampliación aprobada por Eva (31/10/2026) que sustituye

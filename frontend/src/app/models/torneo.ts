@@ -9,6 +9,15 @@ export const NOMBRE_ESTADO: Record<EstadoTorneo, string> = {
   finalizado: 'Finalizado',
 };
 
+/** Nombre de una ronda contando desde la final: Final, Semifinales, Cuartos o Ronda n. */
+export function nombreRonda(numero: number, total: number): string {
+  const quedan = total - numero;
+  if (quedan === 0) return 'Final';
+  if (quedan === 1) return 'Semifinales';
+  if (quedan === 2) return 'Cuartos de final';
+  return `Ronda ${numero}`;
+}
+
 /** Lo mínimo de un participante para pintarlo en el cuadro. */
 export interface ParticipanteResumen {
   id: number;
