@@ -14,7 +14,8 @@ Angular (frontend)  ──HTTP/JSON──►  API FastAPI (backend)  ──SQL�
 tk3/
 ├── database/                  Scripts SQL (se ejecutan desde MySQL Workbench)
 │   ├── 01_esquema.sql         Crea las tablas tk3_ (se puede ejecutar varias veces)
-│   └── 02_datos_prueba.sql    Participantes de ejemplo (opcional)
+│   ├── 02_datos_prueba.sql    Participantes de ejemplo (opcional)
+│   └── 03_retirar_personajes.sql  Solo si tu base de datos tiene la antigua tabla tk3_personajes
 │
 ├── backend/                   API REST en Python
 │   ├── requirements.txt       Librerías necesarias
@@ -37,12 +38,7 @@ tk3/
         ├── services/          Comunicación con la API (HttpClient) y sesión
         ├── guards/            Bloquean pantallas si no hay sesión
         ├── interceptors/      Añaden el token a cada petición
-        ├── components/        Piezas reutilizables (el cuadro KO, la vista del personaje)
-        ├── juego/             Modo combate (sin Angular, TypeScript puro)
-        │   ├── motor/         Reglas y lógica de la lucha, con sus tests (Vitest)
-        │   ├── dibujo/        Escenario, luchadores, chispas y marcador en el canvas
-        │   ├── sprites/       Personajes pixel art: aspecto, poses y dibujo
-        │   └── teclado.ts     Traduce las teclas a acciones del luchador
+        ├── components/        Piezas reutilizables (el cuadro KO)
         └── pages/             Pantallas (componentes con vista)
 ```
 
@@ -76,7 +72,9 @@ Cada capa tiene una sola responsabilidad:
    Cuando una fase añade tablas nuevas, vuelve a ejecutar este mismo script: solo crea lo que falta.
 3. Opcional: lo mismo con `database/02_datos_prueba.sql`.
 4. Comprueba que en `2DAM_alumno03` aparecen las tablas `tk3_participantes`, `tk3_torneos`,
-   `tk3_inscripciones`, `tk3_combates`, `tk3_usuarios`, `tk3_sesiones` y `tk3_personajes`.
+   `tk3_inscripciones`, `tk3_combates`, `tk3_usuarios` y `tk3_sesiones`.
+5. Solo si te aparece también `tk3_personajes` (de una versión anterior): ejecuta
+   `database/03_retirar_personajes.sql` para quitarla. No toca ningún otro dato.
 
 > El nombre `2DAM_alumno03` empieza por un número, así que en SQL siempre va entre comillas invertidas:
 > `` USE `2DAM_alumno03`; ``
@@ -112,7 +110,7 @@ npx ng serve
 ```
 
 Abre <http://localhost:4200>. La primera vez, pulsa **Regístrate** para crear tu cuenta: tu nombre de
-usuario será también el nick de tu personaje.
+usuario será también tu nick en los torneos.
 
 ## API disponible
 
@@ -125,8 +123,6 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | POST | `/api/auth/login` | Inicia sesión y devuelve `{"token": "...", "usuario": {...}}` |
 | POST | `/api/auth/logout` | Cierra la sesión (el token deja de valer) |
 | GET | `/api/auth/yo` | Usuario de la sesión actual |
-| GET | `/api/personaje` | Aspecto del personaje del usuario (o el inicial si aún no lo ha guardado) |
-| PUT | `/api/personaje` | Guarda colores (`#rrggbb`), peinado y accesorio del personaje del usuario |
 | GET | `/api/participantes` | Lista todos (`?activo=true` o `?activo=false` para filtrar) |
 | GET | `/api/participantes/{id}` | Un participante |
 | POST | `/api/participantes` | Crea uno (`{"nick": "...", "logo": "..."}`) → 409 si el nick ya existe |
@@ -148,13 +144,11 @@ Desde `backend/`, con el entorno virtual activado: `python -m pytest`. Comprueba
 con entre 2 y 32 participantes (nadie repetido, número correcto de BYE, posiciones correctas), el
 emparejamiento de las rondas siguientes y torneos completos simulados de 2 a 16 participantes hasta el
 campeón (número de rondas correcto, nadie pierde dos veces), el cifrado de contraseñas y las reglas de
-registro y sesión, y la validación del aspecto del personaje. Las pruebas de sesión usan un repositorio en memoria: no necesitan MariaDB ni dejan
+registro y sesión. Las pruebas de sesión usan un repositorio en memoria: no necesitan MariaDB ni dejan
 usuarios de prueba en la base de datos.
 
-Desde `frontend/`: `npm test`. Ejecuta con Vitest los tests de la lógica de la lucha
-(`juego/motor/combate.spec.ts`): inicio de ronda, movimiento y paredes, alcance y daño de cada golpe,
-que un golpe solo cuente una vez, aturdimiento, bloqueo de cara y de espaldas, el especial con y sin
-energía, K.O., fin por tiempo (incluido el empate), cambio de ronda y victoria al mejor de 3.
+Desde `frontend/`: `npm test`. Ejecuta con Vitest los tests de la lógica del juego. Ahora mismo no hay
+ninguno: los de la lucha se retiraron con ella y los del motor de ritmo llegan en la etapa 3.
 
 ## Decisiones tomadas
 
@@ -217,25 +211,35 @@ beatmaps, SQL y decisiones pendientes):
   scrypt), D6 (motor propio en TypeScript sin librerías), D7 (todo el arte y el sonido originales y
   generados por código) y D11 (Vitest). D2, D8, D9 y D10 eran de la lucha y quedan sustituidas.
 
-**Propuestas pendientes de Eva** (R1–R8 en el documento): origen de la música (se recomienda generarla
-por código), teclas (J y K), quién juega cada combate del cuadro, la regla exacta ronda → nivel, el
-desempate, los escenarios, los endpoints nuevos y la retirada de `tk3_personajes`.
+**Aprobado por Eva el 31/10/2026 (R1–R8 del documento)**
+- R1. La música se genera por código con la Web Audio API: chiptune original, sin licencias ni archivos
+  de audio. El beatmap admite un campo `audio` por si algún día se usa una pista CC0.
+- R2. Dos teclas: J (acción principal) y K (alternativa).
+- R3. Un jugador por ordenador, y cada uno juega cuando puede: los dos participantes de un combate tocan
+  la misma canción en su ordenador y el backend compara las puntuaciones. Si un participante no tiene a
+  una persona que juegue, lo hace una IA que imita a una persona. Sin partidas en directo.
+- R4. Nivel según la ronda: final y semifinales, difícil; primera ronda, fácil; el resto, media.
+- R5. Empate de puntos: gana quien tenga más PERFECT; si siguen igual, menos MISS; si siguen igual, se
+  repite el duelo.
+- R6. Tres escenarios, uno por nivel, con sus personajes fijos. Las temáticas las elige Eva.
+- R7. Endpoints nuevos: `GET /api/canciones` y `GET /api/canciones/{id}` (etapa 3) y
+  `POST /api/torneos/{id}/combates/{id}/duelo` (etapa 6).
+- R8. Se retiran `tk3_personajes` y el código del editor y de la lucha.
 
 **Etapas**
 
 | Etapa | Contenido | Estado |
 | --- | --- | --- |
 | 1. Sesión | Registro, login, sesión y contraseñas cifradas | Hecha |
-| Limpieza | Retirar el editor de personajes y la lucha (tabla, backend, frontend y tests) | Pendiente |
+| Limpieza | Retirar el editor de personajes y la lucha (tabla, backend, frontend y tests) | Hecha |
 | 3. Motor de ritmo v1 | Escenario con personajes fijos, reproductor rítmico, evaluación de pulsaciones y marcador | Pendiente |
 | 4. Rival CPU | El jugador 2 sigue la pista con una precisión que depende de la ronda | Pendiente |
 | 5. Música, efectos y sonido | Canciones por nivel, sonidos de acierto y fallo, textos "PERFECT!" y "MISS!" | Pendiente |
 | 6. Conexión con el torneo | Botón "Jugar" en el cuadro, canción según la ronda, validación en el backend y avance del cuadro | Pendiente |
 
-**Código de la versión anterior.** Hasta la limpieza, el repositorio todavía contiene el editor de
-personajes (`/api/personaje`, `tk3_personajes`, pantalla *Mi personaje*) y la lucha contra la CPU
-(pantalla *Combate*, `juego/motor`, `juego/dibujo`, `juego/sprites`). Después seguirá en el historial de
-git. Estos eran los detalles que decidí en esas etapas:
+**Código de la versión anterior.** El editor de personajes (`/api/personaje`, `tk3_personajes`, pantalla
+*Mi personaje*) y la lucha contra la CPU (pantalla *Combate*, `juego/`) se retiraron el 31/10/2026 y siguen
+en el historial de git (commit `b118da6` y anteriores). Estos eran los detalles que decidí en esas etapas:
 
 **Etapa 1 (se mantiene):** el nombre de usuario admite de 3 a 30 letras, números,
 `-` y `_`; la contraseña, al menos 8 caracteres. El login responde "Usuario o contraseña incorrectos" en

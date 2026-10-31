@@ -1,4 +1,4 @@
-/** Usuario con sesión iniciada. Su personaje es el participante id_participante. */
+/** Usuario con sesión iniciada. En el torneo juega como el participante id_participante. */
 export interface Usuario {
   id: number;
   nombre_usuario: string;

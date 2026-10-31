@@ -109,7 +109,7 @@ los convierte en respuestas HTTP.
 | 2. Torneos y cuadro KO | 2–13 nov | Hecha |
 | 3. Combates, rondas y campeón | 16–20 nov | Hecha |
 | 4. Informes y entrega | 23 nov–2 dic | Pendiente |
-| Ampliación: duelo de ritmo | — | Etapa 1 (sesión) hecha; limpieza y etapas 3 a 6 pendientes |
+| Ampliación: duelo de ritmo | — | Etapa 1 (sesión) y limpieza hechas; etapas 3 a 6 pendientes |
 
 El duelo de ritmo es una ampliación aprobada por Eva (31/10/2026) que sustituye
 al modo combate anterior: dos participantes siguen la misma canción y gana
@@ -137,6 +137,9 @@ Mantén actualizada esta tabla cuando termine una fase.
   y la final son difíciles.
 - La puntuación que cuenta para el torneo la calcula el backend a partir de
   las pulsaciones: el navegador nunca decide quién gana.
+- Un jugador por ordenador y sin partidas en directo: cada participante toca
+  la canción cuando puede y el backend compara. Si no hay una persona, juega
+  la IA. Teclas J y K. Música generada por código (R1–R8 en el README).
 - Los números del juego (ventanas, puntos, Hype) van juntos en un archivo
   de reglas, y la lógica en funciones puras probadas con Vitest.
 
