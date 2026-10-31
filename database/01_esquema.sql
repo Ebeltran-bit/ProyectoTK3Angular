@@ -2,7 +2,7 @@
 -- TK3 Tournament Manager · Esquema de base de datos
 -- Fase 1: participantes
 -- Fase 2: torneos, inscripciones y combates
--- Duelo de ritmo: usuarios, sesiones y partidas de práctica
+-- Duelo de ritmo: usuarios, sesiones, partidas de práctica y duelos
 --
 -- Todas las tablas viven en la base de datos `2DAM_alumno03` y llevan el
 -- prefijo tk3_. El nombre de la base de datos empieza por un número, así
@@ -145,4 +145,42 @@ CREATE TABLE IF NOT EXISTS tk3_partidas (
     PRIMARY KEY (id),
     INDEX ix_tk3_partidas_cancion (id_cancion, puntos),
     CONSTRAINT fk_tk3_partidas_usuario FOREIGN KEY (id_usuario) REFERENCES tk3_usuarios (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- =====================================================================
+-- Duelo de ritmo (ampliación) · Duelos del torneo
+-- =====================================================================
+
+-- ---------------------------------------------------------------------
+-- Duelo de cada combate: la canción que tocan los dos participantes.
+-- Se crea la primera vez que alguien abre el duelo; el backend elige al
+-- azar una canción del nivel de la ronda y la guarda aquí, así los dos
+-- tocan la misma aunque jueguen en momentos distintos.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS tk3_duelos (
+    id_combate  INT UNSIGNED  NOT NULL,
+    id_cancion  VARCHAR(40)   NOT NULL,
+    creado_en   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_combate),
+    CONSTRAINT fk_tk3_duelos_combate FOREIGN KEY (id_combate) REFERENCES tk3_combates (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- Resultado de cada participante en un duelo. La clave doble impide que
+-- alguien juegue dos veces el mismo duelo. es_ia indica que tocó la IA.
+-- En un empate total se borran los dos resultados y se cambia la canción.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS tk3_duelo_resultados (
+    id_combate       INT UNSIGNED      NOT NULL,
+    id_participante  INT UNSIGNED      NOT NULL,
+    puntos           INT UNSIGNED      NOT NULL,
+    perfect          SMALLINT UNSIGNED NOT NULL,
+    great            SMALLINT UNSIGNED NOT NULL,
+    miss             SMALLINT UNSIGNED NOT NULL,
+    combo_maximo     SMALLINT UNSIGNED NOT NULL,
+    es_ia            BOOLEAN           NOT NULL DEFAULT FALSE,
+    jugado_en        DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_combate, id_participante),
+    CONSTRAINT fk_tk3_duelo_resultados_duelo FOREIGN KEY (id_combate) REFERENCES tk3_duelos (id_combate),
+    CONSTRAINT fk_tk3_duelo_resultados_participante FOREIGN KEY (id_participante) REFERENCES tk3_participantes (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;

@@ -256,3 +256,44 @@ class RecordsCancion(BaseModel):
     titulo: str
     nivel: Literal["facil", "media", "dificil"]
     marcas: list[Marca]
+
+
+# ---------------------------------------------------------------------
+# Duelos del torneo
+# ---------------------------------------------------------------------
+
+
+class ResultadoDuelo(BaseModel):
+    puntos: int
+    perfect: int
+    great: int
+    miss: int
+    combo_maximo: int
+
+
+class JugadorDuelo(BaseModel):
+    """Un participante del duelo. resultado va vacío mientras no se pueda enseñar."""
+
+    participante: ParticipanteResumen
+    ha_jugado: bool
+    es_ia: bool
+    resultado: ResultadoDuelo | None
+
+
+class Duelo(BaseModel):
+    id_torneo: int
+    id_combate: int
+    ronda: int
+    total_rondas: int
+    cancion: CancionResumen
+    estado: str
+    id_ganador: int | None
+    jugadores: list[JugadorDuelo]
+    puedo_jugar: bool
+    mensaje: str | None = None
+
+
+class IaEntrada(BaseModel):
+    """Participante por el que juega la IA."""
+
+    id_participante: int

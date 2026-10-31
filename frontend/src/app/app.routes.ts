@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { sesionRequerida, sinSesion } from './guards/auth.guard';
+import { Duelo } from './pages/duelo/duelo';
 import { Estadisticas } from './pages/estadisticas/estadisticas';
 import { Login } from './pages/login/login';
 import { ParticipanteForm } from './pages/participante-form/participante-form';
@@ -29,6 +30,7 @@ export const routes: Routes = [
       { path: 'torneos/nuevo', component: TorneoForm },
       { path: 'torneos/:id', component: TorneoDetalle },
       { path: 'torneos/:id/editar', component: TorneoForm },
+      { path: 'torneos/:id/combates/:idCombate/duelo', component: Duelo },
       { path: 'estadisticas', component: Estadisticas },
       { path: 'practica', component: Practica },
     ],

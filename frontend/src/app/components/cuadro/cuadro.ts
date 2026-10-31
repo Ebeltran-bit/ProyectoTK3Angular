@@ -1,4 +1,5 @@
 import { Component, computed, input, output } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { Combate, nombreRonda, ParticipanteResumen } from '../../models/torneo';
 
@@ -19,9 +20,11 @@ interface Ronda {
 /**
  * Dibuja el cuadro KO: una columna por ronda.
  * Solo muestra datos y avisa de los clics; no llama a la API (eso lo hace la pantalla).
+ * En cada combate pendiente hay un enlace a su duelo de ritmo.
  */
 @Component({
   selector: 'app-cuadro',
+  imports: [RouterLink],
   templateUrl: './cuadro.html',
   styleUrl: './cuadro.css',
 })

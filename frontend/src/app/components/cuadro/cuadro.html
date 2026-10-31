@@ -12,6 +12,7 @@
               <button type="button" class="jugador elegible" (click)="elegir(c, c.participante2)">
                 {{ c.participante2.nick }}
               </button>
+              <a class="duelo" [routerLink]="['combates', c.id, 'duelo']">Duelo</a>
             } @else {
               <div
                 class="jugador"

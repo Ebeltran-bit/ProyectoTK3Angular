@@ -13,6 +13,15 @@ HYPE = {"perfect": 3, "great": 1, "miss": -6}
 HYPE_INICIAL = 50
 HYPE_MAXIMO = 100
 
+# IA del duelo (solo en el backend): para cada nivel, la probabilidad de que
+# se le escape una nota y el error típico al pulsar (desviación de una curva
+# normal, en ms). Con estos números una persona que juega bien le gana.
+IA = {
+    "facil": {"prob_fallo": 0.05, "error_ms": 30},
+    "media": {"prob_fallo": 0.10, "error_ms": 45},
+    "dificil": {"prob_fallo": 0.15, "error_ms": 60},
+}
+
 
 def pulso_a_ms(pulso: float, bpm: int) -> float:
     """Cada pulso dura 60000 / BPM milisegundos."""

@@ -1,0 +1,113 @@
+/* Estilos provisionales, siguiendo el boceto del puerto. El diseño visual lo decide Eva. */
+.pantalla {
+  position: relative;
+  max-width: 960px;
+  border: 3px solid #1b1a26;
+  border-radius: 12px;
+  overflow: hidden;
+  touch-action: manipulation;
+  user-select: none;
+}
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.marcador {
+  position: absolute;
+  inset: 0.6rem 0.8rem auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+  font-weight: bold;
+  color: #1b1a26;
+}
+.hype {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  width: min(40%, 14rem);
+}
+.barra {
+  height: 0.8rem;
+  border: 2px solid #1b1a26;
+  border-radius: 1rem;
+  background: #ffffff;
+  overflow: hidden;
+}
+.relleno {
+  height: 100%;
+  background: #ffc93c;
+  transition: width 0.15s;
+}
+.puntos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 0.2rem 0.6rem;
+  border: 2px solid #1b1a26;
+  border-radius: 8px;
+  background: #ffffff;
+}
+.puntos strong {
+  font-size: 1.3rem;
+}
+.juicio {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  margin: 0;
+  transform: translateX(-50%);
+  font-size: clamp(1.4rem, 5vw, 2.6rem);
+  font-weight: 900;
+  -webkit-text-stroke: 2px #1b1a26;
+  pointer-events: none;
+  animation: aparecer 0.45s ease-out forwards;
+}
+.juicio[data-juicio='perfect'] {
+  color: #7cf2c0;
+}
+.juicio[data-juicio='great'] {
+  color: #8fd0ff;
+}
+.juicio[data-juicio='miss'] {
+  color: #ff8aa0;
+}
+@keyframes aparecer {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0.5rem) scale(1.2);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -0.8rem) scale(1);
+  }
+}
+.capa {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+  background: rgb(255 255 255 / 0.82);
+}
+.capa p {
+  max-width: 32rem;
+  margin: 0;
+}
+kbd {
+  padding: 0 0.35rem;
+  border: 1.5px solid #1b1a26;
+  border-radius: 4px;
+  background: #ffffff;
+  font-family: inherit;
+}
+
+.ayuda {
+  color: #666;
+}

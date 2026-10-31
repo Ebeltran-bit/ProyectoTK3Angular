@@ -30,7 +30,7 @@ tk3/
 │       ├── routers/           Endpoints HTTP (qué URL hace qué)
 │       ├── servicios/         Reglas del torneo (sorteo, validaciones, estados, estadísticas)
 │       └── repositorios/      Consultas SQL (lo único que toca la base de datos)
-│   └── tests/                 Pruebas automáticas (cuadro, sesión, estadísticas)
+│   └── tests/                 Pruebas automáticas (cuadro, sesión, estadísticas, ritmo y duelos)
 │
 └── frontend/                  Aplicación Angular
     └── src/app/
@@ -40,7 +40,7 @@ tk3/
         ├── guards/            Bloquean pantallas si no hay sesión
         ├── interceptors/      Añaden el token a cada petición
         ├── juego/             Duelo de ritmo: reglas, evaluación, música y escenarios
-        ├── components/        Piezas reutilizables (el cuadro KO)
+        ├── components/        Piezas reutilizables (el cuadro KO y el reproductor de ritmo)
         └── pages/             Pantallas (componentes con vista)
 ```
 
@@ -137,6 +137,9 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | PUT | `/api/torneos/{id}` | Cambia nombre y participantes (solo en preparación) |
 | POST | `/api/torneos/{id}/cuadro` | Sortea la primera ronda con BYE y cierra las inscripciones |
 | POST | `/api/torneos/{id}/combates/{idCombate}/ganador` | Guarda el ganador (`{"id_ganador": 3}`). Si la ronda queda completa, genera la siguiente o cierra el torneo con su campeón |
+| GET | `/api/torneos/{id}/combates/{idCombate}/duelo` | Duelo de ritmo del combate: canción, quién ha jugado y si le toca al usuario. La primera vez elige la canción según la ronda |
+| POST | `/api/torneos/{id}/combates/{idCombate}/duelo` | El usuario de la sesión manda sus pulsaciones (`{"pulsaciones": [...]}`). Con los dos resultados, el backend decide el ganador y el cuadro avanza. 403 si no es uno de los dos participantes; 409 si ya ha jugado |
+| POST | `/api/torneos/{id}/combates/{idCombate}/duelo/ia` | La IA toca la canción por un participante que no ha jugado (`{"id_participante": 3}`) |
 | GET | `/api/canciones` | Canciones del duelo de ritmo, sin notas: título, nivel, BPM y escenario (etapa 3) |
 | GET | `/api/canciones/{id}` | Beatmap completo: notas que hay que pulsar y pistas de la música (etapa 3) |
 | POST | `/api/canciones/{id}/partidas` | Guarda una partida de práctica (`{"pulsaciones": [{"ms": 2730, "tecla": "accion"}]}`). El backend calcula y devuelve la puntuación |
@@ -153,7 +156,10 @@ emparejamiento de las rondas siguientes y torneos completos simulados de 2 a 16 
 campeón (número de rondas correcto, nadie pierde dos veces), el cifrado de contraseñas y las reglas de
 registro y sesión, y las estadísticas de la fase 4 (los BYE y los combates pendientes no cuentan, salen
 los inactivos y los participantes sin combates), el cálculo de la puntuación del duelo en el backend y los
-récords por canción. Las pruebas de sesión, estadísticas y partidas usan un repositorio en memoria: no necesitan MariaDB ni dejan
+récords por canción, y los duelos del torneo (nivel según la ronda con 2 a 32 participantes, canción al
+azar del nivel, nadie juega dos veces, solo juega el usuario de ese participante, la IA respeta sus
+porcentajes, desempates de R5, empate total que repite y torneos de 2 a 8 participantes jugados enteros a
+base de duelos hasta el campeón). Las pruebas de sesión, estadísticas, partidas y duelos usan repositorios en memoria: no necesitan MariaDB ni dejan
 usuarios de prueba en la base de datos.
 
 Desde `frontend/`: `npm test`. Ejecuta con Vitest los tests de la lógica del duelo de ritmo
@@ -273,9 +279,9 @@ beatmaps, SQL y decisiones pendientes):
 | 1. Sesión | Registro, login, sesión y contraseñas cifradas | Hecha |
 | Limpieza | Retirar el editor de personajes y la lucha (tabla, backend, frontend y tests) | Hecha |
 | 3. Motor de ritmo v1 | Escenario con personajes fijos, reproductor rítmico, evaluación de pulsaciones y marcador | Hecha, con los 9 escenarios jugables en *Práctica* |
-| 4. Rival CPU | El jugador 2 sigue la pista con una precisión que depende de la ronda | Pendiente |
+| 4. Rival CPU | El jugador 2 sigue la pista con una precisión que depende de la ronda | Hecha junto con la 6 (IA en el backend) |
 | 5. Música, efectos y sonido | Canciones por nivel, sonidos de acierto y fallo, textos "PERFECT!" y "MISS!" | Pendiente |
-| 6. Conexión con el torneo | Botón "Jugar" en el cuadro, canción según la ronda, validación en el backend y avance del cuadro | Pendiente |
+| 6. Conexión con el torneo | Botón "Jugar" en el cuadro, canción según la ronda, validación en el backend y avance del cuadro | Hecha (botón *Duelo*) |
 
 **Etapa 3 (motor de ritmo v1), hecha el 31/10/2026.** Aprobado por Eva: pantalla *Práctica* en el menú
 para practicar sin que cuente en el torneo, endpoints `GET /api/canciones` y `GET /api/canciones/{id}`,
@@ -322,6 +328,47 @@ usuario. Empates: más PERFECT, luego menos MISS y luego quien lo consiguió ant
 rechazan las partidas con pulsaciones fuera de la canción o con más de tres por nota (más 20), y el
 nombre que se muestra es el nombre de usuario.
 
+**Etapas 4 y 6: duelo en el torneo e IA (aprobado por Eva el 31/10/2026).** Propuesta:
+[Duelo en el torneo e IA](https://claude.ai/artifact/4kHPojjhLEbhQtgVPGqSFd). Aprobado tal cual:
+- Cada combate pendiente del cuadro tiene un enlace *Duelo* que abre `/torneos/:id/combates/:idCombate/duelo`.
+  El botón de elegir ganador a mano se mantiene.
+- La primera vez que se abre, el backend elige la canción: nivel según la ronda (R4) y escenario al azar
+  dentro del nivel. Se guarda en `tk3_duelos`, así los dos participantes tocan la misma.
+- *Jugar el duelo* solo le sale al usuario cuyo participante está en el combate y no ha jugado. *Que juegue
+  la IA* sale para cada participante que no ha jugado, y lo puede pulsar cualquier usuario con sesión.
+- La puntuación del rival no se ve hasta que el combate termina; la propia sí.
+- Con los dos resultados (`tk3_duelo_resultados`), el backend aplica R5 y llama a la misma regla que el
+  botón manual (`torneos_servicio.registrar_ganador`), que genera la ronda siguiente o cierra el torneo.
+- Empate total: se borran los dos resultados y el duelo se repite con otra canción del mismo nivel. Es lo
+  único que borra datos y solo lo hace esta regla.
+- IA (`servicios/ia.py`, números en `servicios/ritmo.py`): para cada nota decide si se le escapa y con
+  cuánto error pulsa, con una curva normal. Fácil: 5 % y ±30 ms; media: 10 % y ±45 ms; difícil: 15 % y
+  ±60 ms. Sus pulsaciones se puntúan con las mismas reglas que las de una persona.
+- El reproductor de Práctica pasa a ser el componente `components/reproductor-ritmo`, que usan Práctica y
+  el duelo.
+
+| Pieza | Archivo |
+| --- | --- |
+| Reglas del duelo (nivel, canción al azar, ganador, repetición) | `backend/app/servicios/duelos_servicio.py` |
+| IA | `backend/app/servicios/ia.py` |
+| SQL de los duelos | `backend/app/repositorios/duelos_repo.py` |
+| Endpoints | `backend/app/routers/torneos.py` |
+| Pantalla del duelo | `frontend/src/app/pages/duelo/` |
+| Reproductor | `frontend/src/app/components/reproductor-ritmo/` |
+
+Detalles que decidí yo (Claude):
+- Con 2 o 3 participantes la primera ronda ya es la final o la semifinal, y es difícil (R4: mandan las
+  semifinales y la final).
+- Un combate con BYE no tiene duelo, y un combate resuelto a mano tampoco lo crea.
+- Error nuevo `SinPermiso` (403) para cuando alguien intenta jugar por un participante que no es el suyo.
+- La respuesta del duelo incluye `total_rondas` para poder escribir "Semifinales" o "Final".
+- Las comprobaciones de pulsaciones de Práctica (máximo por nota, fuera de la canción) se reutilizan en el
+  duelo (`partidas_servicio.puntuar`).
+- Las pulsaciones se mandan sin redondear: al redondear a milisegundos enteros, una nota a 39,8 ms podía
+  ser PERFECT en el navegador y GREAT en el backend. Ahora coinciden siempre.
+- Limitación conocida: solo cuenta la partida que llega al final de la canción. Si alguien recarga la
+  página a mitad, puede volver a empezar; para evitarlo habría que guardar también los intentos empezados.
+
 **Código de la versión anterior.** El editor de personajes (`/api/personaje`, `tk3_personajes`, pantalla
 *Mi personaje*) y la lucha contra la CPU (pantalla *Combate*, `juego/`) se retiraron el 31/10/2026 y siguen
 en el historial de git (commit `b118da6` y anteriores). Estos eran los detalles que decidí en esas etapas:
@@ -361,3 +408,4 @@ y cinta.
 - [x] Fase 2 · Torneos y cuadro KO: crear, consultar y editar torneos, solo activos, sorteo con BYE.
 - [x] Fase 3 · Combates, rondas y campeón: registrar ganadores, avance automático, campeón y torneo cerrado.
 - [ ] Fase 4 · Informes y entrega: estadísticas e historial hechos; quedan la revisión final y el vídeo.
+- [x] Ampliación · Duelo de ritmo: sesión, motor con 9 escenarios, récords de práctica, IA y duelos en el torneo.

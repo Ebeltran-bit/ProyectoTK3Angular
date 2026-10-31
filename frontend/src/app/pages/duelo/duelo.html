@@ -1,0 +1,102 @@
+<section>
+  <a [routerLink]="['/torneos', idTorneo]">← Volver al torneo</a>
+
+  @if (error()) {
+    <p class="mensaje-error">
+      {{ error() }} <button type="button" (click)="cargar()">Reintentar</button>
+    </p>
+  }
+
+  @if (cargando()) {
+    <p class="mensaje-carga">Cargando duelo…</p>
+  } @else if (duelo(); as d) {
+    <h2>Duelo · {{ titulo() }}</h2>
+    <p>
+      <strong>{{ d.cancion.titulo }}</strong> · {{ nombreNivel[d.cancion.nivel] }} ·
+      {{ d.cancion.bpm }} BPM · {{ d.cancion.num_notas }} notas
+    </p>
+
+    @if (d.mensaje) {
+      <p class="aviso">{{ d.mensaje }}</p>
+    }
+
+    @if (ganador(); as g) {
+      <p class="ganador">{{ g.participante.nick }} gana el duelo y pasa de ronda.</p>
+    }
+
+    <ul class="jugadores">
+      @for (j of d.jugadores; track j.participante.id) {
+        <li [class.gana]="d.id_ganador === j.participante.id">
+          <span class="nick">{{ j.participante.nick }}</span>
+          @if (j.resultado; as r) {
+            <span>
+              {{ r.puntos }} puntos · {{ r.perfect }} PERFECT · {{ r.great }} GREAT ·
+              {{ r.miss }} MISS{{ j.es_ia ? ' · jugó la IA' : '' }}
+            </span>
+          } @else if (j.ha_jugado) {
+            <span class="ayuda">
+              Ya ha jugado{{ j.es_ia ? ' (la IA)' : '' }}. Su puntuación se verá al terminar.
+            </span>
+          } @else if (d.estado === 'pendiente') {
+            <span class="ayuda">Todavía no ha jugado.</span>
+            <button type="button" (click)="jugarIa(j)" [disabled]="enviando()">
+              Que juegue la IA
+            </button>
+          }
+        </li>
+      }
+    </ul>
+
+    @if (d.estado === 'pendiente' && !d.puedo_jugar && !enviado()) {
+      <p class="ayuda">
+        Solo pueden tocar este duelo los usuarios de estos dos participantes. Si alguno no va a
+        jugar, la IA puede hacerlo por él.
+      </p>
+    }
+
+    @if (cancion(); as c) {
+      @if (d.puedo_jugar || enviado()) {
+        @if (d.puedo_jugar) {
+          <p class="ayuda">
+            Te toca. Solo cuenta la primera vez que llegas al final de la canción.
+          </p>
+        }
+        <app-reproductor-ritmo
+          [cancion]="c"
+          textoJugar="Jugar el duelo"
+          (terminada)="alTerminar($event)"
+        >
+          <div class="resultado-ritmo">
+            @if (miResultado(); as r) {
+              <p class="grande">
+                @if (ganador(); as g) {
+                  {{ g.participante.nick }} gana el duelo
+                } @else {
+                  Partida enviada
+                }
+              </p>
+              <p>
+                Tu puntuación: {{ r.puntos }} puntos · {{ r.perfect }} PERFECT · {{ r.great }} GREAT
+                · {{ r.miss }} MISS · combo máximo {{ r.combo_maximo }}
+              </p>
+              @if (!ganador()) {
+                <p class="ayuda">Falta que juegue tu rival (o la IA por él).</p>
+              }
+              <a class="principal" [routerLink]="['/torneos', idTorneo]">Volver al torneo</a>
+            } @else {
+              @if (enviando()) {
+                <p class="mensaje-carga">Enviando tu partida…</p>
+              }
+              @if (errorEnvio()) {
+                <p class="mensaje-error">
+                  No se ha enviado: {{ errorEnvio() }}
+                  <button type="button" (click)="enviar()">Reintentar</button>
+                </p>
+              }
+            }
+          </div>
+        </app-reproductor-ritmo>
+      }
+    }
+  }
+</section>

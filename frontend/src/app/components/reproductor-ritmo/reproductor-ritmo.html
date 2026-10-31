@@ -1,0 +1,48 @@
+<div class="pantalla">
+  <canvas
+    #lienzo
+    width="960"
+    height="540"
+    aria-label="Escenario del duelo de ritmo"
+    (pointerdown)="alTocar($event)"
+  ></canvas>
+
+  <div class="marcador" aria-live="off">
+    <div class="hype" title="Hype del público">
+      <span>HYPE</span>
+      <div class="barra"><div class="relleno" [style.width.%]="marcador().hype"></div></div>
+    </div>
+    <div class="puntos">
+      <strong>{{ marcador().puntos }}</strong>
+      <span>COMBO {{ marcador().combo }}</span>
+    </div>
+  </div>
+
+  @if (juicio(); as j) {
+    @for (v of [j.vez]; track v) {
+      <p class="juicio" [attr.data-juicio]="j.tipo">{{ j.texto }}</p>
+    }
+  }
+
+  @if (fase() === 'preparada') {
+    <div class="capa">
+      @if (aviso()) {
+        <p>{{ aviso() }}</p>
+      }
+      <p>{{ escenario().instrucciones }}</p>
+      <button type="button" class="principal" (click)="jugar()">{{ textoJugar() }}</button>
+    </div>
+  }
+
+  @if (fase() === 'terminada') {
+    <!-- Lo que se ve al acabar lo decide la pantalla que usa el reproductor -->
+    <div class="capa">
+      <ng-content />
+    </div>
+  }
+</div>
+
+<p class="ayuda">
+  <kbd>J</kbd> acción · <kbd>K</kbd> alternativa · en el móvil, toca la pantalla. PERFECT ±40 ms ·
+  GREAT ±90 ms.
+</p>

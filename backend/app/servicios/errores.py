@@ -19,6 +19,12 @@ class NoEncontrado(ErrorDeNegocio):
     codigo_http = 404
 
 
+class SinPermiso(ErrorDeNegocio):
+    """Hay sesión, pero ese usuario no puede hacer esta operación (por ejemplo, jugar por otro)."""
+
+    codigo_http = 403
+
+
 class Conflicto(ErrorDeNegocio):
     """La operación no se permite en el estado actual (por ejemplo, editar un torneo ya sorteado)."""
 

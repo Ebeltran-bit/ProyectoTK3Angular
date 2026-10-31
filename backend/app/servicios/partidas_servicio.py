@@ -10,9 +10,17 @@ from app.servicios.errores import ErrorDeNegocio
 TOP = 5
 
 
-def guardar(id_usuario: int, id_cancion: str, pulsaciones: list[dict]) -> dict:
-    cancion = canciones_servicio.obtener(id_cancion)  # NoEncontrado si no existe
-    notas = [{"ms": ritmo.pulso_a_ms(n["pulso"], cancion["bpm"]), "tecla": n["tecla"]} for n in cancion["notas"]]
+def notas_en_ms(cancion: dict) -> list[dict]:
+    """Notas de la canción con su momento en milisegundos, como las juzga ritmo.evaluar."""
+    return [{"ms": ritmo.pulso_a_ms(n["pulso"], cancion["bpm"]), "tecla": n["tecla"]} for n in cancion["notas"]]
+
+
+def puntuar(cancion: dict, pulsaciones: list[dict]) -> dict:
+    """Comprueba que las pulsaciones son razonables y calcula la puntuación.
+
+    Lo usan las partidas de práctica y los duelos del torneo.
+    """
+    notas = notas_en_ms(cancion)
     # Más pulsaciones que tres por nota no tiene sentido: sería alguien aporreando o un envío falso
     if len(pulsaciones) > 3 * len(notas) + 20:
         raise ErrorDeNegocio("Demasiadas pulsaciones para esta canción")
@@ -20,7 +28,12 @@ def guardar(id_usuario: int, id_cancion: str, pulsaciones: list[dict]) -> dict:
     # Se admite un segundo antes del inicio por si alguien pulsa durante la entrada
     if any(p["ms"] < -1000 or p["ms"] > fin_ms for p in pulsaciones):
         raise ErrorDeNegocio("Hay pulsaciones fuera de la canción")
-    marcador = ritmo.evaluar(notas, pulsaciones)
+    return ritmo.evaluar(notas, pulsaciones)
+
+
+def guardar(id_usuario: int, id_cancion: str, pulsaciones: list[dict]) -> dict:
+    cancion = canciones_servicio.obtener(id_cancion)  # NoEncontrado si no existe
+    marcador = puntuar(cancion, pulsaciones)
     partidas_repo.guardar(id_usuario, id_cancion, marcador)
     return marcador
 
