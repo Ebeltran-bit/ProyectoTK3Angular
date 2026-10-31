@@ -189,8 +189,8 @@ antes de programarlas.
 
 ## Duelo de ritmo (ampliación)
 
-**Nuevo enfoque, decidido por Eva el 31/10/2026:** el modo combate pasa a ser un duelo de ritmo pixel art,
-inspirado en el género de *Rhythm Heaven* pero con minijuegos, personajes, música y nombres originales. Dos
+**Nuevo enfoque, decidido por Eva el 31/10/2026:** el modo combate pasa a ser un duelo de ritmo en estilo plano
+(Flat Art / vectorial 2D), inspirado en el género de *Rhythm Heaven* pero con minijuegos, personajes, música y nombres originales. Dos
 participantes siguen la misma canción y gana quien la toca con más precisión. Propuesta técnica (música,
 beatmaps, SQL y decisiones pendientes):
 [TK3 · Duelo de ritmo: propuesta técnica](https://claude.ai/artifact/2ntw6FFsHfhT5s7gqgwBYk).
@@ -221,10 +221,25 @@ beatmaps, SQL y decisiones pendientes):
 - R4. Nivel según la ronda: final y semifinales, difícil; primera ronda, fácil; el resto, media.
 - R5. Empate de puntos: gana quien tenga más PERFECT; si siguen igual, menos MISS; si siguen igual, se
   repite el duelo.
-- R6. Tres escenarios, uno por nivel, con sus personajes fijos. Las temáticas las elige Eva.
+- R6. Escenarios con personajes fijos; las temáticas las elige Eva. Cambiado por Eva el 31/10/2026: tres
+  escenarios por nivel (ver abajo).
 - R7. Endpoints nuevos: `GET /api/canciones` y `GET /api/canciones/{id}` (etapa 3) y
   `POST /api/torneos/{id}/combates/{id}/duelo` (etapa 6).
 - R8. Se retiran `tk3_personajes` y el código del editor y de la lucha.
+
+**Escenarios y estilo, aprobados por Eva el 31/10/2026**
+- Estilo visual plano (Flat Art / vectorial 2D): formas geométricas limpias, contorno negro bien definido
+  y colores planos sin degradados. Bocetos: [Escenarios de ritmo](https://claude.ai/artifact/5zLUNQahn68jCCnhHik6rS).
+- Nueve escenarios, tres por nivel:
+
+| Nivel | Escenarios |
+| --- | --- |
+| Fácil | Puerto de las gaviotas, Brindis arcade, Huerto a compás |
+| Media | Ramen a contratiempo, Correos exprés, Paso de patitos |
+| Difícil | Estrellas fugaces, Gatos en el tejado (el gato naranja mueve la cola con un ritmo y el jugador lo repite), La mecanógrafa |
+
+- En cada combate, el backend elige al azar un escenario del nivel de su ronda y lo guarda con el combate,
+  para que los dos participantes toquen la misma canción aunque jueguen en momentos distintos.
 
 **Etapas**
 
