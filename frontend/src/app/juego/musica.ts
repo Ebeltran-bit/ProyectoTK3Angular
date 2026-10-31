@@ -7,6 +7,9 @@
  */
 import { Cancion, Pista } from '../models/cancion';
 
+/** Sonido que avisa de una nota que llega. Lo define cada escenario. */
+export type SonidoAviso = (m: Musica, t: number, tecla: 'accion' | 'alterna') => void;
+
 /** Altura MIDI a frecuencia: 69 es el La de 440 Hz y cada número es un semitono. */
 export function frecuencia(midi: number): number {
   return 440 * 2 ** ((midi - 69) / 12);
@@ -22,7 +25,7 @@ export class Musica {
   }
 
   /** Programa la canción entera empezando en el instante `inicio` (segundos del AudioContext). */
-  programar(cancion: Cancion, inicio: number): void {
+  programar(cancion: Cancion, inicio: number, aviso: SonidoAviso): void {
     const spb = 60 / cancion.bpm; // segundos por pulso
     // Cuenta atrás: un clic por pulso, más agudo en el primero
     for (let p = 0; p < cancion.cuenta_atras; p++) {
@@ -38,12 +41,9 @@ export class Musica {
         }
       }
     }
-    // Aviso antes de cada nota: en el puerto, el graznido de la gaviota
+    // Aviso antes de cada nota; cada escenario tiene el suyo (en el puerto, el graznido)
     for (const nota of cancion.notas) {
-      const t = inicio + (nota.pulso - cancion.aviso_antes) * spb;
-      const o = this.tono('square', 1200, t, 0.12, 0.07);
-      o.frequency.exponentialRampToValueAtTime(700, t + 0.12);
-      this.tono('square', 1300, t + 0.14, 0.08, 0.05);
+      aviso(this, inicio + (nota.pulso - cancion.aviso_antes) * spb, nota.tecla);
     }
     // Acorde final
     for (const midi of [60, 64, 67])
@@ -86,16 +86,16 @@ export class Musica {
       case 'charles':
         this.ruido(t, dur, pista.volumen);
         break;
+      case 'caja':
+        // Caja de batería: un golpe de ruido medio con un poco de tono
+        this.ruido(t, dur, pista.volumen, 'bandpass', 1800);
+        this.tono('triangle', 190, t, dur * 0.6, pista.volumen * 0.6);
+        break;
     }
   }
 
-  private tono(
-    tipo: OscillatorType,
-    hz: number,
-    t: number,
-    dur: number,
-    vol: number,
-  ): OscillatorNode {
+  /** Una nota con forma de onda simple que se apaga sola. */
+  tono(tipo: OscillatorType, hz: number, t: number, dur: number, vol: number): OscillatorNode {
     const o = this.ctx.createOscillator();
     const g = this.ctx.createGain();
     o.type = tipo;
@@ -109,7 +109,14 @@ export class Musica {
     return o;
   }
 
-  private ruido(t: number, dur: number, vol: number): void {
+  /** Ruido filtrado: platillos, deslizamientos, agua... */
+  ruido(
+    t: number,
+    dur: number,
+    vol: number,
+    tipoFiltro: BiquadFilterType = 'highpass',
+    hz = 6000,
+  ): void {
     const datos = this.ctx.createBuffer(
       1,
       Math.ceil(this.ctx.sampleRate * dur),
@@ -120,8 +127,8 @@ export class Musica {
     const fuente = this.ctx.createBufferSource();
     const filtro = this.ctx.createBiquadFilter();
     const g = this.ctx.createGain();
-    filtro.type = 'highpass';
-    filtro.frequency.value = 6000;
+    filtro.type = tipoFiltro;
+    filtro.frequency.value = hz;
     fuente.buffer = datos;
     g.gain.setValueAtTime(vol, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);

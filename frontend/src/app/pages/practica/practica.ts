@@ -11,7 +11,7 @@ import {
 
 import { ESCENARIOS } from '../../juego/escenarios';
 import { ANCHO, preparar, TINTA } from '../../juego/escenarios/dibujo';
-import { DibujarEscena } from '../../juego/escenarios/tipos';
+import { Escenario } from '../../juego/escenarios/tipos';
 import {
   cerrarNotasPasadas,
   crearPartida,
@@ -131,7 +131,7 @@ export class Practica implements OnInit, OnDestroy {
     this.partida = crearPartida(
       c.notas.map((n) => ({ ms: pulsoAMs(n.pulso, c.bpm), tecla: n.tecla })),
     );
-    this.musica.programar(c, this.inicio);
+    this.musica.programar(c, this.inicio, this.escenario().aviso);
     this.ultimaPulsacion = -Infinity;
     this.pulsaciones = [];
     this.oficial.set(null);
@@ -203,8 +203,8 @@ export class Practica implements OnInit, OnDestroy {
     const lienzo = this.lienzo()?.nativeElement;
     const c = lienzo?.getContext('2d');
     const cancion = this.cancion();
-    const escena: DibujarEscena | undefined = ESCENARIOS[cancion?.escenario ?? 'puerto'];
-    if (!lienzo || !c || !escena) return;
+    const escena = this.escenario().dibujar;
+    if (!lienzo || !c) return;
     preparar(c);
 
     if (this.fase() !== 'jugando' || !cancion || !this.partida || !this.audio) {
@@ -214,6 +214,7 @@ export class Practica implements OnInit, OnDestroy {
         segundos: s,
         pulso: (s * (cancion?.bpm ?? 88)) / 60,
         notas: [],
+        teclas: [],
         desdePulsacion: Infinity,
       });
       return;
@@ -233,6 +234,7 @@ export class Practica implements OnInit, OnDestroy {
         pulso: n.pulso,
         juicio: this.partida!.notas[i].juicio,
       })),
+      teclas: cancion.notas.map((n) => n.tecla),
       desdePulsacion: this.audio.currentTime - this.ultimaPulsacion,
     });
     if (pulso >= 0 && pulso < cancion.cuenta_atras) this.cuentaAtras(c, Math.floor(pulso) + 1);
@@ -274,9 +276,8 @@ export class Practica implements OnInit, OnDestroy {
     c.restore();
   }
 
-  protected mensajeFinal(m: { hype: number }): string {
-    if (m.hype >= 70) return '¡El puerto entero aplaude!';
-    if (m.hype >= 40) return 'Las gaviotas están contentas';
-    return 'Las gaviotas se han ido a otro muelle';
+  /** Escenario de la canción elegida; si no hay ninguna, el puerto de fondo. */
+  protected escenario(): Escenario {
+    return ESCENARIOS[this.cancion()?.escenario ?? ''] ?? ESCENARIOS['puerto'];
   }
 }

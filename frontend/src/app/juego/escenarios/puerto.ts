@@ -4,7 +4,7 @@
  * justo entonces el pescador le lanza una sardina.
  */
 import { ANCHO, caja, circ, elip, fondo, persona, poli, raya, TINTA } from './dibujo';
-import { DibujarEscena } from './tipos';
+import { DibujarEscena, Escenario } from './tipos';
 
 function gaviota(
   c: CanvasRenderingContext2D,
@@ -62,7 +62,7 @@ function decorado(c: CanvasRenderingContext2D, t: number): void {
   elip(c, 24, 50.5, 3, 1.2, '#c9d3de', -0.3);
 }
 
-export const dibujarPuerto: DibujarEscena = (c, v) => {
+const dibujar: DibujarEscena = (c, v) => {
   const t = Math.max(0, v.segundos);
   decorado(c, t);
   const lanzando = v.desdePulsacion < 0.15;
@@ -100,4 +100,22 @@ export const dibujarPuerto: DibujarEscena = (c, v) => {
     const k = v.desdePulsacion / 0.18;
     sardina(c, 46 + k * 32, 40 - Math.sin(k * Math.PI) * 10, k * 6);
   }
+};
+
+export const puerto: Escenario = {
+  dibujar,
+  instrucciones:
+    'Cuando una gaviota grazna, se posa en el poste un pulso después. Pulsa J justo cuando toque la madera para lanzarle una sardina.',
+  aviso: (m, t) => {
+    // Graznido: un tono que cae rápido y un segundo más corto
+    const o = m.tono('square', 1200, t, 0.12, 0.07);
+    o.frequency.exponentialRampToValueAtTime(700, t + 0.12);
+    m.tono('square', 1300, t + 0.14, 0.08, 0.05);
+  },
+  mensajeFinal: (hype) =>
+    hype >= 70
+      ? '¡El puerto entero aplaude!'
+      : hype >= 40
+        ? 'Las gaviotas están contentas'
+        : 'Las gaviotas se han ido a otro muelle',
 };

@@ -168,7 +168,7 @@ class Nota(BaseModel):
 class Pista(BaseModel):
     """Una pista de la música. Cada nota es [altura MIDI, pulso, duración en pulsos]."""
 
-    instrumento: Literal["bajo", "melodia", "bombo", "charles"]
+    instrumento: Literal["bajo", "melodia", "bombo", "charles", "caja"]
     volumen: float = Field(ge=0, le=1)
     notas: list[tuple[float, float, float]]
 

@@ -66,10 +66,7 @@
         @if (aviso()) {
           <p>{{ aviso() }}</p>
         }
-        <p>
-          Cuando una gaviota grazna, se posa en el poste un pulso después. Pulsa
-          <kbd>J</kbd> justo cuando toque la madera para lanzarle una sardina.
-        </p>
+        <p>{{ escenario().instrucciones }}</p>
         <button type="button" class="principal" (click)="jugar()">Jugar</button>
       </div>
     }
@@ -77,14 +74,14 @@
     @if (fase() === 'resultado') {
       <div class="capa">
         @if (oficial(); as r) {
-          <p class="grande">{{ mensajeFinal(r) }}</p>
+          <p class="grande">{{ escenario().mensajeFinal(r.hype) }}</p>
           <p>
             {{ r.puntos }} puntos · {{ r.perfect }} PERFECT · {{ r.great }} GREAT ·
             {{ r.miss }} MISS · combo máximo {{ r.combo_maximo }}
           </p>
           <p class="ayuda">Partida guardada. Mira los récords en Estadísticas › Canciones.</p>
         } @else {
-          <p class="grande">{{ mensajeFinal(marcador()) }}</p>
+          <p class="grande">{{ escenario().mensajeFinal(marcador().hype) }}</p>
           <p>
             {{ marcador().puntos }} puntos · {{ marcador().perfect }} PERFECT ·
             {{ marcador().great }} GREAT · {{ marcador().miss }} MISS · combo máximo

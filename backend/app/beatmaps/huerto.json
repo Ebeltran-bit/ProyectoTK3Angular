@@ -1,0 +1,122 @@
+{
+  "id": "huerto",
+  "titulo": "Huerto a compás",
+  "nivel": "facil",
+  "bpm": 80,
+  "pulsos_por_compas": 4,
+  "cuenta_atras": 4,
+  "fin": 60,
+  "escenario": "huerto",
+  "audio": null,
+  "aviso_antes": 1,
+  "notas": [
+    {"pulso": 4, "tecla": "accion"},
+    {"pulso": 6, "tecla": "accion"},
+    {"pulso": 8, "tecla": "accion"},
+    {"pulso": 10, "tecla": "accion"},
+    {"pulso": 12, "tecla": "accion"},
+    {"pulso": 14, "tecla": "accion"},
+    {"pulso": 16, "tecla": "accion"},
+    {"pulso": 18, "tecla": "accion"},
+    {"pulso": 20, "tecla": "accion"},
+    {"pulso": 22, "tecla": "accion"},
+    {"pulso": 24, "tecla": "accion"},
+    {"pulso": 25, "tecla": "accion"},
+    {"pulso": 26, "tecla": "accion"},
+    {"pulso": 28, "tecla": "accion"},
+    {"pulso": 30, "tecla": "accion"},
+    {"pulso": 32, "tecla": "accion"},
+    {"pulso": 34, "tecla": "accion"},
+    {"pulso": 36, "tecla": "accion"},
+    {"pulso": 37, "tecla": "accion"},
+    {"pulso": 38, "tecla": "accion"},
+    {"pulso": 40, "tecla": "accion"},
+    {"pulso": 42, "tecla": "accion"},
+    {"pulso": 44, "tecla": "accion"},
+    {"pulso": 45, "tecla": "accion"},
+    {"pulso": 46, "tecla": "accion"},
+    {"pulso": 48, "tecla": "accion"},
+    {"pulso": 50, "tecla": "accion"},
+    {"pulso": 52, "tecla": "accion"},
+    {"pulso": 53, "tecla": "accion"},
+    {"pulso": 54, "tecla": "accion"},
+    {"pulso": 56, "tecla": "accion"}
+  ],
+  "musica": {
+    "repetir_cada": 16,
+    "pistas": [
+      {
+        "instrumento": "bajo",
+        "volumen": 0.35,
+        "notas": [
+          [43, 0, 1.8],
+          [43, 2, 1.8],
+          [48, 4, 1.8],
+          [48, 6, 1.8],
+          [50, 8, 1.8],
+          [50, 10, 1.8],
+          [43, 12, 1.8],
+          [43, 14, 1.8]
+        ]
+      },
+      {
+        "instrumento": "bombo",
+        "volumen": 0.45,
+        "notas": [
+          [0, 0, 0.12],
+          [0, 2, 0.12],
+          [0, 4, 0.12],
+          [0, 6, 0.12],
+          [0, 8, 0.12],
+          [0, 10, 0.12],
+          [0, 12, 0.12],
+          [0, 14, 0.12]
+        ]
+      },
+      {
+        "instrumento": "charles",
+        "volumen": 0.08,
+        "notas": [
+          [0, 0.5, 0.04],
+          [0, 1.5, 0.04],
+          [0, 2.5, 0.04],
+          [0, 3.5, 0.04],
+          [0, 4.5, 0.04],
+          [0, 5.5, 0.04],
+          [0, 6.5, 0.04],
+          [0, 7.5, 0.04],
+          [0, 8.5, 0.04],
+          [0, 9.5, 0.04],
+          [0, 10.5, 0.04],
+          [0, 11.5, 0.04],
+          [0, 12.5, 0.04],
+          [0, 13.5, 0.04],
+          [0, 14.5, 0.04],
+          [0, 15.5, 0.04]
+        ]
+      },
+      {
+        "instrumento": "melodia",
+        "volumen": 0.05,
+        "notas": [
+          [67, 0, 0.8],
+          [71, 1, 0.8],
+          [74, 2, 0.8],
+          [71, 3, 0.8],
+          [72, 4, 0.8],
+          [76, 5, 0.8],
+          [72, 6, 0.8],
+          [69, 7, 0.8],
+          [74, 8, 0.8],
+          [78, 9, 0.8],
+          [81, 10, 0.8],
+          [78, 11, 0.8],
+          [79, 12, 0.8],
+          [74, 13, 0.8],
+          [71, 14, 0.8],
+          [67, 15, 0.8]
+        ]
+      }
+    ]
+  }
+}

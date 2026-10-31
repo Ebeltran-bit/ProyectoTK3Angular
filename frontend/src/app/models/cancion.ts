@@ -23,7 +23,7 @@ export interface NotaCancion {
 }
 
 export interface Pista {
-  instrumento: 'bajo' | 'melodia' | 'bombo' | 'charles';
+  instrumento: 'bajo' | 'melodia' | 'bombo' | 'charles' | 'caja';
   volumen: number;
   /** Cada nota es [altura MIDI, pulso, duración en pulsos], contando desde el inicio del patrón. */
   notas: [number, number, number][];
