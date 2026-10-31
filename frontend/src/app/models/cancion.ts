@@ -41,3 +41,20 @@ export interface Cancion extends Omit<CancionResumen, 'num_notas'> {
   notas: NotaCancion[];
   musica: { repetir_cada: number; pistas: Pista[] };
 }
+
+/** Una tecla pulsada, en milisegundos desde el inicio de la canción. */
+export interface Pulsacion {
+  ms: number;
+  tecla: 'accion' | 'alterna';
+}
+
+/** Puntuación de una partida calculada por el backend. */
+export interface Resultado {
+  puntos: number;
+  combo: number;
+  combo_maximo: number;
+  hype: number;
+  perfect: number;
+  great: number;
+  miss: number;
+}

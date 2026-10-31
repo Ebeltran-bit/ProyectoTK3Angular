@@ -1,9 +1,38 @@
 <section>
   <h2>Estadísticas</h2>
-  <p class="ayuda">
-    Victorias y derrotas de cada participante en todos los torneos. Pasar por BYE no cuenta como
-    combate.
-  </p>
+
+  <div class="pestanas" role="tablist" aria-label="Tipo de estadística">
+    <button
+      type="button"
+      role="tab"
+      [attr.aria-selected]="pestana() === 'participantes'"
+      [class.seleccionado]="pestana() === 'participantes'"
+      (click)="verPestana('participantes')"
+    >
+      Participantes
+    </button>
+    <button
+      type="button"
+      role="tab"
+      [attr.aria-selected]="pestana() === 'canciones'"
+      [class.seleccionado]="pestana() === 'canciones'"
+      (click)="verPestana('canciones')"
+    >
+      Canciones
+    </button>
+  </div>
+
+  @if (pestana() === 'participantes') {
+    <p class="ayuda">
+      Victorias y derrotas de cada participante en todos los torneos. Pasar por BYE no cuenta como
+      combate.
+    </p>
+  } @else {
+    <p class="ayuda">
+      Récords de la Práctica: las 5 mejores puntuaciones de cada canción, una por usuario. La
+      puntuación la calcula el servidor.
+    </p>
+  }
 
   @if (error()) {
     <p class="mensaje-error">
@@ -13,6 +42,47 @@
 
   @if (cargando()) {
     <p class="mensaje-carga">Cargando estadísticas…</p>
+  } @else if (!error() && pestana() === 'canciones') {
+    @for (c of records(); track c.id) {
+      <h3>
+        {{ c.titulo }}
+        <span class="nivel" [attr.data-nivel]="c.nivel">{{ nombreNivel[c.nivel] }}</span>
+      </h3>
+      @if (c.marcas.length > 0) {
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Puesto</th>
+              <th scope="col">Usuario</th>
+              <th scope="col">Puntos</th>
+              <th scope="col">PERFECT</th>
+              <th scope="col">GREAT</th>
+              <th scope="col">MISS</th>
+              <th scope="col">Combo máx.</th>
+              <th scope="col">Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of c.marcas; track m.puesto) {
+              <tr [class.record]="m.puesto === 1">
+                <td>{{ m.puesto }}</td>
+                <th scope="row">{{ m.nombre_usuario }}</th>
+                <td>{{ m.puntos }}</td>
+                <td>{{ m.perfect }}</td>
+                <td>{{ m.great }}</td>
+                <td>{{ m.miss }}</td>
+                <td>{{ m.combo_maximo }}</td>
+                <td>{{ m.jugada_en | date: 'dd/MM/yyyy HH:mm' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="vacio">Nadie ha jugado esta canción todavía.</p>
+      }
+    } @empty {
+      <p class="vacio">Todavía no hay canciones.</p>
+    }
   } @else if (!error()) {
     <table>
       <thead>

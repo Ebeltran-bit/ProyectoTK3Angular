@@ -2,6 +2,7 @@
 -- TK3 Tournament Manager · Esquema de base de datos
 -- Fase 1: participantes
 -- Fase 2: torneos, inscripciones y combates
+-- Duelo de ritmo: usuarios, sesiones y partidas de práctica
 --
 -- Todas las tablas viven en la base de datos `2DAM_alumno03` y llevan el
 -- prefijo tk3_. El nombre de la base de datos empieza por un número, así
@@ -119,4 +120,29 @@ CREATE TABLE IF NOT EXISTS tk3_sesiones (
     caduca_en   DATETIME      NOT NULL,
     PRIMARY KEY (hash_token),
     CONSTRAINT fk_tk3_sesiones_usuario FOREIGN KEY (id_usuario) REFERENCES tk3_usuarios (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- =====================================================================
+-- Duelo de ritmo (ampliación) · Récords de práctica
+-- =====================================================================
+
+-- ---------------------------------------------------------------------
+-- Partidas de práctica: una fila por canción terminada.
+-- La puntuación la calcula el backend a partir de las pulsaciones, nunca
+-- el navegador. id_cancion es el nombre del archivo del beatmap
+-- (backend/app/beatmaps/<id>.json), por eso no tiene clave foránea.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS tk3_partidas (
+    id            INT UNSIGNED      NOT NULL AUTO_INCREMENT,
+    id_usuario    INT UNSIGNED      NOT NULL,
+    id_cancion    VARCHAR(40)       NOT NULL,
+    puntos        INT UNSIGNED      NOT NULL,
+    perfect       SMALLINT UNSIGNED NOT NULL,
+    great         SMALLINT UNSIGNED NOT NULL,
+    miss          SMALLINT UNSIGNED NOT NULL,
+    combo_maximo  SMALLINT UNSIGNED NOT NULL,
+    jugada_en     DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    INDEX ix_tk3_partidas_cancion (id_cancion, puntos),
+    CONSTRAINT fk_tk3_partidas_usuario FOREIGN KEY (id_usuario) REFERENCES tk3_usuarios (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;

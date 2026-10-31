@@ -206,3 +206,53 @@ class Cancion(BaseModel):
     aviso_antes: float = Field(default=1, ge=0)
     notas: list[Nota]
     musica: Musica
+
+
+# ---------------------------------------------------------------------
+# Duelo de ritmo: partidas de práctica y récords
+# ---------------------------------------------------------------------
+
+
+class Pulsacion(BaseModel):
+    """Una tecla pulsada, en milisegundos desde el inicio de la canción."""
+
+    ms: float
+    tecla: Literal["accion", "alterna"]
+
+
+class PartidaEntrada(BaseModel):
+    """Lo que manda el navegador al terminar una canción: solo las pulsaciones, no la puntuación."""
+
+    pulsaciones: list[Pulsacion] = Field(max_length=2000)
+
+
+class Resultado(BaseModel):
+    """Puntuación calculada por el backend."""
+
+    puntos: int
+    combo: int
+    combo_maximo: int
+    hype: int
+    perfect: int
+    great: int
+    miss: int
+
+
+class Marca(BaseModel):
+    """Una fila del récord de una canción: la mejor partida de un usuario."""
+
+    puesto: int
+    nombre_usuario: str
+    puntos: int
+    perfect: int
+    great: int
+    miss: int
+    combo_maximo: int
+    jugada_en: datetime
+
+
+class RecordsCancion(BaseModel):
+    id: str
+    titulo: str
+    nivel: Literal["facil", "media", "dificil"]
+    marcas: list[Marca]

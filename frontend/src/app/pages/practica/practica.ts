@@ -25,7 +25,7 @@ import {
 } from '../../juego/evaluacion';
 import { Musica } from '../../juego/musica';
 import { TECLAS } from '../../juego/reglas';
-import { Cancion, CancionResumen, NOMBRE_NIVEL } from '../../models/cancion';
+import { Cancion, CancionResumen, NOMBRE_NIVEL, Pulsacion, Resultado } from '../../models/cancion';
 import { CancionesService } from '../../services/canciones.service';
 import { mensajeError } from '../../services/mensaje-error';
 
@@ -60,6 +60,10 @@ export class Practica implements OnInit, OnDestroy {
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly nombreNivel = NOMBRE_NIVEL;
+  /** Puntuación oficial que devuelve el backend al guardar la partida. */
+  protected readonly oficial = signal<Resultado | null>(null);
+  protected readonly guardando = signal(false);
+  protected readonly errorGuardar = signal<string | null>(null);
 
   private audio: AudioContext | null = null;
   private musica: Musica | null = null;
@@ -67,6 +71,8 @@ export class Practica implements OnInit, OnDestroy {
   /** Instante (en segundos del AudioContext) en que empieza la canción. */
   private inicio = 0;
   private ultimaPulsacion = -Infinity;
+  /** Todas las pulsaciones de la partida: es lo único que se manda al backend. */
+  private pulsaciones: Pulsacion[] = [];
   private animacion = 0;
 
   ngOnInit(): void {
@@ -127,6 +133,9 @@ export class Practica implements OnInit, OnDestroy {
     );
     this.musica.programar(c, this.inicio);
     this.ultimaPulsacion = -Infinity;
+    this.pulsaciones = [];
+    this.oficial.set(null);
+    this.errorGuardar.set(null);
     this.marcador.set(this.partida.marcador);
     this.juicio.set(null);
     this.aviso.set(null);
@@ -159,6 +168,7 @@ export class Practica implements OnInit, OnDestroy {
   private pulsar(tecla: Tecla): void {
     if (!this.partida || !this.audio || !this.musica) return;
     const ms = this.msCancion();
+    this.pulsaciones.push({ ms: Math.round(ms), tecla });
     const r = pulsar(this.partida, ms, tecla);
     this.partida = r.partida;
     this.ultimaPulsacion = this.audio.currentTime;
@@ -226,8 +236,31 @@ export class Practica implements OnInit, OnDestroy {
       desdePulsacion: this.audio.currentTime - this.ultimaPulsacion,
     });
     if (pulso >= 0 && pulso < cancion.cuenta_atras) this.cuentaAtras(c, Math.floor(pulso) + 1);
-    if (pulso > cancion.fin + 1) this.fase.set('resultado');
+    if (pulso > cancion.fin + 1) this.terminar();
   };
+
+  /** Al acabar la canción se mandan las pulsaciones; el récord usa la puntuación del backend. */
+  private terminar(): void {
+    this.fase.set('resultado');
+    this.guardarPartida();
+  }
+
+  protected guardarPartida(): void {
+    const c = this.cancion();
+    if (!c) return;
+    this.guardando.set(true);
+    this.errorGuardar.set(null);
+    this.servicio.guardarPartida(c.id, this.pulsaciones).subscribe({
+      next: (r) => {
+        this.oficial.set(r);
+        this.guardando.set(false);
+      },
+      error: (e) => {
+        this.errorGuardar.set(mensajeError(e));
+        this.guardando.set(false);
+      },
+    });
+  }
 
   private cuentaAtras(c: CanvasRenderingContext2D, numero: number): void {
     c.save();
@@ -241,7 +274,7 @@ export class Practica implements OnInit, OnDestroy {
     c.restore();
   }
 
-  protected mensajeFinal(m: Marcador): string {
+  protected mensajeFinal(m: { hype: number }): string {
     if (m.hype >= 70) return '¡El puerto entero aplaude!';
     if (m.hype >= 40) return 'Las gaviotas están contentas';
     return 'Las gaviotas se han ido a otro muelle';

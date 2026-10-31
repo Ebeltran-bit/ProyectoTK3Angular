@@ -139,6 +139,8 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | POST | `/api/torneos/{id}/combates/{idCombate}/ganador` | Guarda el ganador (`{"id_ganador": 3}`). Si la ronda queda completa, genera la siguiente o cierra el torneo con su campeón |
 | GET | `/api/canciones` | Canciones del duelo de ritmo, sin notas: título, nivel, BPM y escenario (etapa 3) |
 | GET | `/api/canciones/{id}` | Beatmap completo: notas que hay que pulsar y pistas de la música (etapa 3) |
+| POST | `/api/canciones/{id}/partidas` | Guarda una partida de práctica (`{"pulsaciones": [{"ms": 2730, "tecla": "accion"}]}`). El backend calcula y devuelve la puntuación |
+| GET | `/api/estadisticas/canciones` | Récords: top 5 de cada canción, con la mejor partida de cada usuario |
 | GET | `/api/estadisticas/participantes` | Combates, victorias, derrotas y torneos ganados de cada participante (fase 4). Los BYE no cuentan |
 
 No hay DELETE a propósito: el enunciado dice que desactivar no es borrar.
@@ -150,7 +152,8 @@ con entre 2 y 32 participantes (nadie repetido, número correcto de BYE, posicio
 emparejamiento de las rondas siguientes y torneos completos simulados de 2 a 16 participantes hasta el
 campeón (número de rondas correcto, nadie pierde dos veces), el cifrado de contraseñas y las reglas de
 registro y sesión, y las estadísticas de la fase 4 (los BYE y los combates pendientes no cuentan, salen
-los inactivos y los participantes sin combates). Las pruebas de sesión y de estadísticas usan un repositorio en memoria: no necesitan MariaDB ni dejan
+los inactivos y los participantes sin combates), el cálculo de la puntuación del duelo en el backend y los
+récords por canción. Las pruebas de sesión, estadísticas y partidas usan un repositorio en memoria: no necesitan MariaDB ni dejan
 usuarios de prueba en la base de datos.
 
 Desde `frontend/`: `npm test`. Ejecuta con Vitest los tests de la lógica del duelo de ritmo
@@ -202,7 +205,7 @@ antes de programarlas.
 
 **Interfaz**
 - Pantallas: participantes (lista y formulario), torneos (lista, formulario y detalle con el cuadro y el
-  historial) y estadísticas, con su enlace en el menú.
+  historial), estadísticas (pestañas Participantes y Canciones) y práctica del duelo de ritmo.
 - El cuadro se muestra en columnas por ronda (Cuartos, Semifinales, Final…), con huecos "Por decidir".
   Antes de sortear se pide confirmación.
 - En un combate pendiente se pulsa el nombre del ganador. Los perdedores aparecen tachados y el campeón
@@ -299,6 +302,15 @@ Detalles que decidí yo (Claude) en esta etapa:
 - Si se cambia de pestaña a mitad de canción, la partida se cancela para no contar fallos falsos.
 - El id de una canción solo admite minúsculas, números, `-` y `_`, para que nadie pueda pedir otro archivo.
 - En la v1 no hay calibración del retardo del audio; si hace falta, se añade en la etapa 5.
+
+**Récords por canción (aprobado por Eva el 31/10/2026).** Cada partida terminada en *Práctica* se guarda
+en la tabla nueva `tk3_partidas`. El navegador solo manda las pulsaciones y el backend calcula la
+puntuación con `servicios/ritmo.py`, que repite las reglas de `juego/evaluacion.ts` con los mismos casos de
+prueba (`tests/test_ritmo.py`), así nadie puede inventarse un récord y la misma lógica servirá para validar
+los duelos en la etapa 6. En *Estadísticas › Canciones* sale el top 5 de cada canción, una marca por
+usuario. Empates: más PERFECT, luego menos MISS y luego quien lo consiguió antes. Detalles míos: se
+rechazan las partidas con pulsaciones fuera de la canción o con más de tres por nota (más 20), y el
+nombre que se muestra es el nombre de usuario.
 
 **Código de la versión anterior.** El editor de personajes (`/api/personaje`, `tk3_personajes`, pantalla
 *Mi personaje*) y la lucha contra la CPU (pantalla *Combate*, `juego/`) se retiraron el 31/10/2026 y siguen

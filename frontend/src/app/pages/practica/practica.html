@@ -76,12 +76,30 @@
 
     @if (fase() === 'resultado') {
       <div class="capa">
-        <p class="grande">{{ mensajeFinal(marcador()) }}</p>
-        <p>
-          {{ marcador().puntos }} puntos · {{ marcador().perfect }} PERFECT ·
-          {{ marcador().great }} GREAT · {{ marcador().miss }} MISS · combo máximo
-          {{ marcador().comboMaximo }}
-        </p>
+        @if (oficial(); as r) {
+          <p class="grande">{{ mensajeFinal(r) }}</p>
+          <p>
+            {{ r.puntos }} puntos · {{ r.perfect }} PERFECT · {{ r.great }} GREAT ·
+            {{ r.miss }} MISS · combo máximo {{ r.combo_maximo }}
+          </p>
+          <p class="ayuda">Partida guardada. Mira los récords en Estadísticas › Canciones.</p>
+        } @else {
+          <p class="grande">{{ mensajeFinal(marcador()) }}</p>
+          <p>
+            {{ marcador().puntos }} puntos · {{ marcador().perfect }} PERFECT ·
+            {{ marcador().great }} GREAT · {{ marcador().miss }} MISS · combo máximo
+            {{ marcador().comboMaximo }}
+          </p>
+          @if (guardando()) {
+            <p class="mensaje-carga">Guardando la partida…</p>
+          }
+          @if (errorGuardar()) {
+            <p class="mensaje-error">
+              No se ha guardado: {{ errorGuardar() }}
+              <button type="button" (click)="guardarPartida()">Reintentar</button>
+            </p>
+          }
+        }
         <div class="acciones">
           <button type="button" class="principal" (click)="jugar()">Otra vez</button>
           <button type="button" (click)="volverALaLista()">Elegir otra canción</button>
