@@ -109,7 +109,7 @@ los convierte en respuestas HTTP.
 | 2. Torneos y cuadro KO | 2–13 nov | Hecha |
 | 3. Combates, rondas y campeón | 16–20 nov | Hecha |
 | 4. Informes y entrega | 23 nov–2 dic | En curso: estadísticas e historial hechos; faltan revisión final y vídeo |
-| Ampliación: duelo de ritmo | — | Etapa 1, limpieza y etapa 3 hechas (escenarios fáciles listos; faltan medios y difíciles); etapas 4 a 6 pendientes |
+| Ampliación: duelo de ritmo | — | Etapa 1, limpieza y etapa 3 hechas (escenarios fáciles y medios listos; faltan los difíciles); etapas 4 a 6 pendientes |
 
 El duelo de ritmo es una ampliación aprobada por Eva (31/10/2026) que sustituye
 al modo combate anterior: dos participantes siguen la misma canción y gana

@@ -272,7 +272,7 @@ beatmaps, SQL y decisiones pendientes):
 | --- | --- | --- |
 | 1. Sesión | Registro, login, sesión y contraseñas cifradas | Hecha |
 | Limpieza | Retirar el editor de personajes y la lucha (tabla, backend, frontend y tests) | Hecha |
-| 3. Motor de ritmo v1 | Escenario con personajes fijos, reproductor rítmico, evaluación de pulsaciones y marcador | Hecha. Escenarios fáciles listos (puerto, bar y huerto); faltan los 3 medios y los 3 difíciles |
+| 3. Motor de ritmo v1 | Escenario con personajes fijos, reproductor rítmico, evaluación de pulsaciones y marcador | Hecha. Escenarios fáciles y medios listos (6 de 9); faltan los 3 difíciles |
 | 4. Rival CPU | El jugador 2 sigue la pista con una precisión que depende de la ronda | Pendiente |
 | 5. Música, efectos y sonido | Canciones por nivel, sonidos de acierto y fallo, textos "PERFECT!" y "MISS!" | Pendiente |
 | 6. Conexión con el torneo | Botón "Jugar" en el cuadro, canción según la ronda, validación en el backend y avance del cuadro | Pendiente |
@@ -286,9 +286,9 @@ canciones en archivos JSON sin tabla nueva y el estilo del boceto del puerto.
 | Números del juego (ventanas, puntos, Hype, teclas) | `frontend/src/app/juego/reglas.ts` |
 | Juicio y marcador, funciones puras con Vitest | `frontend/src/app/juego/evaluacion.ts` |
 | Música generada con Web Audio | `frontend/src/app/juego/musica.ts` |
-| Escenarios: dibujo en canvas, instrucciones, sonido de aviso y frase final | `frontend/src/app/juego/escenarios/` (`puerto.ts`, `bar.ts`, `huerto.ts`) |
+| Escenarios: dibujo en canvas, instrucciones, sonido de aviso y frase final | `frontend/src/app/juego/escenarios/` (un archivo por escenario) |
 | Pantalla que junta las piezas | `frontend/src/app/pages/practica/` |
-| Canciones | `backend/app/beatmaps/` (`puerto.json`, `bar.json`, `huerto.json`) |
+| Canciones | `backend/app/beatmaps/` (un JSON por escenario) |
 | Lectura y validación de canciones | `canciones_repo.py`, `canciones_servicio.py`, `routers/canciones.py` |
 
 Detalles que decidí yo (Claude) en esta etapa:
@@ -305,6 +305,9 @@ Detalles que decidí yo (Claude) en esta etapa:
 - Brindis arcade: la jarra rubia se pulsa con J y las jarras dobles de tostada con K. Huerto a compás: una
   abeja señala la calabaza que toca regar y cada acierto la hace crecer. La música admite también una
   pista de caja de batería (`caja`).
+- Ramen a contratiempo: J corta en el pulso y K echa la cebolleta a la olla en el contratiempo (la tapa se
+  levanta para avisar). Correos exprés: J sella cada carta bajo el sello; las urgentes, en rojo, van a
+  contratiempo. Paso de patitos: J hace saltar el charco a cada patito y K al segundo de una pareja.
 
 **Récords por canción (aprobado por Eva el 31/10/2026).** Cada partida terminada en *Práctica* se guarda
 en la tabla nueva `tk3_partidas`. El navegador solo manda las pulsaciones y el backend calcula la
