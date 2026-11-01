@@ -5,7 +5,7 @@
  * La pauta de la mesa enseña qué tecla toca y cuándo: la línea actual con su
  * cursor y, debajo, la siguiente.
  */
-import { ANCHO, caja, circ, fondo, poli, raya, TINTA } from './dibujo';
+import { ANCHO, caja, circ, elip, fondo, golpeDeComic, poli, raya, TINTA } from './dibujo';
 import { DibujarEscena, Escenario, VistaEscena } from './tipos';
 
 const INICIO = 4; // pulso de la primera línea (después de la cuenta atrás)
@@ -41,9 +41,22 @@ function filaPauta(
 }
 
 const dibujar: DibujarEscena = (c, v) => {
+  // Oficina: papel pintado, ventana con la ciudad, tablón, planta y taza
   fondo(c, '#cfe0d8');
+  for (let x = 0; x < ANCHO; x += 12) fondo(c, '#c4d8cf', x, 0, 6, 62);
   caja(c, 10, 8, 40, 26, '#f7f3e8', 1);
   for (let i = 0; i < 4; i++) raya(c, [14, 14 + i * 5, 46, 14 + i * 5], 0.6, '#b9c4cc');
+  caja(c, 40, 6, 8, 6, '#ffd84a', 0.5);
+  circ(c, 44, 7, 1, '#e8505b');
+  caja(c, 142, 44, 10, 10, '#c46a2b', 1.5);
+  elip(c, 144, 38, 4, 7, '#4fa64a', -0.4);
+  elip(c, 150, 37, 4, 8, '#5cb856', 0.4);
+  caja(c, 20, 54, 8, 8, '#ffffff', 1.5);
+  raya(c, [28, 56, 30, 58, 28, 60], 0.8);
+  for (let k = 0; k < 2; k++) {
+    const y = 51 - k * 3 - ((v.segundos * 2) % 3);
+    raya(c, [23 + k * 2, y, 24 + k * 2, y - 2], 0.6, '#9aa3a8');
+  }
   // Reloj de la oficina: la aguja da una vuelta cada cuatro pulsos
   caja(c, 118, 6, 22, 22, '#ffffff', 11);
   const ang = (v.pulso / PULSOS_LINEA) * Math.PI * 2;
@@ -109,6 +122,7 @@ const dibujar: DibujarEscena = (c, v) => {
     const x = PAUTA_X + (v.pulso - INICIO - linea * PULSOS_LINEA) * ANCHO_PULSO;
     raya(c, [x, 64.5, x, 78], 1.6, '#e0435f');
   }
+  golpeDeComic(c, v, 130, 46, ['¡TAC!', '¡CLAC!', '¡TIC!']);
 };
 
 export const mecanografa: Escenario = {

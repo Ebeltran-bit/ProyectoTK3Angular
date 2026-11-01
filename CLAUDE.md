@@ -135,7 +135,8 @@ Mantén actualizada esta tabla cuando termine una fase.
   GREAT (±90 ms) o MISS. Barra de Hype del público y contador de combo.
 - Niveles fácil, media y difícil según la ronda del torneo; las semifinales
   y la final son difíciles.
-- Estilo plano (Flat Art / vectorial 2D): contorno negro y colores planos.
+- Estilo cómic (aprobado el 01/11/2026, sustituye al plano): contorno negro grueso, colores vivos,
+  sombra con trama de puntos, brillo y onomatopeyas. Las primitivas están en `escenarios/dibujo.ts`.
 - Tres escenarios por nivel (lista en el README). El backend elige uno al
   azar para cada combate y lo guarda, así los dos jugadores tocan el mismo.
 - La puntuación que cuenta para el torneo la calcula el backend a partir de

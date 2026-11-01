@@ -4,7 +4,18 @@
  * distancia entre ellas es el ritmo que viene. Se fotografían con J cuando
  * pasan por la mira; los cometas grandes, con K.
  */
-import { ANCHO, caja, circ, estrella, fondo, persona, poli, raya } from './dibujo';
+import {
+  ANCHO,
+  caja,
+  circ,
+  elip,
+  estrella,
+  fondo,
+  golpeDeComic,
+  persona,
+  poli,
+  raya,
+} from './dibujo';
 import { DibujarEscena, Escenario } from './tipos';
 
 const MIRA_X = 80;
@@ -15,10 +26,25 @@ const ORIGEN_Y = 16; // por debajo de la barra de Hype, que tapa la esquina
 const VIAJE = 4;
 
 const dibujar: DibujarEscena = (c, v) => {
-  fondo(c, '#23295e');
-  for (let i = 0; i < 26; i++) circ(c, (i * 37) % ANCHO, (i * 53) % 58, 0.6, '#c8ceff', false);
+  // Cielo con franjas, vía láctea y estrellas que titilan
+  fondo(c, '#1b2052');
+  fondo(c, '#23295e', 0, 30, ANCHO, 20);
+  fondo(c, '#2d3470', 0, 48, ANCHO, 20);
+  c.save();
+  c.globalAlpha = 0.18;
+  elip(c, 90, 22, 70, 6, '#b9a6ff', -0.25, false);
+  elip(c, 70, 28, 40, 4, '#ffffff', -0.25, false);
+  c.restore();
+  for (let i = 0; i < 30; i++) {
+    const brillo = Math.sin(v.segundos * 3 + i) > 0.6;
+    circ(c, (i * 37) % ANCHO, (i * 53) % 58, brillo ? 0.9 : 0.55, '#dfe3ff', false);
+  }
   circ(c, 136, 14, 8, '#fff1b8');
-  circ(c, 140, 11, 7, '#23295e', false);
+  circ(c, 140, 11, 7, '#1b2052', false);
+  circ(c, 133, 16, 1.2, '#f2dc8e', false);
+  // Montañas a lo lejos con las luces de un pueblo
+  poli(c, [0, 66, 18, 50, 34, 60, 56, 46, 78, 62, 100, 52, 120, 64, 160, 54, 160, 66], '#2a2f63');
+  for (let i = 0; i < 9; i++) circ(c, 10 + i * 17, 63 + (i % 2), 0.6, '#ffd84a', false);
 
   // Flash de la cámara justo después de pulsar
   if (v.desdePulsacion < 0.08) fondo(c, 'rgba(255,255,255,0.35)');
@@ -64,8 +90,14 @@ const dibujar: DibujarEscena = (c, v) => {
     piel: '#9a5f3c',
     pelo: '#2a2230',
     brazo: v.desdePulsacion < 0.15 ? 2.4 : 0.6,
+    contento: v.desdePulsacion < 0.4,
   });
   caja(c, 48, 44, 6, 4, '#2a2230', 1);
+  circ(c, 51, 46, 1.2, '#7cf2c0', false);
+  // Trípode del telescopio pequeño junto a la astrónoma
+  raya(c, [10, 66, 14, 54, 18, 66], 1);
+  poli(c, [8, 50, 20, 46, 21, 49, 9, 53], '#9aa3c7');
+  golpeDeComic(c, v, 106, 24, ['¡CLIC!', '¡FLASH!', '¡CHAS!']);
 };
 
 export const observatorio: Escenario = {

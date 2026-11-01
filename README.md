@@ -261,6 +261,13 @@ beatmaps, SQL y decisiones pendientes):
 **Escenarios y estilo, aprobados por Eva el 31/10/2026**
 - Estilo visual plano (Flat Art / vectorial 2D): formas geométricas limpias, contorno negro bien definido
   y colores planos sin degradados. Bocetos: [Escenarios de ritmo](https://claude.ai/artifact/5zLUNQahn68jCCnhHik6rS).
+- **Cambio aprobado por Eva el 01/11/2026: estilo cómic.** De tres propuestas (plano detallado, cómic y
+  pixel art, en [TK3 Estilos de la barbería](https://claude.ai/artifact/MDNthc9wSXk4n7Fb1rD3YN)) eligió el cómic:
+  contorno negro grueso, colores vivos, una sombra con trama de puntos de imprenta y un brillo en cada forma,
+  y una onomatopeya (¡ZAS!, ¡CHOF!…) en cada acierto o «¡UY!» en cada fallo. Todo vive en
+  `juego/escenarios/dibujo.ts`, así cada escena solo dice qué formas dibuja y el estilo es el mismo en todas
+  (detalle mío: la sombra es la parte de la forma que queda fuera de una copia desplazada; la trama solo va
+  en formas grandes para que las caras no parezcan tener barba).
 - Nueve escenarios, tres por nivel:
 
 | Nivel | Escenarios |

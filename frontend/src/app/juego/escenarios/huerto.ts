@@ -3,14 +3,29 @@
  * Una abeja vuela hasta la calabaza que toca regar; la hortelana la riega
  * en su pulso y cada acierto la hace crecer un poco.
  */
-import { ANCHO, caja, circ, elip, fondo, persona, poli, raya, TINTA } from './dibujo';
+import {
+  ANCHO,
+  caja,
+  circ,
+  elip,
+  fondo,
+  onomatopeya,
+  persona,
+  poli,
+  raya,
+  TINTA,
+  ultimoGolpe,
+} from './dibujo';
 import { DibujarEscena, Escenario } from './tipos';
 
 const CALABAZAS = 5;
 const xCalabaza = (i: number) => 18 + (i % CALABAZAS) * 31;
 
 function calabaza(c: CanvasRenderingContext2D, x: number, tam: number): void {
+  elip(c, x, 70.4, tam * 1.8, 1.4, 'rgba(20, 16, 25, 0.2)', 0, false);
   elip(c, x, 70 - tam * 0.8, tam * 1.6, tam, '#f08a24');
+  // Gajos de la calabaza
+  elip(c, x, 70 - tam * 0.8, tam * 0.7, tam, '#f7a23e');
   raya(c, [x, 70 - tam * 1.8, x, 70], 0.8);
   caja(c, x - 0.8, 68 - tam * 2, 1.8, 3, '#3f8f3a', 0.5);
   elip(c, x + 3, 68 - tam * 2, 2.4, 1.2, '#4fb04a', 0.5);
@@ -26,14 +41,45 @@ function abeja(c: CanvasRenderingContext2D, x: number, y: number, ala: boolean):
 
 const dibujar: DibujarEscena = (c, v) => {
   const t = Math.max(0, v.segundos);
+  // Cielo, sol con rayos que giran y nubes
   fondo(c, '#9fd8f2');
+  fondo(c, '#b9e4f6', 0, 30, ANCHO, 22);
+  for (let i = 0; i < 8; i++) {
+    const a = t * 0.4 + (i * Math.PI) / 4;
+    raya(
+      c,
+      [24 + Math.cos(a) * 11, 16 + Math.sin(a) * 11, 24 + Math.cos(a) * 15, 16 + Math.sin(a) * 15],
+      1.2,
+      '#ffd23f',
+    );
+  }
   circ(c, 24, 16, 9, '#ffe066');
   elip(c, 110 + Math.sin(t / 4) * 4, 14, 14, 5, '#ffffff');
   elip(c, 122 + Math.sin(t / 4) * 4, 11, 9, 5, '#ffffff');
+  // Colinas, granero y árbol al fondo
   elip(c, 40, 52, 70, 12, '#7cc56a');
   elip(c, 130, 54, 60, 11, '#6ab85a');
+  caja(c, 128, 30, 18, 16, '#c2364f', 0.5);
+  poli(c, [126, 31, 137, 22, 148, 31], '#8a2a3c');
+  caja(c, 134, 37, 6, 9, '#fdf3dc', 0.5);
+  raya(c, [134, 37, 140, 46], 0.6);
+  raya(c, [140, 37, 134, 46], 0.6);
+  caja(c, 62, 34, 3, 14, '#8a5a36', 1);
+  circ(c, 63.5, 30, 7, '#4fa64a');
+  circ(c, 58.5, 33, 4.5, '#5cb856');
+  circ(c, 66, 26, 1, '#e8505b', false);
+  circ(c, 60, 30, 1, '#e8505b', false);
+  // Valla de madera
+  for (let x = 2; x < ANCHO; x += 9) caja(c, x, 44, 3, 10, '#e9d6a8', 0.8);
+  raya(c, [0, 47, ANCHO, 47], 1.4, '#e9d6a8');
+  raya(c, [0, 47, ANCHO, 47], 0.4);
+  // Tierra con surcos y flores
   caja(c, -2, 54, ANCHO + 4, 38, '#a86a3d', 0.5);
   for (let x = 4; x < ANCHO; x += 14) raya(c, [x, 58, x + 8, 58], 1, '#8a542e');
+  for (let x = 6; x < ANCHO; x += 22) {
+    raya(c, [x, 86, x, 81], 0.6, '#3f8f3a');
+    circ(c, x, 80.5, 1.4, x % 44 === 6 ? '#ff8fa3' : '#ffffff');
+  }
 
   // Cada calabaza crece con los aciertos que ha recibido
   const aciertos = new Array(CALABAZAS).fill(0);
@@ -67,6 +113,7 @@ const dibujar: DibujarEscena = (c, v) => {
     piel: '#fde0c5',
     pelo: '#e8505b',
     brazo: 1.5,
+    contento: regando,
     gorro: (g, gx, gy) => {
       elip(g, gx, gy - 7, 11, 2.2, '#f2cf8c');
       elip(g, gx, gy - 9.5, 6, 3.4, '#f2cf8c');
@@ -99,6 +146,15 @@ const dibujar: DibujarEscena = (c, v) => {
       const contenta = n.juicio === 'perfect' || n.juicio === 'great';
       abeja(c, destino + k * (contenta ? 10 : -14), 50 - k * (contenta ? 30 : 6), aleteo);
     }
+  }
+
+  // Onomatopeya sobre la calabaza que se acaba de regar
+  const golpe = ultimoGolpe(v);
+  if (golpe) {
+    const gx = Math.min(140, Math.max(20, xCalabaza(golpe.indice)));
+    if (golpe.acierto)
+      onomatopeya(c, gx + 12, 16, ['¡CHOF!', '¡GLUP!', '¡PLIC!'][golpe.indice % 3], golpe.k);
+    else onomatopeya(c, gx + 12, 16, '¡UY!', golpe.k, '#ff6b6b');
   }
 };
 

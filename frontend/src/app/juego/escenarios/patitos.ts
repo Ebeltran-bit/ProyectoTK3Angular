@@ -3,7 +3,7 @@
  * Mamá pata hace cuac y sus patitos llegan uno a uno al charco: pulsa J
  * para que salten. Cuando llegan dos seguidos, el segundo salta con K.
  */
-import { ANCHO, caja, circ, elip, fondo, poli, TINTA } from './dibujo';
+import { ANCHO, caja, circ, elip, fondo, golpeDeComic, poli, raya, TINTA } from './dibujo';
 import { DibujarEscena, Escenario } from './tipos';
 
 const X_CHARCO = 80;
@@ -36,12 +36,38 @@ function pata(
 }
 
 const dibujar: DibujarEscena = (c, v) => {
-  fondo(c, '#bfe6a8');
-  elip(c, 130, 20, 26, 14, '#8fcf7a');
-  elip(c, 26, 22, 22, 12, '#8fcf7a');
-  for (const x of [130, 26]) caja(c, x - 2, 30, 4, 12, '#8a5a36', 1);
+  // Parque: cielo, árboles, valla y camino de tierra
+  fondo(c, '#bfe9ff');
+  elip(c, 60, 46, 90, 14, '#9ad884');
+  fondo(c, '#bfe6a8', 0, 40, ANCHO, 50);
+  elip(c, 100 + v.segundos, 10, 12, 4, '#ffffff');
+  for (const x of [130, 26]) caja(c, x - 2, 30, 4, 14, '#8a5a36', 1);
+  elip(c, 130, 20, 26, 14, '#7cc56a');
+  elip(c, 124, 16, 14, 8, '#8fd67a');
+  elip(c, 26, 22, 22, 12, '#7cc56a');
+  elip(c, 20, 18, 11, 7, '#8fd67a');
+  for (let x = 44; x < 112; x += 8) caja(c, x, 38, 2.6, 10, '#ffffff', 0.8);
+  raya(c, [42, 41, 114, 41], 1, '#ffffff');
+  raya(c, [42, 41, 114, 41], 0.3);
   caja(c, -2, 50, ANCHO + 4, 26, '#e8d3a2', 0.5);
+  for (let x = 4; x < ANCHO; x += 17) circ(c, x, 58 + (x % 3) * 4, 0.8, '#c9b07a', false);
+  // Juncos y flores en la hierba de abajo
+  for (let x = 8; x < ANCHO; x += 19) {
+    raya(c, [x, 88, x - 1, 80], 0.8, '#3f8f3a');
+    raya(c, [x + 2, 88, x + 3, 81], 0.8, '#3f8f3a');
+    circ(c, x + 6, 84, 1.3, x % 38 === 8 ? '#ffd84a' : '#ff8fa3');
+  }
+  // Charco con ondas
   elip(c, X_CHARCO, 66, 11, 3.5, '#6fc3e8');
+  const onda = (v.segundos * 0.8) % 1;
+  c.save();
+  c.globalAlpha = 1 - onda;
+  c.strokeStyle = '#ffffff';
+  c.lineWidth = 0.6;
+  c.beginPath();
+  c.ellipse(X_CHARCO + 2, 66, 3 + onda * 6, 1 + onda * 1.6, 0, 0, Math.PI * 2);
+  c.stroke();
+  c.restore();
   // La piedra marca el punto de salto
   elip(c, X_PIEDRA, 67.5, 4.2, 1.8, '#b7b2a6');
 
@@ -78,6 +104,7 @@ const dibujar: DibujarEscena = (c, v) => {
         circ(c, X_CHARCO - 8 + g * 5, 60 - (g % 2) * 3 + falta * 2, 0.9, '#6fc3e8', false);
     }
   }
+  golpeDeComic(c, v, 56, 40, ['¡HOP!', '¡BOING!', '¡HUP!']);
 };
 
 export const patitos: Escenario = {
