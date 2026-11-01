@@ -16,6 +16,16 @@ from app.servicios.errores import Conflicto, ErrorDeNegocio, NoEncontrado, SinPe
 # Reglas puras (se prueban sin base de datos)
 # ---------------------------------------------------------------------
 
+# Canciones retiradas y la que suena en su lugar. Los duelos ya creados con
+# ellas no se tocan en la base de datos: solo se juegan y se enseñan con la nueva.
+# El 01/11/2026 Gatos en el tejado se sustituyó por Duelo de barberos.
+RETIRADAS = {"tejado": "barberia"}
+
+
+def cancion_del_duelo(duelo: dict) -> str:
+    """El id de la canción que se toca en un duelo, contando con las retiradas."""
+    return RETIRADAS.get(duelo["id_cancion"], duelo["id_cancion"])
+
 
 def nivel_de_ronda(ronda: int, total_rondas: int) -> str:
     """R4: semifinales y final, difícil; primera ronda, fácil; el resto, media.
@@ -89,7 +99,7 @@ def _duelo(torneo: dict, combate: dict) -> dict:
 def _vista(torneo: dict, combate: dict, duelo: dict, usuario: dict, mensaje: str | None = None) -> dict:
     """Lo que ve el navegador. La puntuación de cada uno se oculta hasta que el combate termina,
     salvo la del propio usuario."""
-    cancion = next(c for c in canciones_servicio.listar() if c["id"] == duelo["id_cancion"])
+    cancion = next(c for c in canciones_servicio.listar() if c["id"] == cancion_del_duelo(duelo))
     resultados = {r["id_participante"]: r for r in duelos_repo.resultados(combate["id"])}
     ids = [combate["id_participante1"], combate["id_participante2"]]
     nombres = {p["id"]: p for p in participantes_repo.listar_por_ids(ids)}
@@ -148,7 +158,7 @@ def _guardar(torneo: dict, combate: dict, usuario: dict, id_participante: int, e
     if combate["estado"] == "resuelto":
         raise Conflicto("Este combate ya tiene ganador")
     duelo = _duelo(torneo, combate)
-    cancion = canciones_servicio.obtener(duelo["id_cancion"])
+    cancion = canciones_servicio.obtener(cancion_del_duelo(duelo))
     if es_ia:
         pulsaciones = ia.pulsaciones(partidas_servicio.notas_en_ms(cancion), cancion["nivel"])
     marcador = partidas_servicio.puntuar(cancion, pulsaciones)
@@ -167,7 +177,7 @@ def _resolver_si_estan_los_dos(torneo: dict, combate: dict, duelo: dict) -> str 
         return None
     ganador = decidir_ganador(resultados)
     if ganador is None:
-        cancion = canciones_servicio.obtener(duelo["id_cancion"])
+        cancion = canciones_servicio.obtener(cancion_del_duelo(duelo))
         nueva = elegir_cancion(canciones_servicio.listar(), cancion["nivel"], excluir=cancion["id"])
         duelos_repo.repetir(combate["id"], nueva)
         return "Empate total: el duelo se repite con otra canción"

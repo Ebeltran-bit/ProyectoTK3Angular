@@ -1,3 +1,4 @@
+import { barberia } from './barberia';
 import { bar } from './bar';
 import { correos } from './correos';
 import { huerto } from './huerto';
@@ -6,7 +7,6 @@ import { observatorio } from './observatorio';
 import { patitos } from './patitos';
 import { puerto } from './puerto';
 import { ramen } from './ramen';
-import { tejado } from './tejado';
 import { Escenario } from './tipos';
 
 /** Escenarios disponibles por su id (el campo `escenario` del beatmap). */
@@ -18,6 +18,6 @@ export const ESCENARIOS: Record<string, Escenario> = {
   correos,
   patitos,
   observatorio,
-  tejado,
+  barberia,
   mecanografa,
 };

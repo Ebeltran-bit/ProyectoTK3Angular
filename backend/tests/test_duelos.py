@@ -240,6 +240,19 @@ def test_abrir_el_duelo_elige_una_cancion_de_su_ronda_y_la_guarda(entorno):
     assert duelos.duelos[combate["id"]] == vista["cancion"]["id"]
 
 
+def test_un_duelo_con_una_cancion_retirada_se_juega_con_la_nueva(entorno):
+    """Los duelos creados con Gatos en el tejado se juegan con la barbería, sin tocar la base de datos."""
+    torneos, duelos = entorno()
+    combate = primer_pendiente(torneos)
+    p1 = combate["id_participante1"]
+    duelos.duelos[combate["id"]] = "tejado"
+    vista = duelos_servicio.obtener(1, combate["id"], usuario(p1))
+    assert vista["cancion"]["id"] == "barberia"
+    vista = duelos_servicio.jugar(1, combate["id"], usuario(p1), pulsaciones_perfectas("barberia"))
+    assert vista["jugadores"][0]["resultado"]["miss"] == 0
+    assert duelos.duelos[combate["id"]] == "tejado"
+
+
 def test_un_combate_con_bye_no_tiene_duelo(entorno):
     torneos, _ = entorno()
     bye = next(c for c in torneos.combates.values() if c["es_bye"])

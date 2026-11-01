@@ -274,7 +274,7 @@ beatmaps, SQL y decisiones pendientes):
 | --- | --- |
 | Fácil | Puerto de las gaviotas, Brindis arcade, Huerto a compás |
 | Media | Ramen a contratiempo, Correos exprés, Paso de patitos |
-| Difícil | Estrellas fugaces, Gatos en el tejado (el gato naranja mueve la cola con un ritmo y el jugador lo repite), La mecanógrafa |
+| Difícil | Estrellas fugaces, Duelo de barberos (el barbero rival corta un ritmo y el jugador lo repite), La mecanógrafa |
 
 - En cada combate, el backend elige al azar un escenario del nivel de su ronda y lo guarda con el combate,
   para que los dos participantes toquen la misma canción aunque jueguen en momentos distintos.
@@ -323,9 +323,13 @@ Detalles que decidí yo (Claude) en esta etapa:
   contratiempo. Paso de patitos: J hace saltar el charco a cada patito y K al segundo de una pareja; se pulsa cuando el
   patito pisa la piedra del borde del charco (cambiado tras las pruebas de Eva del 01/11/2026).
 - Estrellas fugaces (`observatorio`): J fotografía cada estrella al pasar por la mira y K los cometas.
-  Gatos en el tejado: llamada y respuesta de cuatro pulsos; el aviso de cada nota es el coletazo del gato
-  naranja (`aviso_antes: 4`) y J barre la cola a la izquierda y K a la derecha. La mecanógrafa: líneas de
-  cuatro pulsos con J para cada letra y K para la campanilla.
+  Duelo de barberos (`barberia`, sustituye a Gatos en el tejado; aprobado por Eva el 01/11/2026 a partir de
+  la vista previa): llamada y respuesta de cuatro pulsos a 124 BPM con ocho patrones. El aviso de cada nota es
+  el corte del barbero rival (`aviso_antes: 4`); J es un tijeretazo y K una pasada de navaja. Los puntos de su
+  espejo recuerdan el patrón y cada fallo deja un trasquilón en la barba del cliente. Los duelos del torneo
+  que ya se habían creado con el tejado se juegan con la barbería (`RETIRADAS` en `duelos_servicio.py`) sin
+  cambiar nada en la base de datos. La mecanógrafa: líneas de cuatro pulsos con J para cada letra y K para
+  la campanilla.
 - Ajuste tras las pruebas de Eva del 01/11/2026 (los difíciles iban demasiado rápidos y dos no se leían bien):
   se baja el BPM de los tres (Mecanógrafa 152 → 126, Estrellas 144 → 120, Gatos 150 → 128), un tempo parecido
   al de los medios (112–124). Mecanógrafa: nueva pauta en la mesa con la línea actual, su cursor y
