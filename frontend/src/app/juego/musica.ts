@@ -15,6 +15,9 @@ export function frecuencia(midi: number): number {
   return 440 * 2 ** ((midi - 69) / 12);
 }
 
+/** Cuánto se sube todo después del compresor. Sin esto la música sonaba floja en portátiles. */
+const VOLUMEN_GENERAL = 2.8;
+
 export class Musica {
   private readonly salida: GainNode;
   /** Eco de sala para los instrumentos melódicos: la música suena menos "seca". */
@@ -22,11 +25,25 @@ export class Musica {
   private fuentes: AudioScheduledSourceNode[] = [];
 
   constructor(private readonly ctx: AudioContext) {
-    // Un compresor suave evita que se sature cuando suenan muchas pistas a la vez
+    // Cadena de salida: compresor → subida de volumen → limitador.
+    // El compresor iguala los golpes fuertes (el bombo) con las notas suaves,
+    // así se puede subir el volumen general sin que el bombo sature.
     const compresor = ctx.createDynamicsCompressor();
-    compresor.threshold.value = -14;
-    compresor.ratio.value = 3;
-    compresor.connect(ctx.destination);
+    compresor.threshold.value = -26;
+    compresor.knee.value = 8;
+    compresor.ratio.value = 6;
+    compresor.attack.value = 0.003;
+    compresor.release.value = 0.2;
+    const subida = ctx.createGain();
+    subida.gain.value = VOLUMEN_GENERAL;
+    // El limitador corta lo poco que quede por encima: nunca se pasa de 0 dB
+    const limitador = ctx.createDynamicsCompressor();
+    limitador.threshold.value = -6;
+    limitador.knee.value = 0;
+    limitador.ratio.value = 20;
+    limitador.attack.value = 0.001;
+    limitador.release.value = 0.1;
+    compresor.connect(subida).connect(limitador).connect(ctx.destination);
     this.salida = ctx.createGain();
     this.salida.connect(compresor);
     const eco = ctx.createConvolver();
