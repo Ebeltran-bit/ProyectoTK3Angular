@@ -187,7 +187,10 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
     if (!lienzo || !c) return;
     preparar(c);
 
-    if (this.fase() !== 'jugando' || !this.partida || !this.audio) {
+    // Al terminar se sigue dibujando la partida (no la escena en reposo), para que los
+    // personajes se queden donde acabaron y no salten a su posición inicial
+    const enPartida = this.fase() === 'jugando' || this.fase() === 'terminada';
+    if (!enPartida || !this.partida || !this.audio) {
       // Escena de fondo en reposo, sin notas
       const s = performance.now() / 1000;
       escena(c, {
@@ -203,7 +206,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
 
     const ms = this.msCancion();
     const cierre = cerrarNotasPasadas(this.partida, ms);
-    if (cierre.fallos > 0) {
+    if (cierre.fallos > 0 && this.fase() === 'jugando') {
       this.partida = cierre.partida;
       this.mostrar('miss');
     }
@@ -220,7 +223,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
       ultimaTecla: this.ultimaTecla,
     });
     if (pulso >= 0 && pulso < cancion.cuenta_atras) this.cuentaAtras(c, Math.floor(pulso) + 1);
-    if (pulso > cancion.fin + 1) {
+    if (pulso > cancion.fin + 1 && this.fase() === 'jugando') {
       this.fase.set('terminada');
       this.terminada.emit(this.pulsaciones);
     }

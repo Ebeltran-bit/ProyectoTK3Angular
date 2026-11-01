@@ -7,6 +7,8 @@ import { ANCHO, caja, circ, elip, fondo, poli, TINTA } from './dibujo';
 import { DibujarEscena, Escenario } from './tipos';
 
 const X_CHARCO = 80;
+/** Piedra del borde del charco: hay que pulsar cuando el patito llega a ella. */
+const X_PIEDRA = X_CHARCO - 14;
 const AVANCE = 22; // unidades que anda un patito en un pulso
 
 function pata(
@@ -40,6 +42,8 @@ const dibujar: DibujarEscena = (c, v) => {
   for (const x of [130, 26]) caja(c, x - 2, 30, 4, 12, '#8a5a36', 1);
   caja(c, -2, 50, ANCHO + 4, 26, '#e8d3a2', 0.5);
   elip(c, X_CHARCO, 66, 11, 3.5, '#6fc3e8');
+  // La piedra marca el punto de salto
+  elip(c, X_PIEDRA, 67.5, 4.2, 1.8, '#b7b2a6');
 
   // Mamá pata al otro lado del charco; grazna cuando llega un patito
   const cuac = v.notas.some((n) => n.pulso - v.pulso > 0.6 && n.pulso - v.pulso < 1);
@@ -59,12 +63,13 @@ const dibujar: DibujarEscena = (c, v) => {
     if (falta > 3.6 || falta < -2.2) continue;
     const segundo = v.teclas[i] === 'alterna';
     const color = segundo ? '#ffe9a0' : '#ffd84a';
-    const x = X_CHARCO - falta * AVANCE - 6;
+    // En el pulso de la nota, el patito está encima de la piedra
+    const x = X_PIEDRA - falta * AVANCE - 2;
     if (falta > 0) {
       pata(c, x, 64, 0.6, color);
     } else if (n.juicio === 'perfect' || n.juicio === 'great') {
-      // Salta por encima del charco y sigue hacia mamá pata
-      const salto = Math.max(0, Math.sin(Math.min(1, -falta / 0.6) * Math.PI)) * 9;
+      // Salta desde la piedra por encima del charco (dura un pulso) y sigue hacia mamá pata
+      const salto = Math.max(0, Math.sin(Math.min(1, -falta) * Math.PI)) * 10;
       pata(c, x, 64 - salto, 0.6, color);
     } else {
       // Ha caído al charco: chapoteo
@@ -78,7 +83,7 @@ const dibujar: DibujarEscena = (c, v) => {
 export const patitos: Escenario = {
   dibujar,
   instrucciones:
-    'Mamá pata hace cuac y sus patitos llegan al charco. Pulsa J justo cuando un patito llega para que salte. Si vienen dos seguidos, el segundo (más clarito) salta con K.',
+    'Mamá pata hace cuac y sus patitos llegan al charco. Pulsa J justo cuando un patito pisa la piedra del borde para que salte el charco. Si vienen dos seguidos, el segundo (más clarito) salta con K.',
   aviso: (m, t, tecla) => {
     // Cuac de mamá pata: grave si es un patito, más agudo si es el segundo de una pareja
     const o = m.tono('sawtooth', tecla === 'accion' ? 330 : 440, t, 0.14, 0.05);

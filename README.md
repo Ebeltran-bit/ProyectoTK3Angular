@@ -313,7 +313,8 @@ Detalles que decidí yo (Claude) en esta etapa:
   pista de caja de batería (`caja`).
 - Ramen a contratiempo: J corta en el pulso y K echa la cebolleta a la olla en el contratiempo (la tapa se
   levanta para avisar). Correos exprés: J sella cada carta bajo el sello; las urgentes, en rojo, van a
-  contratiempo. Paso de patitos: J hace saltar el charco a cada patito y K al segundo de una pareja.
+  contratiempo. Paso de patitos: J hace saltar el charco a cada patito y K al segundo de una pareja; se pulsa cuando el
+  patito pisa la piedra del borde del charco (cambiado tras las pruebas de Eva del 01/11/2026).
 - Estrellas fugaces (`observatorio`): J fotografía cada estrella al pasar por la mira y K los cometas.
   Gatos en el tejado: llamada y respuesta de cuatro pulsos; el aviso de cada nota es el coletazo del gato
   naranja (`aviso_antes: 4`) y J barre la cola a la izquierda y K a la derecha. La mecanógrafa: líneas de
@@ -370,6 +371,8 @@ Detalles que decidí yo (Claude):
 - La respuesta del duelo incluye `total_rondas` para poder escribir "Semifinales" o "Final".
 - Las comprobaciones de pulsaciones de Práctica (máximo por nota, fuera de la canción) se reutilizan en el
   duelo (`partidas_servicio.puntuar`).
+- Al acabar la canción, el escenario se queda como terminó la partida (antes volvía a la escena en reposo y,
+  por ejemplo, la hortelana del huerto se deslizaba al centro).
 - Las pulsaciones se mandan sin redondear: al redondear a milisegundos enteros, una nota a 39,8 ms podía
   ser PERFECT en el navegador y GREAT en el backend. Ahora coinciden siempre.
 - Limitación conocida: solo cuenta la partida que llega al final de la canción. Si alguien recarga la

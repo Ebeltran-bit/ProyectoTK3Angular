@@ -49,7 +49,10 @@ const dibujar: DibujarEscena = (c, v) => {
   const siguiente = v.notas.findIndex((n) => n.pulso - v.pulso > -0.3);
   const anterior = Math.max(0, siguiente - 1);
   let x = 74;
-  if (siguiente >= 0) {
+  if (siguiente < 0 && v.notas.length > 0) {
+    // Ya no quedan notas: se queda junto a la última calabaza que regó
+    x = Math.max(10, xCalabaza(v.notas.length - 1) - 14);
+  } else if (siguiente >= 0) {
     const a = v.notas[anterior];
     const b = v.notas[siguiente];
     const k =
