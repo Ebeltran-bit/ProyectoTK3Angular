@@ -318,8 +318,12 @@ Detalles que decidí yo (Claude) en esta etapa:
 - Brindis arcade: la jarra rubia se pulsa con J y las jarras dobles de tostada con K. Huerto a compás: una
   abeja señala la calabaza que toca regar y cada acierto la hace crecer. La música admite también una
   pista de caja de batería (`caja`).
-- Ramen a contratiempo: J corta en el pulso y K echa la cebolleta a la olla en el contratiempo (la tapa se
-  levanta para avisar). Correos exprés: J sella cada carta bajo el sello; las urgentes, en rojo, van a
+- Ramen a contratiempo (rediseñado tras las pruebas de Eva del 01/11/2026, mismas notas): cada verdura llega
+  a la tabla con una línea de puntos por corte (J en el pulso) y después la tapa de la olla se levanta y sale
+  vapor para echarla con K a contratiempo. Tras cada K entra una verdura distinta (zanahoria, cebolleta, seta,
+  pimiento, maíz y nabo) y la olla se va llenando de colores. La tapa se levanta por tiempo, pulso y medio
+  antes de la K: en la vista previa esperaba a que se juzgaran todos los cortes y por eso parecía ir con retraso.
+  Correos exprés: J sella cada carta bajo el sello; las urgentes, en rojo, van a
   contratiempo. Paso de patitos: J hace saltar el charco a cada patito y K al segundo de una pareja; se pulsa cuando el
   patito pisa la piedra del borde del charco (cambiado tras las pruebas de Eva del 01/11/2026).
 - Estrellas fugaces (`observatorio`): J fotografía cada estrella al pasar por la mira y K los cometas.
