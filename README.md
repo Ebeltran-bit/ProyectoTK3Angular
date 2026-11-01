@@ -371,6 +371,10 @@ Detalles que decidí yo (Claude):
 - La respuesta del duelo incluye `total_rondas` para poder escribir "Semifinales" o "Final".
 - Las comprobaciones de pulsaciones de Práctica (máximo por nota, fuera de la canción) se reutilizan en el
   duelo (`partidas_servicio.puntuar`).
+- Música mejorada (01/11/2026, aprobado por Eva: "mejorarla por código"). Cada canción tiene ahora intro, parte A,
+  parte B y final, con acordes, segunda voz y batería que cambia entre partes. Se escribe entera en el beatmap
+  (`repetir_cada` = largo de la canción) y hay cuatro instrumentos nuevos: `flauta`, `pulsado`, `campana` y
+  `acordes`. El motor añade un eco de sala y un compresor suave. Las notas que hay que pulsar no cambian.
 - Al acabar la canción, el escenario se queda como terminó la partida (antes volvía a la escena en reposo y,
   por ejemplo, la hortelana del huerto se deslizaba al centro).
 - Las pulsaciones se mandan sin redondear: al redondear a milisegundos enteros, una nota a 39,8 ms podía

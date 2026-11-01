@@ -17,11 +17,34 @@ export function frecuencia(midi: number): number {
 
 export class Musica {
   private readonly salida: GainNode;
+  /** Eco de sala para los instrumentos melódicos: la música suena menos "seca". */
+  private readonly sala: GainNode;
   private fuentes: AudioScheduledSourceNode[] = [];
 
   constructor(private readonly ctx: AudioContext) {
+    // Un compresor suave evita que se sature cuando suenan muchas pistas a la vez
+    const compresor = ctx.createDynamicsCompressor();
+    compresor.threshold.value = -14;
+    compresor.ratio.value = 3;
+    compresor.connect(ctx.destination);
     this.salida = ctx.createGain();
-    this.salida.connect(ctx.destination);
+    this.salida.connect(compresor);
+    const eco = ctx.createConvolver();
+    eco.buffer = this.respuestaDeSala(1.4);
+    this.sala = ctx.createGain();
+    this.sala.gain.value = 0.22;
+    this.sala.connect(eco).connect(compresor);
+  }
+
+  /** Ruido que se apaga poco a poco: imita cómo suena una nota en una sala. */
+  private respuestaDeSala(segundos: number): AudioBuffer {
+    const largo = Math.ceil(this.ctx.sampleRate * segundos);
+    const buffer = this.ctx.createBuffer(2, largo, this.ctx.sampleRate);
+    for (let c = 0; c < 2; c++) {
+      const datos = buffer.getChannelData(c);
+      for (let i = 0; i < largo; i++) datos[i] = (Math.random() * 2 - 1) * (1 - i / largo) ** 3;
+    }
+    return buffer;
   }
 
   /** Programa la canción entera empezando en el instante `inicio` (segundos del AudioContext). */
@@ -76,7 +99,35 @@ export class Musica {
         this.tono('triangle', frecuencia(altura), t, dur, pista.volumen);
         break;
       case 'melodia':
-        this.tono('square', frecuencia(altura), t, dur, pista.volumen);
+        this.tono('square', frecuencia(altura), t, dur, pista.volumen, true);
+        break;
+      case 'flauta': {
+        // Onda suave con un poco de vibrato
+        const o = this.tono('sine', frecuencia(altura), t, dur, pista.volumen, true, 0.03);
+        const vibrato = this.ctx.createOscillator();
+        const cuanto = this.ctx.createGain();
+        vibrato.frequency.value = 5.5;
+        cuanto.gain.value = frecuencia(altura) * 0.006;
+        vibrato.connect(cuanto).connect(o.frequency);
+        vibrato.start(t);
+        vibrato.stop(t + dur + 0.02);
+        this.fuentes.push(vibrato);
+        this.tono('triangle', frecuencia(altura), t, dur, pista.volumen * 0.4, true, 0.03);
+        break;
+      }
+      case 'pulsado':
+        // Cuerda pulsada (como una guitarra o un koto): ataque seco y se apaga rápido
+        this.tono('triangle', frecuencia(altura), t, Math.min(dur, 0.6), pista.volumen, true);
+        this.tono('square', frecuencia(altura), t, 0.05, pista.volumen * 0.3);
+        break;
+      case 'campana':
+        // Campana: la nota y su armónico, que se apagan despacio
+        this.tono('sine', frecuencia(altura), t, Math.max(dur, 1.2), pista.volumen, true);
+        this.tono('sine', frecuencia(altura) * 2.76, t, 0.5, pista.volumen * 0.35, true);
+        break;
+      case 'acordes':
+        // Fondo suave para los acordes
+        this.tono('triangle', frecuencia(altura), t, dur, pista.volumen, true, 0.08);
         break;
       case 'bombo': {
         const o = this.tono('sine', 120, t, dur, pista.volumen);
@@ -94,15 +145,29 @@ export class Musica {
     }
   }
 
-  /** Una nota con forma de onda simple que se apaga sola. */
-  tono(tipo: OscillatorType, hz: number, t: number, dur: number, vol: number): OscillatorNode {
+  /**
+   * Una nota con forma de onda simple que se apaga sola.
+   * conEco la manda también a la sala; ataque es lo que tarda en llegar al volumen
+   * (unos milisegundos evitan el chasquido del principio).
+   */
+  tono(
+    tipo: OscillatorType,
+    hz: number,
+    t: number,
+    dur: number,
+    vol: number,
+    conEco = false,
+    ataque = 0.004,
+  ): OscillatorNode {
     const o = this.ctx.createOscillator();
     const g = this.ctx.createGain();
     o.type = tipo;
     o.frequency.setValueAtTime(hz, t);
-    g.gain.setValueAtTime(vol, t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(vol, 0.0001), t + ataque);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + Math.max(dur, ataque + 0.01));
     o.connect(g).connect(this.salida);
+    if (conEco) g.connect(this.sala);
     o.start(t);
     o.stop(t + dur + 0.02);
     this.fuentes.push(o);
