@@ -1,57 +1,44 @@
 /**
  * Escenario difícil: Estrellas fugaces.
- * Las estrellas cruzan el cielo a distintas velocidades y hay que
- * fotografiarlas (J) cuando pasan por la mira. Los cometas grandes, con K.
+ * Todas las estrellas recorren el mismo camino a la misma velocidad, así la
+ * distancia entre ellas es el ritmo que viene. Se fotografían con J cuando
+ * pasan por la mira; los cometas grandes, con K.
  */
 import { ANCHO, caja, circ, estrella, fondo, persona, poli, raya } from './dibujo';
 import { DibujarEscena, Escenario } from './tipos';
 
 const MIRA_X = 80;
 const MIRA_Y = 30;
-/** Pulsos que tarda cada estrella en llegar a la mira: unas van rápidas y otras lentas. */
-const VELOCIDADES = [1.2, 0.8, 1.6, 1];
+const ORIGEN_X = -6;
+const ORIGEN_Y = 16; // por debajo de la barra de Hype, que tapa la esquina
+/** Pulsos que tarda cualquier estrella en llegar a la mira: da tiempo a contarlas. */
+const VIAJE = 4;
 
 const dibujar: DibujarEscena = (c, v) => {
   fondo(c, '#23295e');
-  for (let i = 0; i < 26; i++) {
-    const x = (i * 37) % ANCHO;
-    const y = (i * 53) % 58;
-    if (i % 4) circ(c, x, y, 0.6, '#c8ceff', false);
-    else estrella(c, x, y, 1.6, '#fff4b3');
-  }
-  circ(c, 24, 18, 8, '#fff1b8');
-  circ(c, 28, 15, 7, '#23295e', false);
+  for (let i = 0; i < 26; i++) circ(c, (i * 37) % ANCHO, (i * 53) % 58, 0.6, '#c8ceff', false);
+  circ(c, 136, 14, 8, '#fff1b8');
+  circ(c, 140, 11, 7, '#23295e', false);
 
   // Flash de la cámara justo después de pulsar
   if (v.desdePulsacion < 0.08) fondo(c, 'rgba(255,255,255,0.35)');
 
+  // Camino por el que llegan las estrellas
+  raya(c, [ORIGEN_X, ORIGEN_Y, MIRA_X, MIRA_Y], 1, '#4a5296');
+
   v.notas.forEach((n, i) => {
     const cometa = v.teclas[i] === 'alterna';
-    const viaje = cometa ? 2 : VELOCIDADES[i % VELOCIDADES.length];
-    const k = 1 - (n.pulso - v.pulso) / viaje; // 0 al aparecer, 1 en la mira
+    const k = 1 - (n.pulso - v.pulso) / VIAJE; // 0 al aparecer, 1 en la mira
     const acierto = n.juicio === 'perfect' || n.juicio === 'great';
-    if (k < 0 || k > 2.2) return;
+    if (k < 0 || k > 1.4) return;
     if (acierto && k > 1) {
       // Fotografiada: se queda brillando en la mira un momento
-      if (k < 1.4) estrella(c, MIRA_X, MIRA_Y, (cometa ? 6 : 4) * (1.4 - k) * 2.5, '#ffffff');
+      estrella(c, MIRA_X, MIRA_Y, (cometa ? 6 : 4) * (1.4 - k) * 2.5, '#ffffff');
       return;
     }
-    // Cada estrella entra por un lado distinto y cruza la mira en línea recta
-    const desdeArriba = i % 2 === 0;
-    const ox = desdeArriba ? MIRA_X - 70 : MIRA_X + 75;
-    const oy = desdeArriba ? MIRA_Y - 26 : MIRA_Y - 20;
-    const x = ox + (MIRA_X - ox) * k;
-    const y = oy + (MIRA_Y - oy) * k;
-    const dx = (MIRA_X - ox) / 70;
-    const dy = (MIRA_Y - oy) / 70;
-    const estela = cometa ? 26 : 16;
-    raya(
-      c,
-      [x - dx * estela, y - dy * estela, x, y],
-      cometa ? 3.4 : 2.2,
-      cometa ? '#ff9e6b' : '#ffe07a',
-    );
-    estrella(c, x, y, cometa ? 5 : 3.4, cometa ? '#ff9e6b' : '#ffe07a');
+    const x = ORIGEN_X + (MIRA_X - ORIGEN_X) * k;
+    const y = ORIGEN_Y + (MIRA_Y - ORIGEN_Y) * k;
+    estrella(c, x, y, cometa ? 6.5 : 4, cometa ? '#ff9e6b' : '#ffe07a');
   });
 
   // Mira del telescopio
@@ -84,7 +71,7 @@ const dibujar: DibujarEscena = (c, v) => {
 export const observatorio: Escenario = {
   dibujar,
   instrucciones:
-    'Las estrellas cruzan el cielo a distintas velocidades. Pulsa J para fotografiar cada una cuando pasa por la mira. Los cometas grandes y naranjas se fotografían con K.',
+    'Las estrellas llegan en fila desde la izquierda, todas a la misma velocidad: cuanto más juntas vienen, más seguido tendrás que pulsar. Pulsa J cuando cada una llega a la mira. Los cometas grandes y naranjas se fotografían con K.',
   aviso: (m, t, tecla) => {
     // Destello que sube: más grave y largo si es un cometa
     const o = m.tono(

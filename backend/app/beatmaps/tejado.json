@@ -2,7 +2,7 @@
   "id": "tejado",
   "titulo": "Gatos en el tejado",
   "nivel": "dificil",
-  "bpm": 150,
+  "bpm": 128,
   "pulsos_por_compas": 4,
   "cuenta_atras": 4,
   "fin": 72,

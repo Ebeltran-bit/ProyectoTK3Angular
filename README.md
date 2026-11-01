@@ -318,6 +318,12 @@ Detalles que decidí yo (Claude) en esta etapa:
   Gatos en el tejado: llamada y respuesta de cuatro pulsos; el aviso de cada nota es el coletazo del gato
   naranja (`aviso_antes: 4`) y J barre la cola a la izquierda y K a la derecha. La mecanógrafa: líneas de
   cuatro pulsos con J para cada letra y K para la campanilla.
+- Ajuste tras las pruebas de Eva del 01/11/2026 (los difíciles iban demasiado rápidos y dos no se leían bien):
+  se baja el BPM de los tres (Mecanógrafa 152 → 126, Estrellas 144 → 120, Gatos 150 → 128), un tempo parecido
+  al de los medios (112–124). Mecanógrafa: nueva pauta en la mesa con la línea actual, su cursor y
+  la línea siguiente, máximo cinco letras por línea, y un aviso de campanilla antes de la K. Estrellas: todas
+  llegan por el mismo camino, a la misma velocidad y con cuatro pulsos de antelación, y las frases son más
+  cortas y con silencios. Los récords de práctica anteriores se hicieron con las canciones antiguas.
 
 **Récords por canción (aprobado por Eva el 31/10/2026).** Cada partida terminada en *Práctica* se guarda
 en la tabla nueva `tk3_partidas`. El navegador solo manda las pulsaciones y el backend calcula la

@@ -2,12 +2,43 @@
  * Escenario difícil: La mecanógrafa.
  * Cada línea dura cuatro pulsos: J para cada letra al ritmo de la música y
  * K para la campanilla del final, que devuelve el carro a la izquierda.
+ * La pauta de la mesa enseña qué tecla toca y cuándo: la línea actual con su
+ * cursor y, debajo, la siguiente.
  */
 import { ANCHO, caja, circ, fondo, poli, raya, TINTA } from './dibujo';
-import { DibujarEscena, Escenario } from './tipos';
+import { DibujarEscena, Escenario, VistaEscena } from './tipos';
 
 const INICIO = 4; // pulso de la primera línea (después de la cuenta atrás)
 const PULSOS_LINEA = 4;
+const PAUTA_X = 14;
+const ANCHO_PULSO = 33; // unidades de la pauta por cada pulso
+
+/** Una línea de la pauta: una casilla por nota, J en blanco y K en amarillo. */
+function filaPauta(
+  c: CanvasRenderingContext2D,
+  v: VistaEscena,
+  linea: number,
+  y: number,
+  alto: number,
+): void {
+  caja(c, PAUTA_X - 6, y, ANCHO_PULSO * PULSOS_LINEA + 6, alto, '#f7f3e8', 1);
+  c.save();
+  c.font = `700 ${alto - 3}px system-ui, sans-serif`;
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+  v.notas.forEach((n, i) => {
+    const p = n.pulso - INICIO;
+    if (p < 0 || Math.floor(p / PULSOS_LINEA) !== linea) return;
+    const x = PAUTA_X + (p - linea * PULSOS_LINEA) * ANCHO_PULSO;
+    const esK = v.teclas[i] === 'alterna';
+    const pendiente = esK ? '#ffc93c' : '#ffffff';
+    const color = n.juicio === null ? pendiente : n.juicio === 'miss' ? '#e0435f' : '#7cf2c0';
+    caja(c, x - 5, y + 1, 10, alto - 2, color, 1);
+    c.fillStyle = TINTA;
+    c.fillText(esK ? 'K' : 'J', x, y + alto / 2 + 0.3);
+  });
+  c.restore();
+}
 
 const dibujar: DibujarEscena = (c, v) => {
   fondo(c, '#cfe0d8');
@@ -70,16 +101,24 @@ const dibujar: DibujarEscena = (c, v) => {
   const golpe = pulsando ? 1 - v.desdePulsacion / 0.1 : 0;
   circ(c, 60 + (letras.length % 4) * 3, 62 - golpe * 3, 3.2, '#c68642');
   circ(c, 92 + (letras.length % 4) * 2, 63, 3.2, '#c68642');
+
+  // Pauta: el cursor recorre la línea actual; cada casilla se pulsa cuando llega a ella
+  filaPauta(c, v, linea, 66, 11);
+  filaPauta(c, v, linea + 1, 79, 9);
+  if (v.pulso >= INICIO) {
+    const x = PAUTA_X + (v.pulso - INICIO - linea * PULSOS_LINEA) * ANCHO_PULSO;
+    raya(c, [x, 64.5, x, 78], 1.6, '#e0435f');
+  }
 };
 
 export const mecanografa: Escenario = {
   dibujar,
   instrucciones:
-    'Teclea al ritmo de la música: pulsa J para cada letra y K para la campanilla al final de cada línea. Escucha el compás: las frases rápidas van en corcheas.',
+    'Mira la pauta de abajo: cuando el cursor rojo llega a una casilla, pulsa su tecla. J para las letras (blancas) y K para la campanilla (amarilla), que siempre cierra la línea. La fila de debajo es la línea que viene.',
   aviso: (m, t, tecla) => {
-    // Clic suave antes de cada letra; antes de la campanilla, el carro que corre
+    // Clic suave antes de cada letra; un pulso antes de la K, la campanilla
     if (tecla === 'accion') m.tono('square', 2400, t, 0.015, 0.02);
-    else m.ruido(t, 0.25, 0.05, 'bandpass', 3000);
+    else m.tono('triangle', 1760, t, 0.25, 0.09);
   },
   mensajeFinal: (hype) =>
     hype >= 70
