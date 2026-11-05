@@ -306,6 +306,10 @@ export const ramen: Escenario = {
       o.frequency.exponentialRampToValueAtTime(700, t + 0.15);
     }
   },
+  grabados: {
+    aviso: (tecla) => (tecla === 'alterna' ? 'ramen-aviso' : undefined),
+    acierto: (tecla) => (tecla === 'alterna' ? 'ramen-olla' : 'ramen-cortar'),
+  },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Cola en la puerta del restaurante!'

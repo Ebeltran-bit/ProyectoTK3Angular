@@ -153,6 +153,10 @@ export const puerto: Escenario = {
     o.frequency.exponentialRampToValueAtTime(700, t + 0.12);
     m.tono('square', 1300, t + 0.14, 0.08, 0.05);
   },
+  grabados: {
+    aviso: () => 'puerto-aviso',
+    acierto: () => 'puerto-acierto',
+  },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡El puerto entero aplaude!'

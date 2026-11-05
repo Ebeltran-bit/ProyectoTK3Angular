@@ -115,6 +115,10 @@ export const observatorio: Escenario = {
     );
     o.frequency.exponentialRampToValueAtTime(tecla === 'alterna' ? 1200 : 2600, t + 0.12);
   },
+  grabados: {
+    aviso: () => 'observatorio-aviso',
+    acierto: () => 'observatorio-acierto',
+  },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Fotos para la portada de la revista!'

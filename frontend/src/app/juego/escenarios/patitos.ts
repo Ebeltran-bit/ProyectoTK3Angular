@@ -116,6 +116,10 @@ export const patitos: Escenario = {
     const o = m.tono('sawtooth', tecla === 'accion' ? 330 : 440, t, 0.14, 0.05);
     o.frequency.exponentialRampToValueAtTime(tecla === 'accion' ? 220 : 300, t + 0.14);
   },
+  grabados: {
+    aviso: () => 'patitos-aviso',
+    acierto: () => 'patitos-acierto',
+  },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Todos los patitos secos y felices!'

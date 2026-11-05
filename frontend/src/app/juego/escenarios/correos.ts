@@ -103,6 +103,10 @@ export const correos: Escenario = {
     // Tic de la cinta
     m.tono('square', 2200, t, 0.02, 0.03);
   },
+  grabados: {
+    aviso: () => 'correos-aviso',
+    acierto: () => 'correos-acierto',
+  },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Todo el correo ha salido a tiempo!'

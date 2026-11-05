@@ -28,6 +28,7 @@ import {
   Tecla,
 } from '../../juego/evaluacion';
 import { Musica } from '../../juego/musica';
+import { SONIDOS_COMUNES, Sonidos } from '../../juego/sonidos';
 import { TECLAS } from '../../juego/reglas';
 import { Cancion, Pulsacion } from '../../models/cancion';
 
@@ -70,6 +71,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
 
   private audio: AudioContext | null = null;
   private musica: Musica | null = null;
+  private sonidos: Sonidos | null = null;
   private partida: Partida | null = null;
   /** Instante (en segundos del AudioContext) en que empieza la canción. */
   private inicio = 0;
@@ -105,13 +107,25 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
     const c = this.cancion();
     this.audio ??= new AudioContext();
     await this.audio.resume();
+    // Los MP3 grabados se cargan antes de empezar; los que falten sonarán generados
+    const grabados = this.escenario().grabados;
+    this.sonidos ??= new Sonidos(this.audio);
+    await this.sonidos.cargar(
+      [
+        ...SONIDOS_COMUNES,
+        ...(['accion', 'alterna'] as const).flatMap((t) => [
+          grabados?.aviso?.(t) ?? '',
+          grabados?.acierto?.(t) ?? '',
+        ]),
+      ].filter((n) => n),
+    );
     this.musica?.parar();
-    this.musica = new Musica(this.audio);
+    this.musica = new Musica(this.audio, this.sonidos);
     this.inicio = this.audio.currentTime + 0.3;
     this.partida = crearPartida(
       c.notas.map((n) => ({ ms: pulsoAMs(n.pulso, c.bpm), tecla: n.tecla })),
     );
-    this.musica.programar(c, this.inicio, this.escenario().aviso);
+    this.musica.programar(c, this.inicio, this.escenario().aviso, grabados?.aviso);
     this.ultimaPulsacion = -Infinity;
     this.pulsaciones = [];
     this.marcador.set(this.partida.marcador);
@@ -152,7 +166,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
     this.partida = r.partida;
     this.ultimaPulsacion = this.audio.currentTime;
     this.ultimaTecla = tecla;
-    this.musica.efecto(r.juicio);
+    this.musica.efecto(r.juicio, this.escenario().grabados?.acierto?.(tecla));
     this.mostrar(r.juicio);
   }
 
@@ -225,6 +239,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
     if (pulso >= 0 && pulso < cancion.cuenta_atras) this.cuentaAtras(c, Math.floor(pulso) + 1);
     if (pulso > cancion.fin + 1 && this.fase() === 'jugando') {
       this.fase.set('terminada');
+      this.musica?.final(this.partida?.marcador.hype ?? 0);
       this.terminada.emit(this.pulsaciones);
     }
   };

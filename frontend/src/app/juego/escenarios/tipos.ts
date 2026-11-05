@@ -26,6 +26,14 @@ export interface Escenario {
   instrucciones: string;
   /** Sonido que avisa de cada nota antes de que llegue. */
   aviso: SonidoAviso;
+  /**
+   * Nombres de los MP3 grabados (en public/sonidos/, sin extensión) del aviso
+   * y del acierto de cada tecla. Si un archivo no está, suena el generado.
+   */
+  grabados?: {
+    aviso?: (tecla: 'accion' | 'alterna') => string | undefined;
+    acierto?: (tecla: 'accion' | 'alterna') => string | undefined;
+  };
   /** Frase del final según el Hype del público (0 a 100). */
   mensajeFinal: (hype: number) => string;
 }

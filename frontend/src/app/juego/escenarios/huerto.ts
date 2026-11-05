@@ -167,6 +167,10 @@ export const huerto: Escenario = {
     const o = m.tono('sawtooth', 220, t, 0.3, 0.03);
     o.frequency.linearRampToValueAtTime(260, t + 0.3);
   },
+  grabados: {
+    aviso: () => 'huerto-aviso',
+    acierto: () => 'huerto-acierto',
+  },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Las calabazas más grandes del pueblo!'

@@ -6,6 +6,7 @@
  * nunca se desfasan aunque la pantalla vaya a tirones.
  */
 import { Cancion, Pista } from '../models/cancion';
+import { Sonidos } from './sonidos';
 
 /** Sonido que avisa de una nota que llega. Lo define cada escenario. */
 export type SonidoAviso = (m: Musica, t: number, tecla: 'accion' | 'alterna') => void;
@@ -24,7 +25,10 @@ export class Musica {
   private readonly sala: GainNode;
   private fuentes: AudioScheduledSourceNode[] = [];
 
-  constructor(private readonly ctx: AudioContext) {
+  constructor(
+    private readonly ctx: AudioContext,
+    private readonly sonidos: Sonidos | null = null,
+  ) {
     // Cadena de salida: compresor → subida de volumen → limitador.
     // El compresor iguala los golpes fuertes (el bombo) con las notas suaves,
     // así se puede subir el volumen general sin que el bombo sature.
@@ -65,7 +69,12 @@ export class Musica {
   }
 
   /** Programa la canción entera empezando en el instante `inicio` (segundos del AudioContext). */
-  programar(cancion: Cancion, inicio: number, aviso: SonidoAviso): void {
+  programar(
+    cancion: Cancion,
+    inicio: number,
+    aviso: SonidoAviso,
+    archivoAviso?: (tecla: 'accion' | 'alterna') => string | undefined,
+  ): void {
     const spb = 60 / cancion.bpm; // segundos por pulso
     // Cuenta atrás: un clic por pulso, más agudo en el primero
     for (let p = 0; p < cancion.cuenta_atras; p++) {
@@ -82,20 +91,51 @@ export class Musica {
       }
     }
     // Aviso antes de cada nota; cada escenario tiene el suyo (en el puerto, el graznido)
+    // Si hay un MP3 grabado para ese aviso suena él; si no, el generado por código
     for (const nota of cancion.notas) {
-      aviso(this, inicio + (nota.pulso - cancion.aviso_antes) * spb, nota.tecla);
+      const t = inicio + (nota.pulso - cancion.aviso_antes) * spb;
+      const archivo = archivoAviso?.(nota.tecla);
+      if (!archivo || !this.grabado(archivo, t)) aviso(this, t, nota.tecla);
     }
     // Acorde final
     for (const midi of [60, 64, 67])
       this.tono('triangle', frecuencia(midi), inicio + cancion.fin * spb, 1.2, 0.12);
   }
 
-  /** Sonido corto al pulsar, distinto según el juicio. */
-  efecto(juicio: 'perfect' | 'great' | 'miss'): void {
+  /**
+   * Toca un sonido grabado en el instante t. Devuelve false si ese archivo no
+   * está, para que quien llama use el sonido generado.
+   */
+  grabado(nombre: string, t: number, vol = 1): boolean {
+    const buffer = this.sonidos?.obtener(nombre);
+    if (!buffer) return false;
+    const fuente = this.ctx.createBufferSource();
+    const g = this.ctx.createGain();
+    fuente.buffer = buffer;
+    g.gain.value = vol;
+    fuente.connect(g).connect(this.salida);
+    fuente.start(t);
+    this.fuentes.push(fuente);
+    return true;
+  }
+
+  /** Aplausos al terminar si el público acaba animado, o unas palmas flojas si no. */
+  final(hype: number): void {
     const t = this.ctx.currentTime;
+    if (hype >= 70) this.grabado('ovacion', t);
+    else if (hype < 40) this.grabado('final-flojo', t);
+  }
+
+  /** Sonido corto al pulsar, distinto según el juicio. archivo es el MP3 del acierto, si lo hay. */
+  efecto(juicio: 'perfect' | 'great' | 'miss', archivo?: string): void {
+    const t = this.ctx.currentTime;
+    if (juicio === 'miss') {
+      if (!this.grabado('fallo', t, 0.8)) this.tono('sawtooth', 160, t, 0.12, 0.05);
+      return;
+    }
+    if (archivo && this.grabado(archivo, t, juicio === 'perfect' ? 1 : 0.8)) return;
     if (juicio === 'perfect') this.tono('square', 1568, t, 0.1, 0.06);
-    else if (juicio === 'great') this.tono('square', 1175, t, 0.08, 0.05);
-    else this.tono('sawtooth', 160, t, 0.12, 0.05);
+    else this.tono('square', 1175, t, 0.08, 0.05);
   }
 
   /** Corta todo lo programado (por ejemplo, al salir de la pantalla). */

@@ -134,6 +134,10 @@ export const mecanografa: Escenario = {
     if (tecla === 'accion') m.tono('square', 2400, t, 0.015, 0.02);
     else m.tono('triangle', 1760, t, 0.25, 0.09);
   },
+  grabados: {
+    aviso: (tecla) => (tecla === 'alterna' ? 'mecanografa-campanilla' : undefined),
+    acierto: (tecla) => (tecla === 'alterna' ? 'mecanografa-campanilla' : 'mecanografa-acierto'),
+  },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Ni una errata en toda la página!'

@@ -145,6 +145,10 @@ export const bar: Escenario = {
     // Jarra que se desliza por la madera: un ruido grave que dura el pulso del aviso
     m.ruido(t, 0.35, tecla === 'alterna' ? 0.1 : 0.07, 'lowpass', tecla === 'alterna' ? 500 : 900);
   },
+  grabados: {
+    aviso: () => 'bar-aviso',
+    acierto: () => 'bar-acierto',
+  },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Ronda gratis para todo el bar!'

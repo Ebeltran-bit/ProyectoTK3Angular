@@ -445,6 +445,10 @@ export const barberia: Escenario = {
   instrucciones:
     'Llamada y respuesta. El barbero rival corta un ritmo y tú lo repites justo en el compás siguiente. J es un tijeretazo y K una pasada de navaja. Los puntos de su espejo te recuerdan el patrón: blancos para J y amarillos para K.',
   aviso: corte,
+  grabados: {
+    aviso: (tecla) => (tecla === 'alterna' ? 'barberia-navaja' : 'barberia-tijeras'),
+    acierto: (tecla) => (tecla === 'alterna' ? 'barberia-navaja' : 'barberia-tijeras'),
+  },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Las barbas mejor recortadas de la ciudad!'

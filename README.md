@@ -287,7 +287,7 @@ beatmaps, SQL y decisiones pendientes):
 | Limpieza | Retirar el editor de personajes y la lucha (tabla, backend, frontend y tests) | Hecha |
 | 3. Motor de ritmo v1 | Escenario con personajes fijos, reproductor rítmico, evaluación de pulsaciones y marcador | Hecha, con los 9 escenarios jugables en *Práctica* |
 | 4. Rival CPU | El jugador 2 sigue la pista con una precisión que depende de la ronda | Hecha junto con la 6 (IA en el backend) |
-| 5. Música, efectos y sonido | Canciones por nivel, sonidos de acierto y fallo, textos "PERFECT!" y "MISS!" | Pendiente |
+| 5. Música, efectos y sonido | Canciones por nivel, sonidos de acierto y fallo, textos "PERFECT!" y "MISS!" | En curso: el código ya carga los MP3 grabados; faltan los archivos |
 | 6. Conexión con el torneo | Botón "Jugar" en el cuadro, canción según la ronda, validación en el backend y avance del cuadro | Hecha (botón *Duelo*) |
 
 **Etapa 3 (motor de ritmo v1), hecha el 31/10/2026.** Aprobado por Eva: pantalla *Práctica* en el menú
@@ -299,10 +299,24 @@ canciones en archivos JSON sin tabla nueva y el estilo del boceto del puerto.
 | Números del juego (ventanas, puntos, Hype, teclas) | `frontend/src/app/juego/reglas.ts` |
 | Juicio y marcador, funciones puras con Vitest | `frontend/src/app/juego/evaluacion.ts` |
 | Música generada con Web Audio | `frontend/src/app/juego/musica.ts` |
+| Sonidos grabados opcionales (MP3) | `frontend/src/app/juego/sonidos.ts` y `frontend/public/sonidos/` |
 | Escenarios: dibujo en canvas, instrucciones, sonido de aviso y frase final | `frontend/src/app/juego/escenarios/` (un archivo por escenario) |
 | Pantalla que junta las piezas | `frontend/src/app/pages/practica/` |
 | Canciones | `backend/app/beatmaps/` (un JSON por escenario) |
 | Lectura y validación de canciones | `canciones_repo.py`, `canciones_servicio.py`, `routers/canciones.py` |
+
+**Sonidos grabados con ElevenLabs (etapa 5, aprobado por Eva el 01/11/2026)**
+- Eva genera los efectos en ElevenLabs (elevenlabs.io) con la lista del documento *TK3 · Sonidos para generar
+  con ElevenLabs* y los guarda en `frontend/public/sonidos/` con el nombre que dice la lista
+  (`puerto-aviso.mp3`, `barberia-tijeras.mp3`, `fallo.mp3`…).
+- **Todos son opcionales:** si un archivo falta o no se puede leer, suena el sonido generado por código de
+  siempre. Cada escenario dice en `grabados` qué archivo usa para el aviso y para el acierto de cada tecla.
+- Se cargan antes de empezar la canción (`Sonidos.cargar`) y el aviso se programa con el mismo reloj del
+  audio que la música, por eso el archivo tiene que empezar sin silencio delante. Al terminar suena
+  `ovacion` si el Hype acaba en 70 o más, o `final-flojo` si acaba por debajo de 40.
+- **Créditos:** con el plan gratuito de ElevenLabs los sonidos solo se pueden usar sin ánimo de lucro y hay
+  que citar «elevenlabs.io»; se cita aquí y en los créditos del vídeo. Esto cambia D7: el arte y la música
+  siguen siendo originales y generados por código, y los efectos pueden ser grabaciones generadas por IA.
 
 Detalles que decidí yo (Claude) en esta etapa:
 - Los campos del beatmap van en `snake_case` (`cuenta_atras`, `repetir_cada`…), como el resto de la API,
