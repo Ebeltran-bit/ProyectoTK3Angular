@@ -52,8 +52,35 @@
     @if (cargando()) {
       <p class="mensaje-carga">Cargando canciones…</p>
     } @else {
+      <div class="controles">
+        <div class="filtros" role="group" aria-label="Filtrar por nivel">
+          <button
+            type="button"
+            [class.seleccionado]="filtro() === 'todas'"
+            (click)="filtro.set('todas')"
+          >
+            Todas
+          </button>
+          @for (n of niveles; track n) {
+            <button type="button" [class.seleccionado]="filtro() === n" (click)="filtro.set(n)">
+              {{ nombreNivel[n] }}
+            </button>
+          }
+        </div>
+        <label class="orden">
+          Ordenar
+          <select
+            [value]="orden()"
+            (change)="orden.set($any($event.target).value)"
+            aria-label="Ordenar por dificultad"
+          >
+            <option value="facil-primero">De más fácil a más difícil</option>
+            <option value="dificil-primero">De más difícil a más fácil</option>
+          </select>
+        </label>
+      </div>
       <ul class="lista">
-        @for (c of canciones(); track c.id) {
+        @for (c of visibles(); track c.id) {
           <li>
             <span class="titulo">{{ c.titulo }}</span>
             <span class="nivel" [attr.data-nivel]="c.nivel">{{ nombreNivel[c.nivel] }}</span>
@@ -61,7 +88,11 @@
             <button type="button" (click)="elegir(c.id)">Practicar</button>
           </li>
         } @empty {
-          <li class="vacio">Todavía no hay canciones.</li>
+          <li class="vacio">
+            {{
+              canciones().length ? 'No hay canciones de este nivel.' : 'Todavía no hay canciones.'
+            }}
+          </li>
         }
       </ul>
     }

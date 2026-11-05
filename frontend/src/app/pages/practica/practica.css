@@ -1,3 +1,45 @@
+/* Filtro por nivel y orden: mismo estilo que el filtro de participantes, en el color de Práctica */
+.controles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin: 1.25rem 0;
+}
+.filtros {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.3rem;
+  border-radius: var(--redondo);
+  background: var(--tarjeta);
+  box-shadow: 0 4px 0 var(--sombra-tarjeta);
+}
+.filtros button {
+  box-shadow: none;
+  padding: 0.35rem 1rem;
+}
+.filtros button:active:not(:disabled) {
+  box-shadow: none;
+}
+.filtros .seleccionado {
+  background: var(--menta);
+  color: #1d5e46;
+}
+.orden select {
+  font: inherit;
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--redondo);
+  border: 2px solid var(--sombra-tarjeta);
+  background: var(--tarjeta);
+  color: var(--tinta);
+}
+.orden {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+}
 /* Lista de canciones: cada una es una pastilla con su nivel de color */
 .lista {
   list-style: none;

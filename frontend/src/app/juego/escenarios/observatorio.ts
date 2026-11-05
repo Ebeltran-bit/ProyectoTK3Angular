@@ -1,8 +1,10 @@
 /**
  * Escenario difícil: Estrellas fugaces.
- * Todas las estrellas recorren el mismo camino a la misma velocidad, así la
- * distancia entre ellas es el ritmo que viene. Se fotografían con J cuando
- * pasan por la mira; los cometas grandes, con K.
+ * Todas las estrellas van a la misma velocidad, así la distancia entre ellas
+ * es el ritmo que viene. Se fotografían con J cuando pasan por la mira; los
+ * cometas grandes, con K. Llegan por los dos lados (pruebas de Eva del
+ * 05/11/2026, era demasiado fácil para un nivel difícil): en la primera mitad,
+ * cada compás de un lado; en la segunda, una de cada lado por turnos.
  */
 import {
   ANCHO,
@@ -20,10 +22,25 @@ import { DibujarEscena, Escenario } from './tipos';
 
 const MIRA_X = 80;
 const MIRA_Y = 30;
-const ORIGEN_X = -6;
-const ORIGEN_Y = 16; // por debajo de la barra de Hype, que tapa la esquina
+const ORIGEN_Y = 16; // por debajo de la barra de Hype, que tapa las esquinas
+/** Desde dónde sale una estrella: fuera de la pantalla por la izquierda o por la derecha. */
+const ORIGEN_X = { izquierda: -6, derecha: ANCHO + 6 };
+/** Pulso a partir del cual las estrellas se alternan una a una. */
+const MITAD = 36;
 /** Pulsos que tarda cualquier estrella en llegar a la mira: da tiempo a contarlas. */
 const VIAJE = 4;
+
+/**
+ * Lado por el que llega cada nota. Antes de MITAD, por compases de 4 pulsos
+ * (izquierda, derecha, izquierda...); después, alternando nota a nota.
+ */
+export function ladosDeLasEstrellas(pulsos: number[]): ('izquierda' | 'derecha')[] {
+  let turno = 0;
+  return pulsos.map((p) => {
+    if (p < MITAD) return Math.floor(p / 4) % 2 === 0 ? 'izquierda' : 'derecha';
+    return turno++ % 2 === 0 ? 'izquierda' : 'derecha';
+  });
+}
 
 const dibujar: DibujarEscena = (c, v) => {
   // Cielo con franjas, vía láctea y estrellas que titilan
@@ -49,9 +66,11 @@ const dibujar: DibujarEscena = (c, v) => {
   // Flash de la cámara justo después de pulsar
   if (v.desdePulsacion < 0.08) fondo(c, 'rgba(255,255,255,0.35)');
 
-  // Camino por el que llegan las estrellas
-  raya(c, [ORIGEN_X, ORIGEN_Y, MIRA_X, MIRA_Y], 1, '#4a5296');
+  // Los dos caminos por los que llegan las estrellas
+  raya(c, [ORIGEN_X.izquierda, ORIGEN_Y, MIRA_X, MIRA_Y], 1, '#4a5296');
+  raya(c, [ORIGEN_X.derecha, ORIGEN_Y, MIRA_X, MIRA_Y], 1, '#4a5296');
 
+  const lados = ladosDeLasEstrellas(v.notas.map((n) => n.pulso));
   v.notas.forEach((n, i) => {
     const cometa = v.teclas[i] === 'alterna';
     const k = 1 - (n.pulso - v.pulso) / VIAJE; // 0 al aparecer, 1 en la mira
@@ -62,7 +81,8 @@ const dibujar: DibujarEscena = (c, v) => {
       estrella(c, MIRA_X, MIRA_Y, (cometa ? 6 : 4) * (1.4 - k) * 2.5, '#ffffff');
       return;
     }
-    const x = ORIGEN_X + (MIRA_X - ORIGEN_X) * k;
+    const origen = ORIGEN_X[lados[i]];
+    const x = origen + (MIRA_X - origen) * k;
     const y = ORIGEN_Y + (MIRA_Y - ORIGEN_Y) * k;
     estrella(c, x, y, cometa ? 6.5 : 4, cometa ? '#ff9e6b' : '#ffe07a');
   });
@@ -103,7 +123,7 @@ const dibujar: DibujarEscena = (c, v) => {
 export const observatorio: Escenario = {
   dibujar,
   instrucciones:
-    'Las estrellas llegan en fila desde la izquierda, todas a la misma velocidad: cuanto más juntas vienen, más seguido tendrás que pulsar. Pulsa J cuando cada una llega a la mira. Los cometas grandes y naranjas se fotografían con K.',
+    'Las estrellas llegan por la izquierda y por la derecha, todas a la misma velocidad: cuanto más juntas vienen, más seguido tendrás que pulsar. Al principio cada compás viene de un lado; después se alternan una a una. Pulsa J cuando cada una llega a la mira del centro. Los cometas grandes y naranjas se fotografían con K.',
   aviso: (m, t, tecla) => {
     // Destello que sube: más grave y largo si es un cometa
     const o = m.tono(

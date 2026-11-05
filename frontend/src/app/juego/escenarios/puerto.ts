@@ -14,10 +14,10 @@ function gaviota(
   triste = false,
   mira = 1,
 ): void {
-  // mira: 1 hacia la derecha, -1 hacia la izquierda; los valores intermedios la giran
+  // mira: 1 hacia la derecha, -1 hacia la izquierda (se dibuja reflejada)
   c.save();
   c.translate(x, y);
-  c.scale(Math.abs(mira) < 0.05 ? 0.05 : mira, 1);
+  c.scale(mira, 1);
   c.translate(-x, -y);
   elip(c, x, y, 6, 3.6, '#ffffff');
   poli(c, [x - 5, y - 1, x - 10, y - 3, x - 9, y + 2], '#ffffff');
@@ -136,8 +136,8 @@ const dibujar: DibujarEscena = (c, v) => {
     } else if (n.juicio === 'perfect' || n.juicio === 'great') {
       // Coge la sardina, se da la vuelta y se va contenta mirando hacia donde vuela
       const k = -falta / 1.5;
-      const giro = Math.min(1, -falta / 0.25);
-      const mira = -Math.cos(giro * Math.PI);
+      // Se gira de golpe a mitad del primer cuarto de pulso: estrecharla poco a poco la deformaba
+      const mira = -falta < 0.12 ? -1 : 1;
       const gx = 76 + k * 90;
       const gy = 40 - k * 40;
       gaviota(c, gx, gy, aleteo, false, mira);

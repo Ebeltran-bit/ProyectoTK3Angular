@@ -16,8 +16,11 @@ export function frecuencia(midi: number): number {
   return 440 * 2 ** ((midi - 69) / 12);
 }
 
-/** Cuánto se sube todo después del compresor. Sin esto la música sonaba floja en portátiles. */
-const VOLUMEN_GENERAL = 2.8;
+/**
+ * Cuánto se sube todo después del compresor. Sin esto la música sonaba floja en portátiles;
+ * con 2,8 quedaba demasiado fuerte (pruebas de Eva del 05/11/2026), así que va a mitad de camino.
+ */
+const VOLUMEN_GENERAL = 1.4;
 
 export class Musica {
   private readonly salida: GainNode;

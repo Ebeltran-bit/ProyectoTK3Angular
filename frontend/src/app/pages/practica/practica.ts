@@ -1,7 +1,14 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 
 import { ReproductorRitmo } from '../../components/reproductor-ritmo/reproductor-ritmo';
-import { Cancion, CancionResumen, NOMBRE_NIVEL, Pulsacion, Resultado } from '../../models/cancion';
+import {
+  Cancion,
+  CancionResumen,
+  Nivel,
+  NOMBRE_NIVEL,
+  Pulsacion,
+  Resultado,
+} from '../../models/cancion';
 import { CancionesService } from '../../services/canciones.service';
 import { mensajeError } from '../../services/mensaje-error';
 
@@ -29,6 +36,18 @@ export class Practica implements OnInit {
   protected readonly guardando = signal(false);
   protected readonly errorGuardar = signal<string | null>(null);
   private pulsaciones: Pulsacion[] = [];
+
+  /** Filtro por nivel y orden de la lista (solo afectan a lo que se ve). */
+  protected readonly niveles: Nivel[] = ['facil', 'media', 'dificil'];
+  protected readonly filtro = signal<Nivel | 'todas'>('todas');
+  protected readonly orden = signal<'facil-primero' | 'dificil-primero'>('facil-primero');
+  protected readonly visibles = computed(() => {
+    const filtro = this.filtro();
+    const signo = this.orden() === 'facil-primero' ? 1 : -1;
+    return this.canciones()
+      .filter((c) => filtro === 'todas' || c.nivel === filtro)
+      .sort((a, b) => signo * (this.niveles.indexOf(a.nivel) - this.niveles.indexOf(b.nivel)));
+  });
 
   ngOnInit(): void {
     this.cargar();

@@ -213,7 +213,9 @@ antes de programarlas.
 - Pantalla de inicio (`/`) con cuatro botones grandes: Torneos, Estadísticas, Práctica y Participantes.
   Tras iniciar sesión se llega aquí. Pedida por Eva el 05/11/2026.
 - Pantallas: participantes (lista y formulario), torneos (lista, formulario y detalle con el cuadro y el
-  historial), estadísticas (pestañas Participantes y Canciones) y práctica del duelo de ritmo.
+  historial), estadísticas (pestañas Participantes y Canciones) y práctica del duelo de ritmo. En práctica,
+  la lista de canciones se filtra por nivel (Todas, Fácil, Media, Difícil) y se ordena de más fácil a más
+  difícil o al revés (pedido por Eva el 05/11/2026; se hace en el navegador, sin cambios en la API).
 - El cuadro se muestra en columnas por ronda (Cuartos, Semifinales, Final…), con huecos "Por decidir".
   Antes de sortear se pide confirmación.
 - En un combate pendiente se pulsa el nombre del ganador. Los perdedores aparecen tachados y el campeón
@@ -359,7 +361,9 @@ Detalles que decidí yo (Claude) en esta etapa:
   Correos exprés: J sella cada carta bajo el sello; las urgentes, en rojo, van a
   contratiempo. Paso de patitos: J hace saltar el charco a cada patito y K al segundo de una pareja; se pulsa cuando el
   patito pisa la piedra del borde del charco (cambiado tras las pruebas de Eva del 01/11/2026).
-- Estrellas fugaces (`observatorio`): J fotografía cada estrella al pasar por la mira y K los cometas.
+- Estrellas fugaces (`observatorio`): J fotografía cada estrella al pasar por la mira y K los cometas. Tras
+  las pruebas de Eva del 05/11/2026 (era demasiado fácil para un nivel difícil) llegan por los dos lados, con
+  las mismas notas: en la primera mitad cada compás viene de un lado y en la segunda se alternan una a una.
   Duelo de barberos (`barberia`, sustituye a Gatos en el tejado; aprobado por Eva el 01/11/2026 a partir de
   la vista previa): llamada y respuesta de cuatro pulsos a 124 BPM con ocho patrones. El aviso de cada nota es
   el corte del barbero rival (`aviso_antes: 4`); J es un tijeretazo y K una pasada de navaja. Los puntos de su
@@ -422,7 +426,7 @@ Detalles que decidí yo (Claude):
 - Música mejorada (01/11/2026, aprobado por Eva: "mejorarla por código"). Cada canción tiene ahora intro, parte A,
   parte B y final, con acordes, segunda voz y batería que cambia entre partes. Se escribe entera en el beatmap
   (`repetir_cada` = largo de la canción) y hay cuatro instrumentos nuevos: `flauta`, `pulsado`, `campana` y
-  `acordes`. El motor añade un eco de sala y una cadena de salida (compresor, subida de volumen `VOLUMEN_GENERAL` y limitador) que la hace sonar unos 11 dB más fuerte sin saturar: antes se oía floja en los altavoces de un portátil. Las notas que hay que pulsar no cambian.
+  `acordes`. El motor añade un eco de sala y una cadena de salida (compresor, subida de volumen `VOLUMEN_GENERAL` y limitador) que la hace sonar unos 5 dB más fuerte sin saturar: antes se oía floja en los altavoces de un portátil. Con 11 dB (VOLUMEN_GENERAL 2,8) quedaba demasiado fuerte y Eva pidió un punto intermedio el 05/11/2026. Las notas que hay que pulsar no cambian.
 - Al acabar la canción, el escenario se queda como terminó la partida (antes volvía a la escena en reposo y,
   por ejemplo, la hortelana del huerto se deslizaba al centro).
 - Las pulsaciones se mandan sin redondear: al redondear a milisegundos enteros, una nota a 39,8 ms podía
