@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, Request, status
 
 from app.dependencias import token_de_peticion, usuario_actual
-from app.modelos import CredencialesEntrada, SesionRespuesta, Usuario
+from app.modelos import CredencialesEntrada, IconoEntrada, SesionRespuesta, Usuario
 from app.servicios import auth_servicio
 
 router = APIRouter(prefix="/api/auth", tags=["Sesión"])
@@ -28,3 +28,9 @@ def logout(request: Request, _usuario: dict = Depends(usuario_actual)):
 def yo(usuario: dict = Depends(usuario_actual)):
     """Usuario de la sesión actual."""
     return usuario
+
+
+@router.patch("/yo/icono", response_model=Usuario)
+def cambiar_icono(datos: IconoEntrada, usuario: dict = Depends(usuario_actual)):
+    """Cambia el icono del usuario de la sesión (solo el suyo)."""
+    return auth_servicio.cambiar_icono(usuario, datos.icono)

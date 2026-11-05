@@ -59,16 +59,60 @@ nav a.activo {
   box-shadow: 0 4px 0 var(--sombra-tarjeta);
   font-weight: 700;
 }
-.inicial {
+/* Pulsar en el usuario abre el panel para elegir icono */
+.usuario {
+  color: var(--tinta);
+  font-size: 1rem;
+  cursor: pointer;
+}
+.usuario:active:not(:disabled) {
+  box-shadow: 0 2px 0 var(--sombra-tarjeta);
+}
+.sesion {
+  position: relative;
+}
+.selector {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  right: 0;
+  z-index: 10;
+  width: min(22rem, calc(100vw - 2rem));
+  padding: 1rem;
+  border-radius: 1.5rem;
+  background: var(--tarjeta);
+  box-shadow: 0 6px 0 var(--sombra-tarjeta);
+}
+.titulo-selector {
+  margin: 0 0 0.75rem;
+  font:
+    700 1.1rem 'Fredoka',
+    sans-serif;
+}
+.opciones {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.4rem;
+}
+.opcion {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  padding: 0.2rem;
   border-radius: 50%;
-  background: var(--rosa);
-  color: #fff;
-  font-weight: 900;
-  text-transform: uppercase;
+  background: transparent;
+  box-shadow: none;
+}
+.opcion:hover {
+  transform: translateY(-2px);
+}
+.opcion.elegido {
+  outline: 4px solid var(--menta);
+  outline-offset: 0;
+}
+.pie-selector {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
 }
 main {
   max-width: 1100px;

@@ -12,6 +12,11 @@ DURACION_SESION = timedelta(days=7)
 LONGITUD_MINIMA_CONTRASENA = 8
 # Letras, números, guion y guion bajo; de 3 a 30 caracteres
 PATRON_NOMBRE = re.compile(r"^[A-Za-z0-9_-]{3,30}$")
+# Iconos que se pueden elegir (los dibuja el frontend). Aprobados por Eva el 05/11/2026
+ICONOS = (
+    "gato", "rana", "patito", "gaviota", "zorro", "oso", "pulpo", "robot",
+    "estrella", "nota", "fantasma", "seta", "calabaza", "ramen", "trofeo",
+)
 
 
 def _publico(usuario: dict) -> dict:
@@ -20,6 +25,7 @@ def _publico(usuario: dict) -> dict:
         "id": usuario["id"],
         "nombre_usuario": usuario["nombre_usuario"],
         "id_participante": usuario["id_participante"],
+        "icono": usuario.get("icono"),
     }
 
 
@@ -68,3 +74,11 @@ def usuario_actual(token: str | None) -> dict:
 
 def cerrar_sesion(token: str) -> None:
     usuarios_repo.borrar_sesion(seguridad.hash_token(token))
+
+
+def cambiar_icono(usuario: dict, icono: str | None) -> dict:
+    """Guarda el icono elegido (None vuelve a la inicial) y devuelve el usuario actualizado."""
+    if icono is not None and icono not in ICONOS:
+        raise ErrorDeNegocio("Ese icono no existe")
+    usuarios_repo.cambiar_icono(usuario["id"], icono)
+    return {**usuario, "icono": icono}

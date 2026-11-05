@@ -101,12 +101,18 @@ CREATE TABLE IF NOT EXISTS tk3_usuarios (
     nombre_usuario   VARCHAR(30)   NOT NULL,
     hash_contrasena  VARCHAR(255)  NOT NULL,
     id_participante  INT UNSIGNED  NOT NULL,
+    icono            VARCHAR(20)   NULL,
     creado_en        DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     CONSTRAINT uq_tk3_usuarios_nombre UNIQUE (nombre_usuario),
     CONSTRAINT uq_tk3_usuarios_participante UNIQUE (id_participante),
     CONSTRAINT fk_tk3_usuarios_participante FOREIGN KEY (id_participante) REFERENCES tk3_participantes (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- Icono elegido por el usuario (05/11/2026). NULL = se muestra su inicial.
+-- Para las bases de datos creadas antes de esa fecha: añade la columna si falta,
+-- así el script se puede ejecutar varias veces sin errores.
+ALTER TABLE tk3_usuarios ADD COLUMN IF NOT EXISTS icono VARCHAR(20) NULL AFTER id_participante;
 
 -- ---------------------------------------------------------------------
 -- Sesiones abiertas. Se guarda el hash SHA-256 del token, no el token:

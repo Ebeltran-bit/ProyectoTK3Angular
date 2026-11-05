@@ -3,7 +3,7 @@ from datetime import datetime
 
 from app.database import obtener_conexion
 
-COLUMNAS = "u.id, u.nombre_usuario, u.hash_contrasena, u.id_participante, u.creado_en"
+COLUMNAS = "u.id, u.nombre_usuario, u.hash_contrasena, u.id_participante, u.icono, u.creado_en"
 
 
 def obtener_por_nombre(nombre_usuario: str) -> dict | None:
@@ -34,6 +34,11 @@ def crear_con_participante(nombre_usuario: str, hash_contrasena: str) -> int:
             (nombre_usuario, hash_contrasena, id_participante),
         )
         return cursor.lastrowid
+
+
+def cambiar_icono(id_usuario: int, icono: str | None) -> None:
+    with obtener_conexion() as conexion, conexion.cursor() as cursor:
+        cursor.execute("UPDATE tk3_usuarios SET icono = %s WHERE id = %s", (icono, id_usuario))
 
 
 def crear_sesion(hash_token: str, id_usuario: int, caduca_en: datetime) -> None:

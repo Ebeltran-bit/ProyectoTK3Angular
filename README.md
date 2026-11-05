@@ -125,6 +125,7 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | POST | `/api/auth/login` | Inicia sesión y devuelve `{"token": "...", "usuario": {...}}` |
 | POST | `/api/auth/logout` | Cierra la sesión (el token deja de valer) |
 | GET | `/api/auth/yo` | Usuario de la sesión actual |
+| PATCH | `/api/auth/yo/icono` | Cambia el icono del usuario de la sesión (`{"icono": "rana"}`; `null` vuelve a la inicial) |
 | GET | `/api/participantes` | Lista todos (`?activo=true` o `?activo=false` para filtrar) |
 | GET | `/api/participantes/{id}` | Un participante |
 | POST | `/api/participantes` | Crea uno (`{"nick": "...", "logo": "..."}`) → 409 si el nick ya existe |
@@ -210,6 +211,11 @@ antes de programarlas.
   Usa los combates que ya devuelve `GET /api/torneos/{id}`, así que no necesita endpoint propio.
 
 **Interfaz**
+- Icono de usuario (aprobado por Eva el 05/11/2026): pulsando en el nombre de la cabecera se abre un panel
+  con 15 personajes en el estilo de la web (gato, rana, patito, gaviota, zorro, oso, pulpo, robot, estrella,
+  nota musical, fantasma, seta, calabaza, ramen y trofeo). Se guarda en la columna `icono` de `tk3_usuarios`
+  (solo el id; la lista válida está en `auth_servicio.py`) y los dibujos son SVG propios en
+  `frontend/src/app/models/iconos.ts`. Sin icono se ve la inicial, como antes.
 - Pantalla de inicio (`/`) con cuatro botones grandes: Torneos, Estadísticas, Práctica y Participantes.
   Tras iniciar sesión se llega aquí. Pedida por Eva el 05/11/2026.
 - Pantallas: participantes (lista y formulario), torneos (lista, formulario y detalle con el cuadro y el

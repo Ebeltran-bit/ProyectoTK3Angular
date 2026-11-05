@@ -42,6 +42,13 @@ export class AuthService {
     );
   }
 
+  /** Guarda el icono elegido (null vuelve a la inicial) y actualiza la cabecera. */
+  cambiarIcono(icono: string | null): Observable<Usuario> {
+    return this.http
+      .patch<Usuario>(`${this.url}/yo/icono`, { icono })
+      .pipe(tap((u) => this.usuario.set(u)));
+  }
+
   /** Al arrancar la app: si hay token guardado, comprueba que sigue siendo válido. */
   restaurar(): Promise<unknown> {
     if (!this.token) {

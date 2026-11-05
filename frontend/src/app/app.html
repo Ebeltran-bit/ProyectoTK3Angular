@@ -12,11 +12,44 @@
       >
     </nav>
     <div class="sesion">
-      <span class="usuario">
-        <span class="inicial" aria-hidden="true">{{ usuario.nombre_usuario.charAt(0) }}</span>
+      <button
+        type="button"
+        class="usuario"
+        [attr.aria-expanded]="eligiendo()"
+        aria-controls="selector-icono"
+        title="Cambiar icono"
+        (click)="eligiendo.set(!eligiendo())"
+      >
+        <app-icono-usuario [icono]="usuario.icono" [nombre]="usuario.nombre_usuario" />
         {{ usuario.nombre_usuario }}
-      </span>
+      </button>
       <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
+      @if (eligiendo()) {
+        <div class="selector" id="selector-icono" role="dialog" aria-label="Elige tu icono">
+          <p class="titulo-selector">Elige tu icono</p>
+          <div class="opciones">
+            @for (i of iconos; track i.id) {
+              <button
+                type="button"
+                class="opcion"
+                [class.elegido]="usuario.icono === i.id"
+                [attr.aria-pressed]="usuario.icono === i.id"
+                [title]="i.nombre"
+                (click)="elegirIcono(i.id)"
+              >
+                <app-icono-usuario [icono]="i.id" [tam]="52" />
+              </button>
+            }
+          </div>
+          @if (errorIcono()) {
+            <p class="mensaje-error">{{ errorIcono() }}</p>
+          }
+          <div class="pie-selector">
+            <button type="button" (click)="elegirIcono(null)">Usar mi inicial</button>
+            <button type="button" (click)="eligiendo.set(false)">Cerrar</button>
+          </div>
+        </div>
+      }
     </div>
   }
 </header>

@@ -45,6 +45,9 @@ class RepoEnMemoria:
     def borrar_sesiones_caducadas(self):
         pass
 
+    def cambiar_icono(self, id_usuario, icono):
+        self.usuarios[id_usuario]["icono"] = icono
+
 
 @pytest.fixture
 def repo(monkeypatch):
@@ -109,3 +112,19 @@ def test_sesion_caducada(repo):
         repo.sesiones[clave] = (id_usuario, datetime.now() - timedelta(seconds=1))
     with pytest.raises(NoAutenticado, match="caducado"):
         auth_servicio.usuario_actual(token)
+
+
+def test_cambiar_icono_lo_guarda_y_lo_devuelve(repo):
+    sesion = auth_servicio.registrar("eva_03", "contrasena-larga")
+    assert sesion["usuario"]["icono"] is None
+    usuario = auth_servicio.usuario_actual(sesion["token"])
+    assert auth_servicio.cambiar_icono(usuario, "rana")["icono"] == "rana"
+    assert auth_servicio.usuario_actual(sesion["token"])["icono"] == "rana"
+    # null vuelve a la inicial
+    assert auth_servicio.cambiar_icono(usuario, None)["icono"] is None
+
+
+def test_no_se_puede_elegir_un_icono_que_no_existe(repo):
+    sesion = auth_servicio.registrar("eva_03", "contrasena-larga")
+    with pytest.raises(ErrorDeNegocio):
+        auth_servicio.cambiar_icono(sesion["usuario"], "dragon")

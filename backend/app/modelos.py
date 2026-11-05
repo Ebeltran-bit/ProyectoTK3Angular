@@ -143,6 +143,13 @@ class Usuario(BaseModel):
     id: int
     nombre_usuario: str
     id_participante: int
+    icono: str | None = None
+
+
+class IconoEntrada(BaseModel):
+    """Icono que elige el usuario; null quita el icono y vuelve a la inicial."""
+
+    icono: str | None
 
 
 class SesionRespuesta(BaseModel):

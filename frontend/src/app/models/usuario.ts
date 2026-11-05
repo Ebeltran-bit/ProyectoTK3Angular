@@ -3,6 +3,8 @@ export interface Usuario {
   id: number;
   nombre_usuario: string;
   id_participante: number;
+  /** Icono elegido (ver models/iconos.ts); null = se muestra la inicial. */
+  icono: string | null;
 }
 
 export interface Credenciales {
