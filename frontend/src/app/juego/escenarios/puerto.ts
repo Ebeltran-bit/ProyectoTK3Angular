@@ -12,7 +12,13 @@ function gaviota(
   y: number,
   alaArriba: boolean,
   triste = false,
+  mira = 1,
 ): void {
+  // mira: 1 hacia la derecha, -1 hacia la izquierda; los valores intermedios la giran
+  c.save();
+  c.translate(x, y);
+  c.scale(Math.abs(mira) < 0.05 ? 0.05 : mira, 1);
+  c.translate(-x, -y);
   elip(c, x, y, 6, 3.6, '#ffffff');
   poli(c, [x - 5, y - 1, x - 10, y - 3, x - 9, y + 2], '#ffffff');
   circ(c, x + 5, y - 3.5, 3.2, '#ffffff');
@@ -22,6 +28,7 @@ function gaviota(
   elip(c, x - 1, y + (alaArriba ? -5 : 0.5), 4.8, 2.2, '#d7dce6', alaArriba ? -0.5 : 0.25);
   raya(c, [x - 1, y + 3.4, x - 1, y + 6]);
   raya(c, [x + 2, y + 3.4, x + 2, y + 6]);
+  c.restore();
 }
 
 function sardina(c: CanvasRenderingContext2D, x: number, y: number, giro = 0): void {
@@ -124,21 +131,26 @@ const dibujar: DibujarEscena = (c, v) => {
     if (falta > 1.6 || falta < -1.5) continue;
     if (falta > 0) {
       const k = 1 - falta / 1.6;
-      gaviota(c, 168 - k * 92, 38 - Math.sin(k * Math.PI) * 16 + 2 * k, aleteo);
+      // Llega mirando hacia el pescador y su sardina
+      gaviota(c, 168 - k * 92, 38 - Math.sin(k * Math.PI) * 16 + 2 * k, aleteo, false, -1);
     } else if (n.juicio === 'perfect' || n.juicio === 'great') {
-      // Se va contenta con su sardina
+      // Coge la sardina, se da la vuelta y se va contenta mirando hacia donde vuela
       const k = -falta / 1.5;
-      gaviota(c, 76 + k * 90, 40 - k * 40, aleteo);
-      sardina(c, 88 + k * 90, 37 - k * 40, 0.3);
+      const giro = Math.min(1, -falta / 0.25);
+      const mira = -Math.cos(giro * Math.PI);
+      const gx = 76 + k * 90;
+      const gy = 40 - k * 40;
+      gaviota(c, gx, gy, aleteo, false, mira);
+      sardina(c, gx + 11 * mira, gy - 3, mira < 0 ? Math.PI : 0.3);
     } else {
-      gaviota(c, 76, 40, false, n.juicio === 'miss');
+      gaviota(c, 76, 40, false, n.juicio === 'miss', -1);
     }
   }
 
   // Sardina en el aire justo después de pulsar
   if (v.desdePulsacion < 0.18) {
     const k = v.desdePulsacion / 0.18;
-    sardina(c, 46 + k * 32, 40 - Math.sin(k * Math.PI) * 10, k * 6);
+    sardina(c, 46 + k * 19, 40 - Math.sin(k * Math.PI) * 10, k * 6);
   }
   golpeDeComic(c, v, 92, 24, ['¡ÑAM!', '¡HOP!', '¡ZAS!']);
 };

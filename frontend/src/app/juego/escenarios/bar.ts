@@ -107,6 +107,14 @@ const dibujar: DibujarEscena = (c, v) => {
       }
       jarra(c, 70 - d, color, 1);
       jarra(c, 81 + d, color, -1);
+    } else if (n.juicio === null) {
+      // Aún se puede pulsar un poco tarde: las jarras esperan juntas en el centro
+      if (doble) {
+        jarra(c, 62, color, 1);
+        jarra(c, 89, color, -1);
+      }
+      jarra(c, 70, color, 1);
+      jarra(c, 81, color, -1);
     } else if (n.juicio === 'perfect' || n.juicio === 'great') {
       // ¡Chin! Espuma que salta
       jarra(c, 70, color, 1, -0.15);

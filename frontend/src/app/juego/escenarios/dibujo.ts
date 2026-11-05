@@ -255,8 +255,9 @@ export function persona(
     forma(
       c,
       (p) => {
-        p.moveTo(x - 8.4, y - 28);
-        p.bezierCurveTo(x - 9.5, y - 42, x + 9.5, y - 42, x + 8.4, y - 30);
+        // Todo el pelo se refleja con mira, no solo el flequillo, para que no cruce la cara
+        p.moveTo(x - 8.4 * mira, y - 28);
+        p.bezierCurveTo(x - 9.5 * mira, y - 42, x + 9.5 * mira, y - 42, x + 8.4 * mira, y - 30);
         p.quadraticCurveTo(x + 5 * mira, y - 36, x - 1 * mira, y - 34.5);
         p.quadraticCurveTo(x - 4 * mira, y - 33, x - 7 * mira, y - 26);
       },
@@ -293,8 +294,8 @@ export function persona(
     c.stroke();
     c.lineWidth = GROSOR;
   }
-  elip(c, x + 6.6 * mira, y - 27.4, 1.4, 0.9, '#ff8fa3', 0, false);
-  elip(c, x - 1.4 * mira, y - 27.4, 1.4, 0.9, '#ff8fa3', 0, false);
+  // Un solo moflete, en la mejilla de atrás: el de delante quedaba en el borde y parecía la nariz
+  elip(c, x - 0.6 * mira, y - 27.6, 1.7, 1, '#ff8fa3', 0, false);
   o.gorro?.(c, x, y - 30);
 }
 

@@ -166,7 +166,11 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
     this.partida = r.partida;
     this.ultimaPulsacion = this.audio.currentTime;
     this.ultimaTecla = tecla;
-    this.musica.efecto(r.juicio, this.escenario().grabados?.acierto?.(tecla));
+    const escenario = this.escenario();
+    const generado = escenario.acierto
+      ? (m: Musica, t: number) => escenario.acierto!(m, t, tecla)
+      : undefined;
+    this.musica.efecto(r.juicio, escenario.grabados?.acierto?.(tecla), generado);
     this.mostrar(r.juicio);
   }
 

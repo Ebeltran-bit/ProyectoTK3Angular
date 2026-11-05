@@ -126,14 +126,22 @@ export class Musica {
     else if (hype < 40) this.grabado('final-flojo', t);
   }
 
-  /** Sonido corto al pulsar, distinto según el juicio. archivo es el MP3 del acierto, si lo hay. */
-  efecto(juicio: 'perfect' | 'great' | 'miss', archivo?: string): void {
+  /**
+   * Sonido corto al pulsar, distinto según el juicio. archivo es el MP3 del acierto, si lo hay;
+   * generado, el sonido propio del escenario para cuando ese MP3 no está (las tijeras del barbero).
+   */
+  efecto(
+    juicio: 'perfect' | 'great' | 'miss',
+    archivo?: string,
+    generado?: (m: Musica, t: number) => void,
+  ): void {
     const t = this.ctx.currentTime;
     if (juicio === 'miss') {
       if (!this.grabado('fallo', t, 0.8)) this.tono('sawtooth', 160, t, 0.12, 0.05);
       return;
     }
     if (archivo && this.grabado(archivo, t, juicio === 'perfect' ? 1 : 0.8)) return;
+    if (generado) return generado(this, t);
     if (juicio === 'perfect') this.tono('square', 1568, t, 0.1, 0.06);
     else this.tono('square', 1175, t, 0.08, 0.05);
   }

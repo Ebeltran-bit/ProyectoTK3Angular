@@ -430,13 +430,20 @@ const dibujar: DibujarEscena = (c, v) => {
 };
 
 /** Tijeretazo: un chasquido agudo y metálico. Navaja: un siseo más largo. */
+/**
+ * Tijeretazo (J): el roce de las hojas al cerrarse y el clic metálico del final,
+ * dos veces seguidas («chic-chic»). Navaja (K): un siseo largo de acero.
+ */
 const corte: SonidoAviso = (m, t, tecla) => {
   if (tecla === 'accion') {
-    m.ruido(t, 0.05, 0.12, 'highpass', 6000);
-    m.tono('square', 2200, t, 0.025, 0.03);
+    for (const d of [0, 0.075]) {
+      m.ruido(t + d, 0.045, 0.22, 'bandpass', 7000);
+      m.tono('sine', 4200, t + d + 0.03, 0.04, 0.05);
+      m.tono('sine', 6300, t + d + 0.03, 0.025, 0.03);
+    }
   } else {
-    m.ruido(t, 0.12, 0.14, 'bandpass', 2600);
-    m.tono('triangle', 520, t, 0.06, 0.05);
+    m.ruido(t, 0.16, 0.18, 'bandpass', 3800);
+    m.tono('sine', 2900, t + 0.02, 0.12, 0.02);
   }
 };
 
@@ -445,6 +452,7 @@ export const barberia: Escenario = {
   instrucciones:
     'Llamada y respuesta. El barbero rival corta un ritmo y tú lo repites justo en el compás siguiente. J es un tijeretazo y K una pasada de navaja. Los puntos de su espejo te recuerdan el patrón: blancos para J y amarillos para K.',
   aviso: corte,
+  acierto: corte,
   grabados: {
     aviso: (tecla) => (tecla === 'alterna' ? 'barberia-navaja' : 'barberia-tijeras'),
     acierto: (tecla) => (tecla === 'alterna' ? 'barberia-navaja' : 'barberia-tijeras'),

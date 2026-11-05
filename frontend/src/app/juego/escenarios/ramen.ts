@@ -1,9 +1,10 @@
 /**
- * Escenario medio: Ramen a contratiempo (rediseñado tras las pruebas de Eva del 01/11/2026).
- * Cada verdura llega a la tabla con líneas de puntos, una por corte (J en el
- * pulso). Después del último corte la tapa de la olla se levanta y sale
- * vapor: medio pulso después, K a contratiempo para echarlo todo. Entonces
- * entra una verdura distinta y la olla se va llenando de colores.
+ * Escenario medio: Ramen a contratiempo (rehecho tras las pruebas de Eva del 05/11/2026).
+ * Cada verdura avanza por la tabla hacia un cuchillo fijo. Lleva líneas de
+ * puntos, y cada línea llega bajo el cuchillo justo en el pulso de su corte
+ * (J): la distancia entre líneas es el ritmo. Medio pulso después del último
+ * corte, con la tapa ya levantada, K a contratiempo para echar los trozos a
+ * la olla. Una línea solo desaparece si la cortas tú.
  */
 import {
   ANCHO,
@@ -58,9 +59,16 @@ export function tandas(teclas: ('accion' | 'alterna')[]): Tanda[] {
 }
 
 /** Pulsos antes de la K en que la tapa empieza a levantarse: va por tiempo, no espera a los cortes. */
-const AVISO_OLLA = 1.5;
-const ANCHO_TROZO = 7;
+const AVISO_OLLA = 1;
+/** El cuchillo no se mueve: las líneas de corte llegan a él en su pulso. */
+const X_CUCHILLO = 62;
+/** Unidades que avanza la verdura en un pulso. */
+const AVANCE = 20;
+/** Donde se amontonan los trozos cortados, al final de la tabla. */
+const X_MONTON = 88;
 const TABLA_Y = 50;
+const LARGO_PUNTA = 5;
+const LARGO_CABEZA = 10;
 
 function decorado(c: CanvasRenderingContext2D, t: number): void {
   // Pared de azulejos, cortina noren y farolillos que se balancean
@@ -89,45 +97,36 @@ function decorado(c: CanvasRenderingContext2D, t: number): void {
   }
 }
 
-/** Lo que queda de la verdura entera, con su cabeza característica a la izquierda. */
-function verduraEntera(c: CanvasRenderingContext2D, v: Verdura, x0: number, largo: number): void {
+/** Hojas, sombrero o rabito del extremo que no se corta: así se distingue cada verdura. */
+function cabeza(c: CanvasRenderingContext2D, v: Verdura, x: number): void {
   const y = TABLA_Y;
-  // Se dibuja un poco más alta de lo que mide para que se vea bien
-  c.save();
-  c.translate(0, y);
-  c.scale(1, 1.35);
-  c.translate(0, -y);
-  if (v.nombre === 'zanahoria') {
-    poli(
-      c,
-      [x0, y - 3.6, x0 + largo, y - 1.2, x0 + largo + 3, y, x0 + largo, y + 1.2, x0, y + 3.6],
-      v.color,
-    );
-    raya(c, [x0 + largo * 0.3, y - 2.6, x0 + largo * 0.3, y - 1.2], 0.6);
-    raya(c, [x0 - 1, y - 1, x0 - 6, y - 5], 1.4, v.hoja);
-    raya(c, [x0 - 1, y, x0 - 7, y - 1.5], 1.4, v.hoja);
-  } else if (v.nombre === 'cebolleta') {
-    caja(c, x0, y - 2.4, largo, 4.8, v.color, 2.4);
-    caja(c, x0 + largo - 5, y - 2.4, 5, 4.8, '#ffffff', 2.4);
-    raya(c, [x0, y - 1, x0 - 8, y - 4], 1.6, v.hoja);
-  } else if (v.nombre === 'seta') {
-    caja(c, x0 + 3, y - 1.6, largo - 3, 4, v.color, 1.8);
-    elip(c, x0 + 3, y, 4, 6, v.hoja);
-    circ(c, x0 + 2, y - 2.6, 0.8, tono(v.hoja, 0.4), false);
+  if (v.nombre === 'seta') {
+    elip(c, x + 3, y, 4, 6.5, v.hoja);
+    circ(c, x + 2, y - 2.6, 0.9, tono(v.hoja, 0.4), false);
   } else if (v.nombre === 'pimiento') {
-    elip(c, x0 + largo / 2, y, largo / 2 + 1, 4, v.color);
-    caja(c, x0 - 3, y - 1, 4, 2, v.hoja, 1);
+    caja(c, x - 3, y - 1.2, 4, 2.4, v.hoja, 1);
   } else if (v.nombre === 'maíz') {
-    elip(c, x0 + largo / 2, y, largo / 2 + 1, 3.8, v.color);
-    for (let k = x0 + 2; k < x0 + largo - 1; k += 2.2)
-      for (const dy of [-1.6, 0.4]) circ(c, k, y + dy, 0.5, tono(v.color, -0.2), false);
-    poli(c, [x0 + 2, y - 4, x0 - 6, y - 1, x0 + 2, y + 4], v.hoja);
+    poli(c, [x + 3, y - 4.6, x - 6, y - 1, x + 3, y + 4.6], v.hoja);
   } else {
-    elip(c, x0 + largo / 2, y, largo / 2 + 1, 4, v.color);
-    elip(c, x0 + 2, y, 3, 3.8, v.hoja);
-    raya(c, [x0 - 1, y - 1, x0 - 6, y - 5], 1.4, '#4fb04a');
+    raya(c, [x, y - 1, x - 6, y - 6], 1.6, v.hoja);
+    raya(c, [x, y + 0.5, x - 7, y - 1.5], 1.6, v.hoja);
   }
-  c.restore();
+}
+
+/** Un trozo de verdura en la tabla: un rectángulo redondeado con su color. */
+function pieza(c: CanvasRenderingContext2D, v: Verdura, x0: number, x1: number): void {
+  const alto = v.nombre === 'cebolleta' ? 6.4 : 8.4;
+  caja(c, x0, TABLA_Y - alto / 2, x1 - x0, alto, v.color, 2.4);
+  if (v.nombre === 'maíz')
+    for (let k = x0 + 1.6; k < x1 - 1; k += 2.2)
+      for (const dy of [-1.8, 0.6]) circ(c, k, TABLA_Y + dy, 0.5, tono(v.color, -0.2), false);
+  else
+    raya(
+      c,
+      [x0 + 1.4, TABLA_Y - alto / 2 + 1.6, x1 - 1.4, TABLA_Y - alto / 2 + 1.6],
+      0.7,
+      tono(v.color, 0.3),
+    );
 }
 
 /** Un trozo ya cortado: una rodaja del color de la verdura (torcida si el corte falló). */
@@ -140,38 +139,78 @@ function trozo(c: CanvasRenderingContext2D, v: Verdura, x: number, y: number, ma
   c.restore();
 }
 
-/** Qué tanda está en la tabla: la última que ya ha empezado a entrar. */
-function tandaActual(v: VistaEscena, lista: Tanda[]): number {
-  let actual = 0;
-  lista.forEach((ta, i) => {
-    const primera = v.notas[ta.cortes[0] ?? ta.olla].pulso;
-    if (v.pulso >= primera - 1.2) actual = i;
+const acertada = (n: { juicio: string | null }) => n.juicio !== null && n.juicio !== 'miss';
+
+/**
+ * Dibuja una verdura en la tabla. Devuelve dónde quedan sus trozos ya cortados,
+ * para que vuelen a la olla cuando se pulse K.
+ */
+function verduraEnTabla(c: CanvasRenderingContext2D, v: VistaEscena, ta: Tanda): number[] {
+  const pulsos = ta.cortes.map((i) => v.notas[i].pulso);
+  const ultimo = pulsos[pulsos.length - 1];
+  // Avanza hasta que su último corte llega al cuchillo y ahí se para
+  const ahora = Math.min(v.pulso, ultimo);
+  const lineas = pulsos.map((p) => X_CUCHILLO - (p - ahora) * AVANCE);
+  // Bordes de derecha a izquierda: punta, cada línea y el final de la cabeza
+  const bordes = [lineas[0] + LARGO_PUNTA, ...lineas, lineas[lineas.length - 1] - LARGO_CABEZA];
+  // Se separa un trozo solo en las líneas bien cortadas; el resto sigue unido
+  const grupos: [number, number][] = [];
+  let derecha = bordes[0];
+  ta.cortes.forEach((i, k) => {
+    if (acertada(v.notas[i])) {
+      grupos.push([lineas[k], derecha]);
+      derecha = lineas[k];
+    }
   });
-  return actual;
+  const cabezaX = bordes[bordes.length - 1];
+  // Los trozos que ya han pasado el cuchillo se amontonan al final de la tabla
+  const sueltos: number[] = [];
+  let tope = X_MONTON;
+  for (const [x0, x1] of grupos) {
+    const w = x1 - x0;
+    const desde = Math.min(x0 + 1, tope - w);
+    pieza(c, ta.verdura, desde, desde + w - 0.8);
+    sueltos.push(desde + w / 2);
+    tope = desde - 0.6;
+  }
+  // La parte que sigue entera, con sus líneas de puntos pendientes
+  pieza(c, ta.verdura, cabezaX, derecha);
+  cabeza(c, ta.verdura, cabezaX);
+  c.save();
+  ta.cortes.forEach((i, k) => {
+    const n = v.notas[i];
+    const lx = lineas[k];
+    if (n.juicio === null) {
+      c.setLineDash([1.2, 1.2]);
+      raya(c, [lx, TABLA_Y - 6, lx, TABLA_Y + 6], 0.9);
+    } else if (n.juicio === 'miss') {
+      // Corte fallado: una marca torcida y el trozo sigue pegado
+      c.setLineDash([]);
+      raya(c, [lx - 1.4, TABLA_Y - 4, lx + 1.4, TABLA_Y + 4], 0.9, '#e0435f');
+    }
+  });
+  c.restore();
+  return sueltos;
 }
 
 const dibujar: DibujarEscena = (c, v) => {
   const t = Math.max(0, v.segundos);
   decorado(c, t);
-  const lista = tandas(v.teclas);
+  const lista = tandas(v.teclas).filter((ta) => ta.cortes.length > 0);
   if (lista.length === 0) return;
-  const indice = tandaActual(v, lista);
-  const ta = lista[indice];
-  const olla = v.notas[ta.olla];
-  const cortados = ta.cortes.filter((i) => v.notas[i].juicio !== null);
-  const enOlla = olla.juicio !== null && olla.juicio !== 'miss';
 
-  // La tapa se levanta por tiempo: siempre pulso y medio antes de la K, pase lo que pase con los cortes
+  // La tanda de la olla: la primera cuya K aún no ha pasado (o acaba de pasar)
+  const actual =
+    lista.find((ta) => v.pulso < v.notas[ta.olla].pulso + 0.6) ?? lista[lista.length - 1];
+  const olla = v.notas[actual.olla];
   const falta = olla.pulso - v.pulso;
+  // La tapa se levanta por tiempo: un pulso antes de la K, del todo justo a contratiempo
   const tapa =
     olla.juicio === null && falta <= AVISO_OLLA ? Math.min(1, (AVISO_OLLA - falta) / 0.5) : 0;
 
   // Olla con los trozos de las verduras que ya se han echado
   const echadas = lista.filter(
-    (x) =>
-      v.notas[x.olla].juicio !== null &&
-      v.notas[x.olla].juicio !== 'miss' &&
-      v.pulso >= v.notas[x.olla].pulso + 0.4,
+    (x) => acertada(v.notas[x.olla]) && v.pulso >= v.notas[x.olla].pulso + 0.4,
   );
   caja(c, 100, 38, 40, 21, '#7d8796', 3);
   caja(c, 97, 41, 4, 4, '#5f6878', 1.5);
@@ -189,7 +228,6 @@ const dibujar: DibujarEscena = (c, v) => {
   caja(c, 0, -3, 40, 3.4, '#a3acba', 1.7);
   caja(c, 18, -5.4, 4, 2.6, '#5f6878', 1);
   c.restore();
-  // Vapor: poco si la tapa está cerrada, mucho cuando se levanta
   const nubes = tapa > 0 ? 5 : 2;
   for (let i = 0; i < nubes; i++)
     elip(
@@ -202,80 +240,63 @@ const dibujar: DibujarEscena = (c, v) => {
     );
   if (tapa >= 1) onomatopeya(c, 120, 18, '¡K!', 0.25, '#ffc93c');
 
-  // Trozos que vuelan a la olla al echarlos (o que caen fuera si fallas)
-  if (olla.juicio !== null && v.pulso >= olla.pulso && v.pulso - olla.pulso < 0.5) {
-    const k = (v.pulso - olla.pulso) / 0.5;
-    const bien = olla.juicio !== 'miss';
-    for (let i = 0; i < cortados.length; i++)
-      trozo(
-        c,
-        ta.verdura,
-        60 + k * (bien ? 58 : 34) + i * 3,
-        46 - Math.sin(k * Math.PI) * 18 + (bien ? 0 : k * 16),
-        !bien,
-      );
-  }
-
-  // Tabla de cortar, chef detrás y la verdura que entra deslizándose desde la izquierda
-  persona(c, 54, 52, {
+  // Chef detrás de la tabla
+  persona(c, 48, 52, {
     ropa: '#ffffff',
     piel: '#f2c19a',
     pantalon: '#2a2230',
     mira: 1,
     brazo: 0.3,
-    contento: enOlla && v.pulso - olla.pulso < 0.6,
+    contento: acertada(olla) && v.pulso - olla.pulso < 0.6,
     gorro: (g, x, y) => {
       caja(g, x - 6.5, y - 11, 13, 5, '#ffffff', 1);
       elip(g, x, y - 13.5, 8, 5, '#ffffff');
     },
   });
-  caja(c, 18, TABLA_Y + 3, 70, 6, '#f2cf8c', 2);
-  raya(c, [20, TABLA_Y + 5, 86, TABLA_Y + 5], 0.5, '#d9b06c');
+  caja(c, 14, TABLA_Y + 4, 78, 6, '#f2cf8c', 2);
+  raya(c, [16, TABLA_Y + 6, 90, TABLA_Y + 6], 0.5, '#d9b06c');
 
-  const primera = v.notas[ta.cortes[0] ?? ta.olla].pulso;
-  const entra = Math.min(1, Math.max(0, (v.pulso - (primera - 1.2)) / 0.7));
-  const n = ta.cortes.length;
-  const x0 = 26 - 70 * (1 - entra);
-  const echada = olla.juicio !== null && v.pulso >= olla.pulso;
-  if (!echada) {
-    // Trozos ya cortados, apartados a la derecha
-    cortados.forEach((i, k) =>
+  // Verduras en la tabla: las que están llegando y la que espera a la olla
+  for (const ta of lista) {
+    const k = v.notas[ta.olla];
+    const primera = v.notas[ta.cortes[0]].pulso;
+    if (v.pulso < primera - 4 || v.pulso > k.pulso + 0.5) continue;
+    const echada = k.juicio !== null && v.pulso >= k.pulso;
+    if (!echada) {
+      verduraEnTabla(c, v, ta);
+      continue;
+    }
+    // Pulsada la K: los trozos vuelan a la olla, o caen al suelo si fallas
+    c.save();
+    c.globalAlpha = 0;
+    const sueltos = verduraEnTabla(c, v, ta);
+    c.restore();
+    const kk = (v.pulso - k.pulso) / 0.5;
+    const bien = acertada(k);
+    sueltos.forEach((x, i) =>
       trozo(
         c,
         ta.verdura,
-        x0 + 12 + (n - k - 1) * ANCHO_TROZO + 6 + k * 1.6,
-        TABLA_Y,
-        v.notas[i].juicio === 'miss',
+        x + kk * ((bien ? 112 + i * 3 : x + 20) - x),
+        TABLA_Y - 4 - Math.sin(kk * Math.PI) * 18 + (bien ? -kk * 8 : kk * 30),
+        !bien,
       ),
     );
-    const resto = 12 + (n - cortados.length) * ANCHO_TROZO;
-    verduraEntera(c, ta.verdura, x0, resto);
-    // Líneas de puntos: una por cada corte que falta
-    c.save();
-    c.setLineDash([1.2, 1.2]);
-    for (let i = 0; i < n - cortados.length; i++) {
-      const lx = x0 + resto - ANCHO_TROZO * (i + 1) + 3.5;
-      raya(c, [lx, TABLA_Y - 6, lx, TABLA_Y + 6], 0.9);
-    }
-    c.restore();
-    // Los trozos brillan cuando ya está todo cortado: toca echarlos
-    if (tapa > 0 && cortados.length === n)
-      for (let k = 0; k < n; k++)
-        circ(c, x0 + 14 + k * ANCHO_TROZO + 6, TABLA_Y - 5, 0.8, '#ffffff', false);
   }
 
-  // Cuchillo sobre la línea del próximo corte: sube antes del pulso y baja al pulsar
-  const proximo = ta.cortes.find((i) => v.notas[i].juicio === null);
-  const resto = 12 + (n - cortados.length) * ANCHO_TROZO;
-  const enTabla = !echada && entra >= 1;
-  const lx = enTabla
-    ? Math.min(72, proximo !== undefined ? x0 + resto - ANCHO_TROZO + 3.5 : x0 + resto + 3)
-    : 66;
+  // Cuchillo fijo: se levanta cuando llega una línea y baja al pulsar J
+  const proxima = v.notas.some(
+    (n, i) =>
+      v.teclas[i] === 'accion' &&
+      n.juicio === null &&
+      n.pulso - v.pulso < 0.5 &&
+      n.pulso - v.pulso > -0.2,
+  );
   const corta = v.desdePulsacion < 0.12 && v.ultimaTecla === 'accion';
-  const sube = enTabla && proximo !== undefined && v.notas[proximo].pulso - v.pulso < 0.5;
-  const yk = corta ? TABLA_Y - 4 : sube ? TABLA_Y - 16 : TABLA_Y - 11;
-  raya(c, [58.4, 33, lx + 1.2, yk - 6], 4);
-  raya(c, [58.4, 33, lx + 1.2, yk - 6], 2.2, '#ffffff');
+  const yk = corta ? TABLA_Y - 4 : proxima ? TABLA_Y - 16 : TABLA_Y - 11;
+  const lx = X_CUCHILLO - 1.2;
+  raya(c, [52.4, 33, lx + 1.2, yk - 6], 4);
+  raya(c, [52.4, 33, lx + 1.2, yk - 6], 2.2, '#ffffff');
   caja(c, lx - 0.4, yk - 8, 3.2, 4.4, '#5c3b24', 1);
   poli(
     c,
@@ -288,23 +309,22 @@ const dibujar: DibujarEscena = (c, v) => {
   const golpe = ultimoGolpe(v, 0.5);
   if (golpe) {
     const esOlla = v.teclas[golpe.indice] === 'alterna';
-    if (!golpe.acierto) onomatopeya(c, esOlla ? 120 : 36, 28, '¡UY!', golpe.k, '#ff6b6b');
-    else onomatopeya(c, esOlla ? 120 : 36, 28, esOlla ? '¡CHOF!' : '¡CHAC!', golpe.k);
+    if (!golpe.acierto) onomatopeya(c, esOlla ? 120 : 78, 28, '¡UY!', golpe.k, '#ff6b6b');
+    else onomatopeya(c, esOlla ? 120 : 78, 28, esOlla ? '¡CHOF!' : '¡CHAC!', golpe.k);
   }
 };
 
 export const ramen: Escenario = {
   dibujar,
   instrucciones:
-    'Cada verdura llega con líneas de puntos, una por corte: pulsa J en el pulso para cada corte. Cuando ya no quedan líneas, la tapa de la olla se levanta y sale vapor: pulsa K a contratiempo para echarlo todo. Entonces entra otra verdura.',
+    'La verdura avanza hacia el cuchillo. Pulsa J justo cuando cada línea de puntos pasa bajo el cuchillo: cuanto más juntas, más rápido. Tras el último corte la tapa de la olla se levanta: medio pulso después, pulsa K a contratiempo para echar los trozos.',
   aviso: (m, t, tecla) => {
-    // Corte: golpe seco de madera. Olla: la tapa tintinea
-    if (tecla === 'accion') m.tono('square', 1500, t, 0.03, 0.04);
-    else {
-      m.tono('square', 1568, t, 0.04, 0.03);
-      const o = m.tono('sine', 300, t, 0.15, 0.1);
-      o.frequency.exponentialRampToValueAtTime(700, t + 0.15);
-    }
+    // Los cortes no tienen aviso: ya se ven llegar las líneas y un clic encima de otro corte despistaba.
+    // La olla sí: la tapa tintinea un pulso antes de la K
+    if (tecla === 'accion') return;
+    m.tono('square', 1568, t, 0.04, 0.03);
+    const o = m.tono('sine', 300, t, 0.15, 0.1);
+    o.frequency.exponentialRampToValueAtTime(700, t + 0.15);
   },
   grabados: {
     aviso: (tecla) => (tecla === 'alterna' ? 'ramen-aviso' : undefined),

@@ -26,6 +26,8 @@ export interface Escenario {
   instrucciones: string;
   /** Sonido que avisa de cada nota antes de que llegue. */
   aviso: SonidoAviso;
+  /** Sonido propio al acertar, si el escenario lo tiene (si no, suena el pitido general). */
+  acierto?: SonidoAviso;
   /**
    * Nombres de los MP3 grabados (en public/sonidos/, sin extensión) del aviso
    * y del acierto de cada tecla. Si un archivo no está, suena el generado.

@@ -93,6 +93,9 @@ const dibujar: DibujarEscena = (c, v) => {
     const x = X_PIEDRA - falta * AVANCE - 2;
     if (falta > 0) {
       pata(c, x, 64, 0.6, color);
+    } else if (n.juicio === null) {
+      // Aún se puede pulsar (un GREAT tardío): espera en la piedra, sin caerse todavía
+      pata(c, X_PIEDRA - 2, 64, 0.6, color);
     } else if (n.juicio === 'perfect' || n.juicio === 'great') {
       // Salta desde la piedra por encima del charco (dura un pulso) y sigue hacia mamá pata
       const salto = Math.max(0, Math.sin(Math.min(1, -falta) * Math.PI)) * 10;

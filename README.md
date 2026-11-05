@@ -349,11 +349,13 @@ Detalles que decidí yo (Claude) en esta etapa:
 - Brindis arcade: la jarra rubia se pulsa con J y las jarras dobles de tostada con K. Huerto a compás: una
   abeja señala la calabaza que toca regar y cada acierto la hace crecer. La música admite también una
   pista de caja de batería (`caja`).
-- Ramen a contratiempo (rediseñado tras las pruebas de Eva del 01/11/2026, mismas notas): cada verdura llega
-  a la tabla con una línea de puntos por corte (J en el pulso) y después la tapa de la olla se levanta y sale
-  vapor para echarla con K a contratiempo. Tras cada K entra una verdura distinta (zanahoria, cebolleta, seta,
-  pimiento, maíz y nabo) y la olla se va llenando de colores. La tapa se levanta por tiempo, pulso y medio
-  antes de la K: en la vista previa esperaba a que se juzgaran todos los cortes y por eso parecía ir con retraso.
+- Ramen a contratiempo (rehecho el 05/11/2026; Eva eligió «verdura bajo el cuchillo», mismas notas): la
+  verdura avanza por la tabla hacia un cuchillo fijo y cada línea de puntos llega bajo él justo en el pulso
+  de su corte (J), así la distancia entre líneas es el ritmo, como las cartas de correos. Una línea solo
+  desaparece si se corta: un fallo deja una marca roja y el trozo pegado. La tapa de la olla se levanta un
+  pulso antes de la K, que va a contratiempo tras el último corte, y la tapa tintinea en ese momento. Los
+  cortes ya no tienen aviso sonoro: sonaba encima del corte anterior y despistaba. Cada tanda trae una
+  verdura distinta (zanahoria, cebolleta, seta, pimiento, maíz y nabo).
   Correos exprés: J sella cada carta bajo el sello; las urgentes, en rojo, van a
   contratiempo. Paso de patitos: J hace saltar el charco a cada patito y K al segundo de una pareja; se pulsa cuando el
   patito pisa la piedra del borde del charco (cambiado tras las pruebas de Eva del 01/11/2026).
