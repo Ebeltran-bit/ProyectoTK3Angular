@@ -3,32 +3,76 @@
  * Una gaviota grazna, vuela hacia el poste y se posa en él un pulso después:
  * justo entonces el pescador le lanza una sardina.
  */
-import { ANCHO, caja, circ, elip, fondo, golpeDeComic, persona, poli, raya, TINTA } from './dibujo';
+import {
+  ANCHO,
+  caja,
+  circ,
+  elip,
+  fondo,
+  forma,
+  golpeDeComic,
+  persona,
+  poli,
+  raya,
+  TINTA,
+} from './dibujo';
 import { DibujarEscena, Escenario } from './tipos';
 
+/**
+ * Gaviota de perfil. mira: 1 si mira a la derecha, -1 a la izquierda. Las
+ * coordenadas se reflejan a mano (no con c.scale) para que la sombra de cómic
+ * caiga siempre hacia el mismo lado. Orden de dibujo: cola, patas, cuerpo, ala
+ * y cabeza al final, así el ala nunca tapa la cara.
+ */
 function gaviota(
   c: CanvasRenderingContext2D,
   x: number,
   y: number,
-  alaArriba: boolean,
+  ala: 'arriba' | 'abajo' | 'plegada',
   triste = false,
-  mira = 1,
+  mira: 1 | -1 = 1,
 ): void {
-  // mira: 1 hacia la derecha, -1 hacia la izquierda (se dibuja reflejada)
-  c.save();
-  c.translate(x, y);
-  c.scale(mira, 1);
-  c.translate(-x, -y);
-  elip(c, x, y, 6, 3.6, '#ffffff');
-  poli(c, [x - 5, y - 1, x - 10, y - 3, x - 9, y + 2], '#ffffff');
-  circ(c, x + 5, y - 3.5, 3.2, '#ffffff');
-  poli(c, [x + 7.6, y - 4.4, x + 11.5, y - 3.2, x + 7.6, y - 2.2], '#ffb000');
-  circ(c, x + 5.6, y - 4.4, 0.7, TINTA, false);
-  if (triste) raya(c, [x + 4, y - 6.8, x + 6.6, y - 6.2]);
-  elip(c, x - 1, y + (alaArriba ? -5 : 0.5), 4.8, 2.2, '#d7dce6', alaArriba ? -0.5 : 0.25);
-  raya(c, [x - 1, y + 3.4, x - 1, y + 6]);
-  raya(c, [x + 2, y + 3.4, x + 2, y + 6]);
-  c.restore();
+  const X = (d: number) => x + d * mira;
+  // Cola gris, detrás del cuerpo
+  poli(c, [X(-5.5), y - 0.6, X(-11.5), y - 2.6, X(-11), y + 2], '#d7dce6');
+  // Patas: estiradas si está posada, recogidas hacia atrás si vuela
+  if (ala === 'plegada') {
+    for (const d of [-1, 2]) {
+      raya(c, [X(d), y + 3, X(d), y + 6.4], 0.9, '#ffb000');
+      raya(c, [X(d), y + 6.4, X(d + 1.6), y + 6.4], 0.9, '#ffb000');
+    }
+  } else {
+    for (const d of [-1.5, 0.8]) raya(c, [X(d), y + 3.2, X(d - 3), y + 4.6], 0.9, '#ffb000');
+  }
+  elip(c, x, y, 7, 3.8, '#ffffff');
+  // Ala: sale del lomo y apunta hacia atrás, lejos de la cabeza
+  forma(
+    c,
+    (p) => {
+      if (ala === 'plegada') {
+        p.moveTo(X(3), y - 1.6);
+        p.quadraticCurveTo(X(-3), y - 2.6, X(-8.5), y - 0.4);
+        p.quadraticCurveTo(X(-3), y + 1.8, X(2), y + 0.8);
+      } else if (ala === 'arriba') {
+        p.moveTo(X(2.5), y - 2.2);
+        p.quadraticCurveTo(X(-0.5), y - 9, X(-6.5), y - 12);
+        p.quadraticCurveTo(X(-4.5), y - 5.5, X(-3.5), y - 2.6);
+      } else {
+        p.moveTo(X(2.5), y - 1.2);
+        p.quadraticCurveTo(X(-1), y + 5, X(-7), y + 7.5);
+        p.quadraticCurveTo(X(-5), y + 2, X(-3.5), y - 0.8);
+      }
+    },
+    '#d7dce6',
+    6,
+  );
+  // Cabeza, pico amarillo con su mancha roja y ojo
+  circ(c, X(5.2), y - 3.6, 3.3, '#ffffff');
+  poli(c, [X(7.8), y - 5.2, X(13), y - 3.5, X(7.8), y - 2], '#ffb000');
+  circ(c, X(10.6), y - 3.1, 0.5, '#e8505b', false);
+  circ(c, X(6.2), y - 4.4, 0.75, TINTA, false);
+  circ(c, X(6), y - 4.7, 0.25, '#ffffff', false);
+  if (triste) raya(c, [X(4.8), y - 6.6, X(7.2), y - 5.9], 0.8);
 }
 
 function sardina(c: CanvasRenderingContext2D, x: number, y: number, giro = 0): void {
@@ -108,6 +152,9 @@ function decorado(c: CanvasRenderingContext2D, t: number): void {
     );
 }
 
+/** Pulsos que la gaviota se queda en el poste tras recibir la sardina, antes de irse. */
+const ESPERA = 0.35;
+
 const dibujar: DibujarEscena = (c, v) => {
   const t = Math.max(0, v.segundos);
   decorado(c, t);
@@ -125,34 +172,40 @@ const dibujar: DibujarEscena = (c, v) => {
   });
 
   // Cada gaviota vuela hacia el poste durante el pulso y medio anterior a su nota
-  const aleteo = Math.floor(t * 10) % 2 === 0;
+  const aleteo = Math.floor(t * 10) % 2 === 0 ? 'arriba' : 'abajo';
   for (const n of v.notas) {
     const falta = n.pulso - v.pulso;
     if (falta > 1.6 || falta < -1.5) continue;
     if (falta > 0) {
+      // Llega mirando hacia el pescador; en el último cuarto de pulso pliega las alas para posarse
       const k = 1 - falta / 1.6;
-      // Llega mirando hacia el pescador y su sardina
-      gaviota(c, 168 - k * 92, 38 - Math.sin(k * Math.PI) * 16 + 2 * k, aleteo, false, -1);
+      const ala = falta < 0.25 ? 'plegada' : aleteo;
+      gaviota(c, 168 - k * 92, 38 - Math.sin(k * Math.PI) * 16 - k, ala, false, -1);
     } else if (n.juicio === 'perfect' || n.juicio === 'great') {
-      // Coge la sardina, se da la vuelta y se va contenta mirando hacia donde vuela
-      const k = -falta / 1.5;
-      // Se gira de golpe a mitad del primer cuarto de pulso: estrecharla poco a poco la deformaba
-      const mira = -falta < 0.12 ? -1 : 1;
-      const gx = 76 + k * 90;
-      const gy = 40 - k * 40;
-      gaviota(c, gx, gy, aleteo, false, mira);
-      sardina(c, gx + 11 * mira, gy - 3, mira < 0 ? Math.PI : 0.3);
+      // Primero espera posada a que le llegue la sardina; luego se gira de golpe y se va
+      // volando hacia donde mira, con la sardina colgando del pico (cabeza arriba, cola abajo)
+      const comida = v.desdePulsacion >= 0.18 || -falta > ESPERA;
+      if (-falta < ESPERA) {
+        gaviota(c, 76, 37, 'plegada', false, -1);
+        if (comida) sardina(c, 76 - 10.6, 37 - 0.2, -Math.PI / 2);
+      } else {
+        const k = (-falta - ESPERA) / (1.5 - ESPERA);
+        const gx = 76 + k * 90;
+        const gy = 37 - k * 37;
+        gaviota(c, gx, gy, aleteo, false, 1);
+        sardina(c, gx + 10.6, gy - 0.2, -Math.PI / 2);
+      }
     } else {
-      gaviota(c, 76, 40, false, n.juicio === 'miss', -1);
+      gaviota(c, 76, 37, 'plegada', n.juicio === 'miss', -1);
     }
   }
 
   // Sardina en el aire justo después de pulsar
   if (v.desdePulsacion < 0.18) {
     const k = v.desdePulsacion / 0.18;
-    sardina(c, 46 + k * 19, 40 - Math.sin(k * Math.PI) * 10, k * 6);
+    sardina(c, 46 + k * 18, 40 - k * 6 - Math.sin(k * Math.PI) * 10, k * 6);
   }
-  golpeDeComic(c, v, 92, 24, ['¡ÑAM!', '¡HOP!', '¡ZAS!']);
+  golpeDeComic(c, v, 76, 14, ['¡ÑAM!', '¡HOP!', '¡ZAS!']);
 };
 
 export const puerto: Escenario = {
