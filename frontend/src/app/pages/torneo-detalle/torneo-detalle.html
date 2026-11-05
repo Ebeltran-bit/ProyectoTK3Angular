@@ -1,5 +1,5 @@
 <section>
-  <a routerLink="/torneos">← Torneos</a>
+  <a routerLink="/torneos" class="volver">← Torneos</a>
 
   @if (error()) {
     <p class="mensaje-error">
@@ -12,11 +12,11 @@
   } @else if (torneo(); as t) {
     <div class="cabecera">
       <h2>{{ t.nombre }}</h2>
-      <span class="estado">{{ nombreEstado[t.estado] }}</span>
+      <span class="estado" [attr.data-estado]="t.estado">{{ nombreEstado[t.estado] }}</span>
     </div>
 
     @if (t.campeon) {
-      <p class="campeon">Campeón: {{ t.campeon.nick }}</p>
+      <p class="campeon">👑 Campeón: {{ t.campeon.nick }}</p>
       <p class="ayuda">El torneo está finalizado y no admite más cambios.</p>
     }
 

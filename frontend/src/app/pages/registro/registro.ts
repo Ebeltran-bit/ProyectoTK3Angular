@@ -31,7 +31,7 @@ export class Registro {
     this.enviando.set(true);
     this.error.set(null);
     this.auth.registrar(this.formulario.getRawValue()).subscribe({
-      next: () => this.router.navigate(['/participantes']),
+      next: () => this.router.navigate(['/']),
       error: (e) => {
         this.error.set(mensajeError(e));
         this.enviando.set(false);

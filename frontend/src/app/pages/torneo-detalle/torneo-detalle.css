@@ -1,31 +1,42 @@
-/* Estilos provisionales. */
 .cabecera {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
 }
-.estado {
-  font-size: 0.85rem;
-  padding: 0.1rem 0.5rem;
-  border: 1px solid currentColor;
-  border-radius: 1rem;
+.cabecera h2 {
+  margin: 0.5rem 0;
 }
 .acciones {
   display: flex;
   gap: 1rem;
   align-items: center;
 }
-.ayuda {
-  color: #666;
-}
+/* El campeón se anuncia en una pastilla amarilla grande */
 .campeon {
-  font-weight: bold;
-  font-size: 1.2rem;
+  display: inline-block;
+  padding: 0.6rem 1.5rem;
+  border-radius: var(--redondo);
+  background: var(--amarillo);
+  box-shadow: 0 6px 0 var(--amarillo-oscuro);
+  font:
+    700 1.4rem 'Fredoka',
+    sans-serif;
 }
-
+.inscritos {
+  padding: 0.8rem 1.25rem;
+  border-radius: 24px;
+  background: var(--tarjeta);
+  box-shadow: 0 4px 0 var(--sombra-tarjeta);
+}
+h4 {
+  margin: 1rem 0 0.4rem;
+}
 .historial {
   margin-top: 0;
+  padding-left: 1.25rem;
+  line-height: 1.7;
 }
 .historial .pendiente {
-  color: #666;
+  color: var(--tinta-suave);
 }

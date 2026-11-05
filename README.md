@@ -40,7 +40,7 @@ tk3/
         ├── guards/            Bloquean pantallas si no hay sesión
         ├── interceptors/      Añaden el token a cada petición
         ├── juego/             Duelo de ritmo: reglas, evaluación, música y escenarios
-        ├── components/        Piezas reutilizables (el cuadro KO y el reproductor de ritmo)
+        ├── components/        Piezas reutilizables (el cuadro KO, el reproductor de ritmo y la carita)
         └── pages/             Pantallas (componentes con vista)
 ```
 
@@ -210,13 +210,30 @@ antes de programarlas.
   Usa los combates que ya devuelve `GET /api/torneos/{id}`, así que no necesita endpoint propio.
 
 **Interfaz**
+- Pantalla de inicio (`/`) con cuatro botones grandes: Torneos, Estadísticas, Práctica y Participantes.
+  Tras iniciar sesión se llega aquí. Pedida por Eva el 05/11/2026.
 - Pantallas: participantes (lista y formulario), torneos (lista, formulario y detalle con el cuadro y el
   historial), estadísticas (pestañas Participantes y Canciones) y práctica del duelo de ritmo.
 - El cuadro se muestra en columnas por ronda (Cuartos, Semifinales, Final…), con huecos "Por decidir".
   Antes de sortear se pide confirmación.
 - En un combate pendiente se pulsa el nombre del ganador. Los perdedores aparecen tachados y el campeón
   se muestra arriba del torneo.
-- Los estilos son provisionales y mínimos: el diseño visual está por decidir.
+
+**Diseño visual «Pop Ritmo»** (propuesta 2 de cinco, elegida por Eva el 05/11/2026; maquetas en
+`bocetos/propuestas-web/` de la carpeta del proyecto)
+- Fondo crema con rayas diagonales suaves, formas muy redondeadas (píldoras) y sombra sólida debajo de
+  botones y tarjetas. Los botones se estiran como una gominola al pasar el ratón y se hunden al pulsar.
+- Un color por sección, sacado de la paleta de los escenarios: Torneos coral, Estadísticas amarillo,
+  Práctica menta y Participantes azul. Se usan en el menú, el inicio y las pestañas.
+- Tipografías Fredoka (títulos y botones) y Nunito (texto), cargadas desde Google Fonts en `index.html`.
+- Todo el tema está en variables CSS al principio de `frontend/src/styles.css`; cada pantalla solo
+  ajusta su distribución.
+- Los botones del inicio y los avatares de los participantes sin logo son caritas: un SVG propio en
+  `components/cara/` que parpadea, abre la boca con el ratón encima y duerme si el participante está
+  desactivado. El color de cada participante sale de su id, así siempre es el mismo.
+- Las listas son tarjetas-pastilla en vez de filas con líneas, y entran una tras otra con una pequeña
+  animación. Con «reducir movimiento» activado en el sistema, no hay animaciones.
+- El escenario del juego mantiene su estilo cómic: este tema solo cambia las pantallas de gestión.
 
 ## Duelo de ritmo (ampliación)
 

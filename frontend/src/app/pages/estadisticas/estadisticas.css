@@ -1,60 +1,53 @@
-/* Estilos provisionales. */
-table {
-  border-collapse: collapse;
-  width: 100%;
-}
+/* Las tablas usan el estilo global (filas en pastilla, en styles.css) */
 th,
 td {
-  padding: 0.4rem 0.6rem;
-  border-bottom: 1px solid #ddd;
   text-align: right;
 }
-th:first-child {
-  text-align: left;
-}
-.inactivo {
-  color: #888;
-}
-.estado {
-  font-size: 0.8rem;
-  font-weight: normal;
-  padding: 0.05rem 0.4rem;
-  margin-left: 0.4rem;
-  border: 1px solid currentColor;
-  border-radius: 1rem;
-}
-.ayuda,
-.vacio {
-  color: #666;
-}
-
-.pestanas {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-.pestanas .seleccionado {
-  font-weight: bold;
-}
-.record {
-  font-weight: bold;
-}
-.nivel {
-  font-size: 0.8rem;
-  font-weight: normal;
-  padding: 0.05rem 0.4rem;
-  border: 1px solid currentColor;
-  border-radius: 1rem;
-}
-.nivel[data-nivel='facil'] {
-  color: #1f9e6a;
-}
-.nivel[data-nivel='media'] {
-  color: #2f7fd6;
-}
-.nivel[data-nivel='dificil'] {
-  color: #e0435f;
-}
+th:first-child,
 tbody th {
   text-align: left;
+}
+tbody th {
+  font:
+    700 1.05rem 'Fredoka',
+    sans-serif;
+}
+.inactivo th,
+.inactivo td {
+  color: var(--tinta-suave);
+}
+.estado {
+  margin-left: 0.4rem;
+}
+/* Pestañas: grupo de píldoras; la elegida se rellena de amarillo (color de la sección) */
+.pestanas {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+  padding: 0.3rem;
+  border-radius: var(--redondo);
+  background: var(--tarjeta);
+  box-shadow: 0 4px 0 var(--sombra-tarjeta);
+}
+.pestanas button {
+  box-shadow: none;
+  padding: 0.35rem 1rem;
+}
+.pestanas button:active:not(:disabled) {
+  box-shadow: none;
+}
+.pestanas .seleccionado {
+  background: var(--amarillo);
+}
+/* El primer puesto de cada canción va resaltado en amarillo */
+.record td,
+.record th {
+  background: #fff1c4;
+  font-weight: 900;
+}
+h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1.5rem 0 0;
 }

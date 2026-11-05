@@ -1,15 +1,19 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { Cara } from '../../components/cara/cara';
 import { Participante } from '../../models/participante';
 import { mensajeError } from '../../services/mensaje-error';
 import { ParticipantesService } from '../../services/participantes.service';
 
 type Filtro = 'todos' | 'activos' | 'inactivos';
 
+/** Colores de las caritas: cada participante tiene siempre el mismo, según su id. */
+const COLORES_CARA = ['#e8505b', '#5aa0c8', '#7cc56a', '#ff8fa3', '#e0a21a', '#9b6fd6'];
+
 @Component({
   selector: 'app-participantes-lista',
-  imports: [RouterLink],
+  imports: [RouterLink, Cara],
   templateUrl: './participantes-lista.html',
   styleUrl: './participantes-lista.css',
 })
@@ -53,6 +57,10 @@ export class ParticipantesLista implements OnInit {
         this.cargando.set(false);
       },
     });
+  }
+
+  colorDe(participante: Participante): string {
+    return COLORES_CARA[participante.id % COLORES_CARA.length];
   }
 
   marcarLogoRoto(id: number): void {

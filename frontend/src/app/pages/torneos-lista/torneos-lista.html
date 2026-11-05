@@ -1,7 +1,7 @@
 <section>
   <div class="cabecera">
     <h2>Torneos</h2>
-    <a routerLink="/torneos/nuevo">Nuevo torneo</a>
+    <a routerLink="/torneos/nuevo" class="boton">+ Nuevo torneo</a>
   </div>
 
   @if (error()) {
@@ -15,12 +15,12 @@
   } @else {
     <ul class="lista">
       @for (t of torneos(); track t.id) {
-        <li>
+        <li [style.animation-delay.ms]="$index * 60">
           <a [routerLink]="['/torneos', t.id]" class="nombre">{{ t.nombre }}</a>
           <span>{{ t.num_participantes }} participantes</span>
           <span class="estado" [attr.data-estado]="t.estado">{{ nombreEstado[t.estado] }}</span>
           @if (t.campeon) {
-            <span>Campeón: {{ t.campeon.nick }}</span>
+            <span class="campeon">👑 {{ t.campeon.nick }}</span>
           }
           <span class="fecha">{{ t.creado_en | date: 'dd/MM/yyyy' }}</span>
         </li>

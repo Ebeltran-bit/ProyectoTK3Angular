@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { sesionRequerida, sinSesion } from './guards/auth.guard';
 import { Duelo } from './pages/duelo/duelo';
 import { Estadisticas } from './pages/estadisticas/estadisticas';
+import { Inicio } from './pages/inicio/inicio';
 import { Login } from './pages/login/login';
 import { ParticipanteForm } from './pages/participante-form/participante-form';
 import { ParticipantesLista } from './pages/participantes-lista/participantes-lista';
@@ -22,7 +23,7 @@ export const routes: Routes = [
     path: '',
     canActivateChild: [sesionRequerida],
     children: [
-      { path: '', redirectTo: 'participantes', pathMatch: 'full' },
+      { path: '', component: Inicio, pathMatch: 'full' },
       { path: 'participantes', component: ParticipantesLista },
       { path: 'participantes/nuevo', component: ParticipanteForm },
       { path: 'participantes/:id/editar', component: ParticipanteForm },
@@ -35,5 +36,5 @@ export const routes: Routes = [
       { path: 'practica', component: Practica },
     ],
   },
-  { path: '**', redirectTo: 'participantes' },
+  { path: '**', redirectTo: '' },
 ];

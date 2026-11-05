@@ -1,19 +1,251 @@
-/* Estilos globales provisionales. El diseño visual es tuyo: cambia lo que quieras. */
-body { font-family: system-ui, sans-serif; margin: 0; }
-.mensaje-error { color: #b00020; }
-.mensaje-carga { color: #666; }
+/*
+ * Tema «Pop Ritmo» (propuesta 2, elegida por Eva el 05/11/2026): fondos claros y
+ * luminosos, formas muy redondeadas, sombra sólida inferior y un color por sección.
+ * Los colores son los de los escenarios del juego, así web y juego se parecen.
+ */
+:root {
+  --tinta: #3a2e4a; /* texto principal: morado muy oscuro, más suave que el negro */
+  --tinta-suave: #8a7d97; /* textos de ayuda */
+  --fondo: #fff6e0; /* crema */
+  --raya: rgba(255, 201, 60, 0.18); /* rayas diagonales del fondo */
+  --tarjeta: #ffffff;
+  --sombra-tarjeta: #ecdfc0;
 
-/* Duelo de ritmo: botón principal y texto que se pone sobre el escenario al acabar
-   (Práctica y el duelo del torneo). */
-.principal {
-  padding: 0.4rem 1.4rem;
-  font: inherit;
-  font-weight: bold;
-  border: 2px solid #1b1a26;
-  border-radius: 8px;
-  background: #ffc93c;
-  cursor: pointer;
+  /* Un color por sección, con su versión oscura para la sombra del botón */
+  --coral: #ff6b6b;
+  --coral-oscuro: #d94848;
+  --amarillo: #ffc93c;
+  --amarillo-oscuro: #e0a21a;
+  --menta: #7cf2c0;
+  --menta-oscuro: #4cc796;
+  --azul: #5aa0c8;
+  --azul-oscuro: #3d7ea3;
+  --rosa: #ff8fa3;
+
+  --error: #d93b4a;
+  --redondo: 999px; /* forma de píldora */
 }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Nunito', system-ui, sans-serif;
+  color: var(--tinta);
+  background-color: var(--fondo);
+  background-image: repeating-linear-gradient(-45deg, var(--raya) 0 22px, transparent 22px 44px);
+}
+
+h1,
+h2,
+h3,
+h4,
+legend {
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-weight: 700;
+}
+h2 {
+  font-size: 2rem;
+  margin: 0.5rem 0 1rem;
+}
+a {
+  color: var(--azul-oscuro);
+  font-weight: 700;
+}
+
+/* ---------- Botones ----------
+   Todos los botones (y los enlaces con clase .boton) son píldoras con una sombra sólida
+   debajo. Al pasar el ratón se estiran como una gominola; al pulsar se hunden. */
+button,
+a.boton,
+.principal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.2rem;
+  font:
+    700 1rem 'Fredoka',
+    'Nunito',
+    sans-serif;
+  color: var(--tinta);
+  text-decoration: none;
+  background: var(--tarjeta);
+  border: none;
+  border-radius: var(--redondo);
+  box-shadow: 0 5px 0 var(--sombra-tarjeta);
+  cursor: pointer;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+button:hover:not(:disabled),
+a.boton:hover,
+.principal:hover {
+  transform: scale(1.05, 0.96) translateY(1px);
+}
+button:active:not(:disabled),
+a.boton:active,
+.principal:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--sombra-tarjeta);
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--azul);
+  outline-offset: 2px;
+}
+/* Botón de la acción principal: menta, como «+ Nuevo» en la maqueta */
+a.boton,
+button[type='submit'] {
+  background: var(--menta);
+  color: #1d5e46;
+  box-shadow: 0 5px 0 var(--menta-oscuro);
+}
+a.boton:active,
+button[type='submit']:active:not(:disabled) {
+  box-shadow: 0 1px 0 var(--menta-oscuro);
+}
+/* Botón del juego (Práctica y duelo) */
+.principal {
+  background: var(--amarillo);
+  box-shadow: 0 5px 0 var(--amarillo-oscuro);
+}
+
+/* ---------- Formularios ---------- */
+input[type='text'],
+input[type='url'],
+input[type='password'] {
+  padding: 0.6rem 1rem;
+  font: inherit;
+  color: var(--tinta);
+  background: var(--tarjeta);
+  border: 3px solid var(--sombra-tarjeta);
+  border-radius: var(--redondo);
+}
+input[type='text']:focus,
+input[type='url']:focus,
+input[type='password']:focus {
+  border-color: var(--azul);
+  outline: none;
+}
+input[type='checkbox'] {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--coral);
+}
+fieldset {
+  border: none;
+  border-radius: 24px;
+  background: var(--tarjeta);
+  box-shadow: 0 6px 0 var(--sombra-tarjeta);
+  padding: 1rem 1.25rem;
+}
+legend {
+  float: left; /* así la leyenda queda dentro de la tarjeta */
+  width: 100%;
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+}
+label {
+  font-weight: 700;
+}
+
+/* ---------- Tarjeta y etiquetas reutilizables ---------- */
+.tarjeta {
+  background: var(--tarjeta);
+  border-radius: 28px;
+  box-shadow: 0 6px 0 var(--sombra-tarjeta);
+  padding: 1rem 1.25rem;
+}
+/* Etiqueta de estado o de nivel: píldora pequeña de color */
+.estado,
+.nivel {
+  display: inline-block;
+  font:
+    700 0.8rem 'Nunito',
+    sans-serif;
+  padding: 0.15rem 0.7rem;
+  border-radius: var(--redondo);
+  background: #efe7d6;
+  color: var(--tinta);
+  white-space: nowrap;
+}
+.estado.activo {
+  background: var(--menta);
+  color: #1d5e46;
+}
+.estado[data-estado='preparacion'] {
+  background: var(--amarillo);
+}
+.estado[data-estado='cuadro_generado'] {
+  background: var(--azul);
+  color: #ffffff;
+}
+.estado[data-estado='finalizado'] {
+  background: var(--menta);
+  color: #1d5e46;
+}
+.nivel[data-nivel='facil'] {
+  background: var(--menta);
+  color: #1d5e46;
+}
+.nivel[data-nivel='media'] {
+  background: var(--azul);
+  color: #ffffff;
+}
+.nivel[data-nivel='dificil'] {
+  background: var(--coral);
+  color: #ffffff;
+}
+
+/* ---------- Tablas ----------
+   Cada fila es una pastilla blanca separada de las demás, en vez de una rejilla de líneas. */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+}
+thead th {
+  font:
+    700 0.75rem 'Nunito',
+    sans-serif;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+  padding: 0 0.8rem;
+}
+tbody td,
+tbody th {
+  background: var(--tarjeta);
+  padding: 0.7rem 0.8rem;
+  box-shadow: 0 4px 0 var(--sombra-tarjeta);
+}
+tbody tr > :first-child {
+  border-radius: var(--redondo) 0 0 var(--redondo);
+  padding-left: 1.2rem;
+}
+tbody tr > :last-child {
+  border-radius: 0 var(--redondo) var(--redondo) 0;
+  padding-right: 1.2rem;
+}
+
+/* ---------- Mensajes ---------- */
+.mensaje-error {
+  color: var(--error);
+  font-weight: 700;
+}
+.mensaje-carga,
+.ayuda,
+.vacio {
+  color: var(--tinta-suave);
+}
+
+/* Duelo de ritmo: texto que se pone sobre el escenario al acabar
+   (Práctica y el duelo del torneo). */
 .resultado-ritmo {
   display: flex;
   flex-direction: column;
@@ -25,10 +257,27 @@ body { font-family: system-ui, sans-serif; margin: 0; }
   margin: 0;
 }
 .resultado-ritmo .grande {
-  font-size: 1.4rem;
-  font-weight: bold;
+  font:
+    700 1.5rem 'Fredoka',
+    sans-serif;
 }
 .resultado-ritmo .acciones {
   display: flex;
   gap: 0.75rem;
+}
+
+/* Las listas entran una tarjeta tras otra, como al ritmo de un compás */
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

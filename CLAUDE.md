@@ -96,8 +96,9 @@ los convierte en respuestas HTTP.
 - Nombres de código, comentarios, mensajes y documentación **en español**.
 - Comentarios breves que expliquen el *porqué*, al nivel de los existentes.
 - Frontend: formato de Prettier del proyecto (`frontend/.prettierrc`).
-- Los estilos son provisionales. **El diseño visual lo decide Eva**: no lo
-  cambies por iniciativa propia.
+- Diseño de las pantallas de gestión: tema «Pop Ritmo» (aprobado por Eva el
+  05/11/2026), con sus variables en `frontend/src/styles.css`. **El diseño
+  visual lo decide Eva**: no lo cambies por iniciativa propia.
 - Desactivar un participante no es borrarlo: no hay endpoints de borrado
   de participantes.
 

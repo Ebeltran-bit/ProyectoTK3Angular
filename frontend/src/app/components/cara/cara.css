@@ -1,0 +1,31 @@
+:host {
+  display: inline-block;
+  line-height: 0;
+}
+/* Parpadeo: los ojos se aplastan un instante cada 4 segundos */
+.ojos {
+  transform-origin: 50px 44px;
+  animation: parpadeo 4s infinite;
+}
+@keyframes parpadeo {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.1);
+  }
+}
+/* Con el ratón encima del botón que la contiene, la cara abre la boca */
+.boca-abierta {
+  display: none;
+}
+:host-context(.con-cara:hover) .boca-abierta,
+:host-context(.con-cara:focus-visible) .boca-abierta {
+  display: inline;
+}
+:host-context(.con-cara:hover) .sonrisa,
+:host-context(.con-cara:focus-visible) .sonrisa {
+  display: none;
+}

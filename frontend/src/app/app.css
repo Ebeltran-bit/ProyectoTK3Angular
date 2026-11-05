@@ -1,24 +1,77 @@
-/* Estilos provisionales. */
+/* Cabecera del tema «Pop Ritmo»: logo, menú de píldoras de colores y usuario. */
 header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 2rem;
-  padding: 0 1rem;
-  border-bottom: 1px solid #ddd;
+  gap: 1rem 2rem;
+  padding: 1rem 1.5rem;
+}
+.logo {
+  font:
+    700 2rem 'Fredoka',
+    sans-serif;
+  color: var(--coral);
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+.logo b {
+  color: var(--azul);
 }
 nav {
   display: flex;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+/* Cada enlace del menú es una píldora; la sección abierta se rellena con su color */
+nav a {
+  padding: 0.4rem 1rem;
+  border-radius: var(--redondo);
+  color: var(--tinta);
+  text-decoration: none;
+  font:
+    700 1rem 'Fredoka',
+    sans-serif;
+  transition:
+    background 0.15s,
+    transform 0.15s;
+}
+nav a:hover {
+  background: rgba(255, 255, 255, 0.7);
+  transform: translateY(-2px);
 }
 nav a.activo {
-  font-weight: bold;
-}
-main {
-  padding: 1rem;
+  background: var(--color);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
 }
 .sesion {
   margin-left: auto;
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.9rem 0.3rem 0.3rem;
+  border-radius: var(--redondo);
+  background: var(--tarjeta);
+  box-shadow: 0 4px 0 var(--sombra-tarjeta);
+  font-weight: 700;
+}
+.inicial {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--rosa);
+  color: #fff;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0.5rem 1.5rem 3rem;
 }

@@ -1,31 +1,49 @@
-/* Estilos provisionales. */
 .cabecera {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 }
+/* Cada torneo es una pastilla blanca con su estado de color */
 .lista {
   list-style: none;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
 }
 .lista li {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #ddd;
+  gap: 0.5rem 1.25rem;
+  padding: 0.9rem 1.5rem;
+  border-radius: var(--redondo);
+  background: var(--tarjeta);
+  box-shadow: 0 6px 0 var(--sombra-tarjeta);
+  animation: entrar 0.3s backwards;
+  transition: transform 0.15s;
+}
+.lista li:hover {
+  transform: translateY(-3px);
 }
 .nombre {
   flex: 1;
-  font-weight: bold;
+  font:
+    700 1.25rem 'Fredoka',
+    sans-serif;
+  color: var(--tinta);
+  text-decoration: none;
 }
-.estado {
-  font-size: 0.85rem;
-  padding: 0.1rem 0.5rem;
-  border: 1px solid currentColor;
-  border-radius: 1rem;
+.nombre:hover {
+  color: var(--coral);
 }
-.fecha,
-.vacio {
-  color: #666;
+.campeon {
+  font-weight: 900;
+}
+.fecha {
+  color: var(--tinta-suave);
+}
+.lista li.vacio {
+  justify-content: center;
 }

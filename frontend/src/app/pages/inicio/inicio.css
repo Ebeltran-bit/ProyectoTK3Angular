@@ -1,0 +1,51 @@
+.inicio h2 {
+  text-align: center;
+  font-size: 2.2rem;
+}
+.gomas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.75rem 2rem;
+  max-width: 820px;
+  margin: 0 auto;
+}
+/* Cada botón es una «gominola»: muy redondo, de color y con sombra sólida debajo */
+.goma {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  min-height: 180px;
+  padding: 0 1.75rem;
+  border-radius: 46px;
+  background: var(--color);
+  box-shadow: 0 10px 0 var(--sombra);
+  text-decoration: none;
+  animation: entrar 0.35s backwards;
+  transition:
+    transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1),
+    box-shadow 0.18s;
+}
+/* Al pasar el ratón se aplasta como una gelatina y la cara abre la boca (cara.css) */
+.goma:hover,
+.goma:focus-visible {
+  transform: scale(1.06, 0.95) translateY(4px);
+  box-shadow: 0 6px 0 var(--sombra);
+}
+.goma:active {
+  transform: translateY(9px);
+  box-shadow: 0 1px 0 var(--sombra);
+}
+.texto {
+  font:
+    700 2rem 'Fredoka',
+    sans-serif;
+  line-height: 1;
+}
+.texto small {
+  display: block;
+  margin-top: 0.4rem;
+  font:
+    700 1rem 'Nunito',
+    sans-serif;
+  opacity: 0.92;
+}

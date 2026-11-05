@@ -1,0 +1,21 @@
+<section class="inicio">
+  <h2>¿A qué jugamos hoy, {{ auth.usuario()?.nombre_usuario }}?</h2>
+  <nav class="gomas" aria-label="Secciones">
+    @for (s of secciones; track s.ruta; let i = $index) {
+      <a
+        class="goma con-cara"
+        [routerLink]="s.ruta"
+        [style.--color]="s.color"
+        [style.--sombra]="s.sombra"
+        [style.color]="s.letra"
+        [style.animation-delay.ms]="i * 80"
+      >
+        <app-cara [color]="s.sombra" [tam]="108" />
+        <span class="texto">
+          {{ s.titulo }}
+          <small>{{ s.texto }}</small>
+        </span>
+      </a>
+    }
+  </nav>
+</section>

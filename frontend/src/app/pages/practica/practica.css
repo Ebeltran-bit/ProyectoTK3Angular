@@ -1,51 +1,42 @@
-/* Estilos provisionales, siguiendo el boceto del puerto. El diseño visual lo decide Eva. */
+/* Lista de canciones: cada una es una pastilla con su nivel de color */
 .lista {
   list-style: none;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
 }
 .lista li {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #ddd;
+  gap: 0.5rem 1rem;
+  padding: 0.7rem 0.8rem 0.7rem 1.5rem;
+  border-radius: var(--redondo);
+  background: var(--tarjeta);
+  box-shadow: 0 6px 0 var(--sombra-tarjeta);
+  animation: entrar 0.3s backwards;
 }
 .titulo {
   flex: 1;
-  font-weight: bold;
+  font:
+    700 1.2rem 'Fredoka',
+    sans-serif;
 }
-.nivel {
-  font-size: 0.85rem;
-  padding: 0.1rem 0.5rem;
-  border: 1px solid currentColor;
-  border-radius: 1rem;
+.detalle {
+  color: var(--tinta-suave);
 }
-.nivel[data-nivel='facil'] {
-  color: #1f9e6a;
-}
-.nivel[data-nivel='media'] {
-  color: #2f7fd6;
-}
-.nivel[data-nivel='dificil'] {
-  color: #e0435f;
-}
-.detalle,
-.ayuda,
-.vacio {
-  color: #666;
+.lista li button {
+  background: var(--menta);
+  box-shadow: 0 5px 0 var(--menta-oscuro);
 }
 .cabecera {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 .enlace {
-  background: none;
-  border: none;
-  padding: 0;
-  color: #0645ad;
-  text-decoration: underline;
-  cursor: pointer;
-  font: inherit;
+  padding: 0.35rem 1rem;
 }
