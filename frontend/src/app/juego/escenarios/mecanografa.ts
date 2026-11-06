@@ -54,7 +54,7 @@ function filaPauta(
 
 /** Mano de la mecanógrafa vista desde arriba: sale de la manga y tiene los dedos sobre las teclas. */
 function manoEscribiendo(c: CanvasRenderingContext2D, x: number, y: number): void {
-  extremidad(c, x, y + 14, x, y + 2.6, 4.6, 4, 0, '#7b5fd1');
+  extremidad(c, x, y + 8, x, y + 2.6, 4.6, 4, 0, '#7b5fd1');
   for (const d of [-1.9, -0.6, 0.7, 2]) circ(c, x + d, y - 1.6, 0.95, PIEL, false);
   elip(c, x, y, 3.2, 2.5, PIEL);
   elip(c, x - 3, y + 0.6, 0.9, 1.4, PIEL, -0.5, false);
@@ -71,9 +71,11 @@ const dibujar: DibujarEscena = (c, v) => {
   for (let i = 0; i < 4; i++) raya(c, [14, 14 + i * 5, 46, 14 + i * 5], 0.6, '#b9c4cc');
   caja(c, 40, 6, 8, 6, '#ffd84a', 0.5);
   circ(c, 44, 7, 1, '#e8505b');
-  caja(c, 142, 44, 10, 10, '#c46a2b', 1.5);
-  elip(c, 144, 38, 4, 7, '#4fa64a', -0.4);
-  elip(c, 150, 37, 4, 8, '#5cb856', 0.4);
+  // Planta apoyada en la mesa (el tablero empieza en y = 62)
+  elip(c, 144, 46, 4, 7, '#4fa64a', -0.4);
+  elip(c, 150, 45, 4, 8, '#5cb856', 0.4);
+  poli(c, [141.4, 52, 152.6, 52, 151.4, 62, 142.6, 62], '#c46a2b');
+  caja(c, 140.8, 51, 12.4, 2.6, '#d77d3c', 1);
   caja(c, 20, 54, 8, 8, '#ffffff', 1.5);
   c.beginPath();
   c.arc(28, 58, 2, -Math.PI / 2, Math.PI / 2);

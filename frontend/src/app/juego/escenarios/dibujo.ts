@@ -203,9 +203,9 @@ export function extremidad(
   c.beginPath();
   c.moveTo(x1 + (nx * w1) / 2, y1 + (ny * w1) / 2);
   c.quadraticCurveTo(mx + nx * medio, my + ny * medio, x2 + (nx * w2) / 2, y2 + (ny * w2) / 2);
-  c.arc(x2, y2, w2 / 2, a, a + Math.PI);
+  c.arc(x2, y2, w2 / 2, a, a + Math.PI, true);
   c.quadraticCurveTo(mx - nx * medio, my - ny * medio, x1 - (nx * w1) / 2, y1 - (ny * w1) / 2);
-  c.arc(x1, y1, w1 / 2, a + Math.PI, a);
+  c.arc(x1, y1, w1 / 2, a + Math.PI, a, true);
   c.fill();
 }
 

@@ -97,7 +97,7 @@ function puesto(c: CanvasRenderingContext2D, ox: number): void {
   caja(c, ox + 31, 63.3, 4.6, 13.3, P.metal, 1);
   caja(c, ox + 18.3, 55, 31.7, 9.6, P.cuero, 3.6);
   caja(c, ox + 15.3, 35, 9.3, 28.3, P.cuero, 4);
-  caja(c, ox + 45.6, 63.3, 10, 2.3, P.metal, 1);
+  caja(c, ox + 47.6, 76.4, 12, 2, P.metal, 1);
   caja(c, ox + 44.6, 53, 11.7, 3, P.metal, 1.3);
 }
 
@@ -130,8 +130,21 @@ function cliente(
   c.restore();
   caja(c, x - 3.6, y + 6.6, 10, 2.6, P.capa, 1.3);
   // Piernas y zapato
-  caja(c, x + 16.6, y + 25, 12, 4.3, '#5a35d6', 2);
-  elip(c, x + 30.6, y + 28, 3.6, 2, P.pelo);
+  // Sentado: el muslo sale de la capa hasta la rodilla y la pierna baja recta hasta el reposapiés
+  extremidad(c, x + 13.6, y + 26.6, x + 20.4, y + 26.8, 4.4, 4.2, 0, '#5a35d6');
+  extremidad(c, x + 20.4, y + 26.8, x + 21, y + 36, 4.2, 3.6, 0, '#5a35d6');
+  forma(
+    c,
+    (p) => {
+      p.moveTo(x + 19, y + 35.4);
+      p.lineTo(x + 22.6, y + 35.4);
+      p.quadraticCurveTo(x + 26.2, y + 35.8, x + 26.2, y + 38.2);
+      p.lineTo(x + 18.8, y + 38.2);
+      p.quadraticCurveTo(x + 18.6, y + 36.6, x + 19, y + 35.4);
+    },
+    P.pelo,
+    3,
+  );
   // Cabeza con la nariz hacia la derecha
   forma(
     c,
@@ -395,9 +408,13 @@ function barbero(
   forma(
     c,
     (p) => {
-      p.moveTo(x - 2.3, y + 6);
-      p.bezierCurveTo(x - 5, y + 5, x - 5.6, y + 3, x - 7, y + 4);
-      p.bezierCurveTo(x - 5.6, y + 7.6, x - 1, y + 7.6, x + 1, y + 6.3);
+      // Bigote de manillar justo debajo de la nariz: sigue el labio y la punta se riza hacia arriba
+      p.moveTo(x + 1.4, y + 6.1);
+      p.quadraticCurveTo(x - 1.4, y + 5.4, x - 3.6, y + 5.9);
+      p.quadraticCurveTo(x - 5.4, y + 6.1, x - 5.6, y + 4.5);
+      p.quadraticCurveTo(x - 4.4, y + 4.9, x - 4.4, y + 6.5);
+      p.quadraticCurveTo(x - 3.2, y + 7.8, x - 1, y + 7.4);
+      p.quadraticCurveTo(x + 0.6, y + 7.2, x + 1.4, y + 6.1);
     },
     P.pelo,
     2,
