@@ -241,7 +241,8 @@ antes de programarlas.
   desactivado. El color de cada participante sale de su id, así siempre es el mismo.
 - Las listas son tarjetas-pastilla en vez de filas con líneas, y entran una tras otra con una pequeña
   animación. Con «reducir movimiento» activado en el sistema, no hay animaciones.
-- El escenario del juego mantiene su estilo cómic: este tema solo cambia las pantallas de gestión.
+- Los escenarios del juego tienen su propio estilo plano (ver «Duelo de ritmo»): este tema solo cambia las
+  pantallas de gestión, aunque comparten la paleta y las píldoras de color.
 
 ## Duelo de ritmo (ampliación)
 
@@ -293,6 +294,20 @@ beatmaps, SQL y decisiones pendientes):
   `juego/escenarios/dibujo.ts`, así cada escena solo dice qué formas dibuja y el estilo es el mismo en todas
   (detalle mío: la sombra es la parte de la forma que queda fuera de una copia desplazada; la trama solo va
   en formas grandes para que las caras no parezcan tener barba).
+- **Cambio aprobado por Eva el 06/11/2026: vuelta al estilo plano**, sustituye al cómic. Eva lo eligió
+  tras revisar el boceto del puerto (`bocetos/plano/puerto-plano.html`) y luego los nueve escenarios
+  (`bocetos/plano/escenarios-plano.html`), pidiendo cambios hasta darle el visto bueno:
+  - Sin contorno negro: las formas se separan por el color.
+  - Una sola sombra plana por forma, una media luna abajo a la derecha del mismo color pero más oscuro
+    (la luz viene siempre de arriba a la izquierda). Sin trama ni brillo.
+  - Personajes con siluetas curvas en vez de piezas geométricas sueltas, y las articulaciones (hombro,
+    codo, muñeca, rodilla) solapadas y del mismo color para que no queden huecos. Boca pequeña.
+  - Las palabras de cada golpe (¡HOP!, ¡CHAS!…) salen en una píldora de color con Fredoka, como los
+    botones de la web: verde al acertar y rojo con «¡UY!» al fallar.
+  - Detalles míos: `persona()` mantiene las medidas de antes (cabeza en y − 30 y la mano a 9 unidades del
+    hombro), así los objetos que sujeta cada escena siguen en su sitio; `extremidad()` dibuja brazos y
+    piernas que se estrechan y se curvan, y `mano()` la mano con el pulgar. Los parámetros que antes
+    decían si una forma llevaba contorno ahora dicen si lleva sombra (`sombreado`).
 - Nueve escenarios, tres por nivel:
 
 | Nivel | Escenarios |

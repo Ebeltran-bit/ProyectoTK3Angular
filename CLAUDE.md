@@ -136,8 +136,10 @@ Mantén actualizada esta tabla cuando termine una fase.
   GREAT (±90 ms) o MISS. Barra de Hype del público y contador de combo.
 - Niveles fácil, media y difícil según la ronda del torneo; las semifinales
   y la final son difíciles.
-- Estilo cómic (aprobado el 01/11/2026, sustituye al plano): contorno negro grueso, colores vivos,
-  sombra con trama de puntos, brillo y onomatopeyas. Las primitivas están en `escenarios/dibujo.ts`.
+- Estilo plano (aprobado el 06/11/2026, sustituye al cómic): sin contorno negro, colores planos, una
+  sola sombra en media luna por forma, personajes con curvas y articulaciones sin huecos, y las
+  palabras de cada golpe en píldoras de color. Las primitivas están en `escenarios/dibujo.ts` y los
+  bocetos aprobados en `bocetos/plano/` (fuera del repositorio).
 - Tres escenarios por nivel (lista en el README). El backend elige uno al
   azar para cada combate y lo guarda, así los dos jugadores tocan el mismo.
 - La puntuación que cuenta para el torneo la calcula el backend a partir de
