@@ -308,6 +308,9 @@ beatmaps, SQL y decisiones pendientes):
     hombro), así los objetos que sujeta cada escena siguen en su sitio; `extremidad()` dibuja brazos y
     piernas que se estrechan y se curvan, y `mano()` la mano con el pulgar. Los parámetros que antes
     decían si una forma llevaba contorno ahora dicen si lleva sombra (`sombreado`).
+  - El marcador del reproductor (Hype, puntos, combo y el juicio PERFECT / GREAT / MISS) y la cuenta
+    atrás también pasan al plano (pedido por Eva el 06/11/2026): píldoras blancas con sombra sólida y el
+    juicio en una píldora de color, con las variables del tema «Pop Ritmo».
 - Nueve escenarios, tres por nivel:
 
 | Nivel | Escenarios |

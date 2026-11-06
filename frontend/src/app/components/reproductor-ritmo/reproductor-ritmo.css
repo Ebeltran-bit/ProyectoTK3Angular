@@ -1,10 +1,14 @@
-/* Estilos provisionales, siguiendo el boceto del puerto. El diseño visual lo decide Eva. */
+/*
+ * Marcador del duelo en estilo plano (aprobado por Eva el 06/11/2026), con las variables
+ * del tema «Pop Ritmo»: sin bordes negros, píldoras blancas con sombra sólida inferior y
+ * el juicio de cada pulsación en una píldora de color.
+ */
 .pantalla {
   position: relative;
   max-width: 960px;
-  border: 3px solid #1b1a26;
-  border-radius: 12px;
+  border-radius: 18px;
   overflow: hidden;
+  box-shadow: 0 6px 0 var(--sombra-tarjeta);
   touch-action: manipulation;
   user-select: none;
 }
@@ -20,59 +24,77 @@ canvas {
   justify-content: space-between;
   align-items: flex-start;
   pointer-events: none;
-  font-weight: bold;
-  color: #1b1a26;
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-weight: 700;
+  color: var(--tinta);
 }
 .hype {
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  width: min(40%, 14rem);
+  align-items: center;
+  gap: 0.5rem;
+  width: min(45%, 16rem);
+  padding: 0.3rem 0.4rem 0.3rem 0.8rem;
+  border-radius: var(--redondo);
+  background: var(--tarjeta);
+  box-shadow: 0 3px 0 var(--sombra-tarjeta);
+  font-size: 0.85rem;
 }
 .barra {
+  flex: 1;
   height: 0.8rem;
-  border: 2px solid #1b1a26;
-  border-radius: 1rem;
-  background: #ffffff;
+  border-radius: var(--redondo);
+  background: var(--fondo);
   overflow: hidden;
 }
 .relleno {
   height: 100%;
-  background: #ffc93c;
+  border-radius: var(--redondo);
+  background: var(--amarillo);
+  box-shadow: inset 0 -3px 0 var(--amarillo-oscuro);
   transition: width 0.15s;
 }
 .puntos {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  padding: 0.2rem 0.6rem;
-  border: 2px solid #1b1a26;
-  border-radius: 8px;
-  background: #ffffff;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: var(--redondo);
+  background: var(--tarjeta);
+  box-shadow: 0 3px 0 var(--sombra-tarjeta);
 }
 .puntos strong {
   font-size: 1.3rem;
 }
+.puntos span {
+  font-size: 0.8rem;
+  color: var(--tinta-suave);
+}
 .juicio {
   position: absolute;
-  top: 30%;
+  top: 28%;
   left: 50%;
   margin: 0;
+  padding: 0.1em 0.7em;
+  border-radius: var(--redondo);
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-size: clamp(1.3rem, 4.5vw, 2.4rem);
+  font-weight: 700;
+  color: #ffffff;
   transform: translateX(-50%);
-  font-size: clamp(1.4rem, 5vw, 2.6rem);
-  font-weight: 900;
-  -webkit-text-stroke: 2px #1b1a26;
   pointer-events: none;
   animation: aparecer 0.45s ease-out forwards;
 }
 .juicio[data-juicio='perfect'] {
-  color: #7cf2c0;
+  background: var(--menta-oscuro);
+  box-shadow: 0 4px 0 #35a07a;
 }
 .juicio[data-juicio='great'] {
-  color: #8fd0ff;
+  background: var(--azul);
+  box-shadow: 0 4px 0 var(--azul-oscuro);
 }
 .juicio[data-juicio='miss'] {
-  color: #ff8aa0;
+  background: var(--coral);
+  box-shadow: 0 4px 0 var(--coral-oscuro);
 }
 @keyframes aparecer {
   from {
@@ -94,20 +116,21 @@ canvas {
   gap: 0.5rem;
   padding: 1rem;
   text-align: center;
-  background: rgb(255 255 255 / 0.82);
+  background: rgb(255 246 224 / 0.88);
 }
 .capa p {
   max-width: 32rem;
   margin: 0;
 }
 kbd {
-  padding: 0 0.35rem;
-  border: 1.5px solid #1b1a26;
-  border-radius: 4px;
-  background: #ffffff;
-  font-family: inherit;
+  padding: 0 0.45rem;
+  border-radius: 6px;
+  background: var(--tarjeta);
+  box-shadow: 0 2px 0 var(--sombra-tarjeta);
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-weight: 700;
 }
 
 .ayuda {
-  color: #666;
+  color: var(--tinta-suave);
 }

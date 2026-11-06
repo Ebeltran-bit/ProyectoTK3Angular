@@ -248,15 +248,22 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
     }
   };
 
+  /** Número de la cuenta atrás en un círculo amarillo con su sombra, como el resto del estilo plano. */
   private cuentaAtras(c: CanvasRenderingContext2D, numero: number): void {
     c.save();
-    c.font = '700 20px system-ui, sans-serif';
-    c.textAlign = 'center';
-    c.lineWidth = 2.4;
-    c.strokeStyle = TINTA;
-    c.strokeText(String(numero), ANCHO / 2, 32);
+    c.fillStyle = '#e0a21a';
+    c.beginPath();
+    c.arc(ANCHO / 2, 27.4, 10, 0, Math.PI * 2);
+    c.fill();
     c.fillStyle = '#ffc93c';
-    c.fillText(String(numero), ANCHO / 2, 32);
+    c.beginPath();
+    c.arc(ANCHO / 2, 26, 10, 0, Math.PI * 2);
+    c.fill();
+    c.font = '700 13px Fredoka, Nunito, system-ui, sans-serif';
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.fillStyle = TINTA;
+    c.fillText(String(numero), ANCHO / 2, 26.8);
     c.restore();
   }
 }
