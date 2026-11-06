@@ -3,7 +3,7 @@
  * Las cartas avanzan por la cinta y hay que sellar cada una justo cuando
  * pasa bajo el sello (J). Las urgentes, en rojo, llegan a contratiempo.
  */
-import { ANCHO, caja, circ, fondo, golpeDeComic, persona, poli, raya } from './dibujo';
+import { ANCHO, caja, circ, fondo, textoDeGolpe, persona, poli, raya } from './dibujo';
 import { DibujarEscena, Escenario } from './tipos';
 
 const X_SELLO = 90.5;
@@ -47,7 +47,7 @@ const dibujar: DibujarEscena = (c, v) => {
     [22, '#b8915c'],
   ] as const) {
     poli(c, [sx, 57, sx + 2, 44, sx + 10, 44, sx + 12, 57], col);
-    raya(c, [sx + 2.4, 46, sx + 9.6, 46], 0.8);
+    raya(c, [sx + 2.4, 46, sx + 9.6, 46], 0.8, '#8a6a3e');
   }
   // La cartera está detrás de la cinta
   persona(c, 122, 57, {
@@ -69,7 +69,6 @@ const dibujar: DibujarEscena = (c, v) => {
   fondo(c, '#cdd9e6', 0, 64.6, ANCHO, 26);
   for (let x = 6; x < ANCHO; x += 20) raya(c, [x, 64.6, x + 10, 64.6], 0.6, '#b3c2d3');
   for (const px of [12, 70, 132]) caja(c, px, 64, 4, 20, '#6e7590', 1);
-  raya(c, [0, 64.6, ANCHO, 64.6]);
 
   // Cartas: cada nota es una carta que pasa bajo el sello en su pulso
   v.notas.forEach((n) => {
@@ -77,7 +76,8 @@ const dibujar: DibujarEscena = (c, v) => {
     if (x < -24 || x > ANCHO + 4) return;
     const urgente = n.pulso % 1 !== 0;
     caja(c, x, 46, 21, 11, urgente ? '#ffd6dc' : '#ffffff', 1);
-    raya(c, [x, 46, x + 10.5, 52, x + 21, 46], 0.8);
+    // Solapa del sobre: un triángulo algo más oscuro que el papel
+    poli(c, [x + 0.6, 46, x + 10.5, 52.4, x + 20.4, 46], urgente ? '#f5c0c9' : '#e6ebf2', false);
     if (n.juicio === 'perfect' || n.juicio === 'great') {
       caja(c, x + 14, 47.5, 5, 5, '#e8505b', 0.6);
     } else if (n.juicio === 'miss') {
@@ -92,7 +92,7 @@ const dibujar: DibujarEscena = (c, v) => {
   caja(c, X_SELLO - 6.5, ys + 11, 13, 6, '#e8505b', 1.5);
   caja(c, X_SELLO - 2, ys, 4, 11, '#8a5a36', 1);
   circ(c, X_SELLO, ys - 1.5, 3.2, '#8a5a36');
-  golpeDeComic(c, v, 64, 36, ['¡PUM!', '¡ZAS!', '¡TOC!']);
+  textoDeGolpe(c, v, 64, 36, ['¡PUM!', '¡ZAS!', '¡TOC!']);
 };
 
 export const correos: Escenario = {

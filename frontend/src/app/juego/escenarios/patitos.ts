@@ -3,7 +3,7 @@
  * Mamá pata hace cuac y sus patitos llegan uno a uno al charco: pulsa J
  * para que salten. Cuando llegan dos seguidos, el segundo salta con K.
  */
-import { ANCHO, caja, circ, elip, fondo, golpeDeComic, poli, raya, TINTA } from './dibujo';
+import { ANCHO, caja, circ, elip, fondo, forma, raya, textoDeGolpe, TINTA, tono } from './dibujo';
 import { DibujarEscena, Escenario } from './tipos';
 
 const X_CHARCO = 80;
@@ -11,28 +11,67 @@ const X_CHARCO = 80;
 const X_PIEDRA = X_CHARCO - 14;
 const AVANCE = 22; // unidades que anda un patito en un pulso
 
+/**
+ * Pato de perfil con los pies en el suelo a la altura y + 5 (por la escala).
+ * mira: 1 si mira a la derecha, -1 a la izquierda.
+ */
 function pata(
   c: CanvasRenderingContext2D,
   x: number,
   y: number,
   escala: number,
   color: string,
+  mira = 1,
 ): void {
-  elip(c, x, y, 7 * escala, 5 * escala, color);
-  circ(c, x + 6 * escala, y - 5 * escala, 3.6 * escala, color);
-  poli(
+  c.save();
+  c.translate(x, y);
+  c.scale(escala * mira, escala);
+  // Patas naranjas, detrás del cuerpo
+  elip(c, -1.4, 5, 1.8, 0.8, '#ff9a2e', 0, false);
+  elip(c, 2.2, 5, 1.8, 0.8, '#ff9a2e', 0, false);
+  // Cuerpo en forma de gota con la cola levantada
+  forma(
     c,
-    [
-      x + 9 * escala,
-      y - 5.6 * escala,
-      x + 13 * escala,
-      y - 4.6 * escala,
-      x + 9 * escala,
-      y - 3.4 * escala,
-    ],
-    '#ff9a2e',
+    (p) => {
+      p.moveTo(6.2, -1.6);
+      p.quadraticCurveTo(7.4, 4.8, 0, 4.9);
+      p.quadraticCurveTo(-6.2, 4.9, -7.6, 0.4);
+      p.lineTo(-9.2, -3.8);
+      p.quadraticCurveTo(-5.2, -2.6, -3, -3);
+      p.quadraticCurveTo(2, -4.6, 6.2, -1.6);
+    },
+    color,
+    9,
   );
-  circ(c, x + 7 * escala, y - 6 * escala, 0.7, TINTA, false);
+  // Ala del mismo color, un poco más oscura
+  forma(
+    c,
+    (p) => {
+      p.moveTo(-5.2, -0.8);
+      p.quadraticCurveTo(0, -3, 3.6, 0.3);
+      p.quadraticCurveTo(0, 3.6, -5.2, -0.8);
+    },
+    tono(color, -0.1),
+    3,
+    false,
+  );
+  // Cabeza, pico redondeado y ojo con brillo
+  circ(c, 5.4, -5.4, 3.6, color);
+  forma(
+    c,
+    (p) => {
+      p.moveTo(8.2, -6);
+      p.quadraticCurveTo(11.6, -6.4, 12.6, -4.8);
+      p.quadraticCurveTo(11.2, -3.4, 8.4, -3.8);
+    },
+    '#ff9a2e',
+    2,
+    false,
+  );
+  circ(c, 6.6, -6.2, 0.75, TINTA, false);
+  circ(c, 6.85, -6.5, 0.26, '#ffffff', false);
+  circ(c, 5.4, -4, 0.9, 'rgba(255, 143, 163, 0.5)', false);
+  c.restore();
 }
 
 const dibujar: DibujarEscena = (c, v) => {
@@ -48,7 +87,6 @@ const dibujar: DibujarEscena = (c, v) => {
   elip(c, 20, 18, 11, 7, '#8fd67a');
   for (let x = 44; x < 112; x += 8) caja(c, x, 38, 2.6, 10, '#ffffff', 0.8);
   raya(c, [42, 41, 114, 41], 1, '#ffffff');
-  raya(c, [42, 41, 114, 41], 0.3);
   caja(c, -2, 50, ANCHO + 4, 26, '#e8d3a2', 0.5);
   for (let x = 4; x < ANCHO; x += 17) circ(c, x, 58 + (x % 3) * 4, 0.8, '#c9b07a', false);
   // Juncos y flores en la hierba de abajo
@@ -73,7 +111,7 @@ const dibujar: DibujarEscena = (c, v) => {
 
   // Mamá pata al otro lado del charco; grazna cuando llega un patito
   const cuac = v.notas.some((n) => n.pulso - v.pulso > 0.6 && n.pulso - v.pulso < 1);
-  pata(c, 140, 62, 1.2, '#ffffff');
+  pata(c, 142, 61, 1.2, '#ffffff', -1);
   if (cuac) {
     caja(c, 116, 38, 22, 9, '#ffffff', 3);
     c.save();
@@ -107,7 +145,7 @@ const dibujar: DibujarEscena = (c, v) => {
         circ(c, X_CHARCO - 8 + g * 5, 60 - (g % 2) * 3 + falta * 2, 0.9, '#6fc3e8', false);
     }
   }
-  golpeDeComic(c, v, 56, 40, ['¡HOP!', '¡BOING!', '¡HUP!']);
+  textoDeGolpe(c, v, 56, 40, ['¡HOP!', '¡BOING!', '¡HUP!']);
 };
 
 export const patitos: Escenario = {

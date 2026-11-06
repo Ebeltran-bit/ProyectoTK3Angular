@@ -3,7 +3,7 @@
  * Dos clientes deslizan sus jarras por la barra y chocan en el centro al
  * golpe de batería. Jarra rubia: J. Jarras dobles de tostada: K.
  */
-import { ANCHO, caja, elip, fondo, golpeDeComic, persona, raya } from './dibujo';
+import { ANCHO, caja, elip, fondo, persona, raya, textoDeGolpe, tono } from './dibujo';
 import { DibujarEscena, Escenario } from './tipos';
 
 const RUBIA = '#ffc93c';
@@ -21,6 +21,9 @@ function jarra(
   c.rotate(inclinada);
   caja(c, -4.5, -10.5, 9, 10.5, color, 1.5);
   caja(c, -5, -13, 10, 3.5, '#ffffff', 2);
+  // Asa del mismo color que el vidrio, algo más oscura
+  c.lineWidth = 1.6;
+  c.strokeStyle = tono(color, -0.2);
   c.beginPath();
   const asa = mira > 0 ? -4.5 : 4.5;
   c.arc(
@@ -39,7 +42,7 @@ function decorado(c: CanvasRenderingContext2D, pulso: number): void {
   fondo(c, '#7a3b52');
   for (let x = 0; x < ANCHO; x += 20) fondo(c, '#6c3348', x, 0, 10, 50);
   fondo(c, '#5a2a3c', 0, 46, ANCHO, 14);
-  raya(c, [0, 46, ANCHO, 46], 0.8);
+  fondo(c, '#4e2333', 0, 46, ANCHO, 1);
   // Estantería con botellas de formas distintas
   caja(c, -2, 24, ANCHO + 4, 3.5, '#b5763f', 0.5);
   const colores = ['#3fae6a', '#d9733b', '#4b8fd6', '#e8c547', '#c2364f'];
@@ -53,11 +56,10 @@ function decorado(c: CanvasRenderingContext2D, pulso: number): void {
   // Rótulo de neón: se enciende fuerte en cada pulso
   caja(c, 54, 31, 52, 13, '#2a1420', 3);
   c.save();
-  c.lineWidth = 1.2;
-  c.strokeStyle = pulso % 1 < 0.25 ? '#ff6fb5' : '#b0457e';
-  c.font = '900 9px "Arial Black", system-ui, sans-serif';
+  c.fillStyle = pulso % 1 < 0.25 ? '#ff6fb5' : '#b0457e';
+  c.font = '700 9px Fredoka, Nunito, system-ui, sans-serif';
   c.textAlign = 'center';
-  c.strokeText('BRINDIS', 80, 40.5);
+  c.fillText('BRINDIS', 80, 40.8);
   c.restore();
   // Barra con grifos de cerveza y posavasos
   caja(c, -2, 60, ANCHO + 4, 7, '#d58a4c', 0.5);
@@ -69,7 +71,7 @@ function decorado(c: CanvasRenderingContext2D, pulso: number): void {
   }
   fondo(c, '#9c5f34', 0, 67.6, ANCHO, 23);
   for (let x = 0; x < ANCHO; x += 20) raya(c, [x, 67.6, x, 90], 0.6, '#7d4a28');
-  raya(c, [0, 67.6, ANCHO, 67.6]);
+  fondo(c, '#7d4a28', 0, 67.6, ANCHO, 1);
 }
 
 const dibujar: DibujarEscena = (c, v) => {
@@ -142,7 +144,7 @@ const dibujar: DibujarEscena = (c, v) => {
       jarra(c, 85, color, -1, 0.5);
     }
   }
-  golpeDeComic(c, v, 80, 20, ['¡CHIN!', '¡CLINC!', '¡SALUD!']);
+  textoDeGolpe(c, v, 80, 20, ['¡CHIN!', '¡CLINC!', '¡SALUD!']);
 };
 
 export const bar: Escenario = {

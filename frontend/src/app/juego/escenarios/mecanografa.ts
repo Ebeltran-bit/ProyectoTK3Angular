@@ -5,7 +5,19 @@
  * La pauta de la mesa enseña qué tecla toca y cuándo: la línea actual con su
  * cursor y, debajo, la siguiente.
  */
-import { ANCHO, caja, circ, elip, fondo, golpeDeComic, poli, raya, TINTA } from './dibujo';
+import {
+  ANCHO,
+  caja,
+  circ,
+  elip,
+  extremidad,
+  fondo,
+  poli,
+  raya,
+  textoDeGolpe,
+  TINTA,
+  tono,
+} from './dibujo';
 import { DibujarEscena, Escenario, VistaEscena } from './tipos';
 
 const INICIO = 4; // pulso de la primera línea (después de la cuenta atrás)
@@ -40,6 +52,17 @@ function filaPauta(
   c.restore();
 }
 
+/** Mano de la mecanógrafa vista desde arriba: sale de la manga y tiene los dedos sobre las teclas. */
+function manoEscribiendo(c: CanvasRenderingContext2D, x: number, y: number): void {
+  extremidad(c, x, y + 14, x, y + 2.6, 4.6, 4, 0, '#7b5fd1');
+  for (const d of [-1.9, -0.6, 0.7, 2]) circ(c, x + d, y - 1.6, 0.95, PIEL, false);
+  elip(c, x, y, 3.2, 2.5, PIEL);
+  elip(c, x - 3, y + 0.6, 0.9, 1.4, PIEL, -0.5, false);
+  caja(c, x - 2.6, y + 2.2, 5.2, 1.6, tono('#7b5fd1', 0.3), 0.8, false);
+}
+
+const PIEL = '#c68642';
+
 const dibujar: DibujarEscena = (c, v) => {
   // Oficina: papel pintado, ventana con la ciudad, tablón, planta y taza
   fondo(c, '#cfe0d8');
@@ -52,7 +75,11 @@ const dibujar: DibujarEscena = (c, v) => {
   elip(c, 144, 38, 4, 7, '#4fa64a', -0.4);
   elip(c, 150, 37, 4, 8, '#5cb856', 0.4);
   caja(c, 20, 54, 8, 8, '#ffffff', 1.5);
-  raya(c, [28, 56, 30, 58, 28, 60], 0.8);
+  c.beginPath();
+  c.arc(28, 58, 2, -Math.PI / 2, Math.PI / 2);
+  c.lineWidth = 1.2;
+  c.strokeStyle = '#dfe6ea';
+  c.stroke();
   for (let k = 0; k < 2; k++) {
     const y = 51 - k * 3 - ((v.segundos * 2) % 3);
     raya(c, [23 + k * 2, y, 24 + k * 2, y - 2], 0.6, '#9aa3a8');
@@ -104,7 +131,7 @@ const dibujar: DibujarEscena = (c, v) => {
     }
   }
   // Palanca del carro y campanilla
-  raya(c, [98 + carro, 40, 106 + carro, 34], 1.6);
+  raya(c, [98 + carro, 40, 106 + carro, 34], 1.6, '#2f4858');
   if (campana) {
     circ(c, 112, 40, 3, '#ffc93c');
     raya(c, [116, 36, 119, 33]);
@@ -112,8 +139,8 @@ const dibujar: DibujarEscena = (c, v) => {
   }
   // Manos
   const golpe = pulsando ? 1 - v.desdePulsacion / 0.1 : 0;
-  circ(c, 60 + (letras.length % 4) * 3, 62 - golpe * 3, 3.2, '#c68642');
-  circ(c, 92 + (letras.length % 4) * 2, 63, 3.2, '#c68642');
+  manoEscribiendo(c, 60 + (letras.length % 4) * 3, 61 - golpe * 3);
+  manoEscribiendo(c, 92 + (letras.length % 4) * 2, 62);
 
   // Pauta: el cursor recorre la línea actual; cada casilla se pulsa cuando llega a ella
   filaPauta(c, v, linea, 66, 11);
@@ -122,7 +149,7 @@ const dibujar: DibujarEscena = (c, v) => {
     const x = PAUTA_X + (v.pulso - INICIO - linea * PULSOS_LINEA) * ANCHO_PULSO;
     raya(c, [x, 64.5, x, 78], 1.6, '#e0435f');
   }
-  golpeDeComic(c, v, 130, 46, ['¡TAC!', '¡CLAC!', '¡TIC!']);
+  textoDeGolpe(c, v, 130, 46, ['¡TAC!', '¡CLAC!', '¡TIC!']);
 };
 
 export const mecanografa: Escenario = {

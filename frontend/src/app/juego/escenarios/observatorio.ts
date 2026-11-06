@@ -13,7 +13,7 @@ import {
   elip,
   estrella,
   fondo,
-  golpeDeComic,
+  textoDeGolpe,
   persona,
   poli,
   raya,
@@ -90,34 +90,38 @@ const dibujar: DibujarEscena = (c, v) => {
   // Mira del telescopio
   c.beginPath();
   c.arc(MIRA_X, MIRA_Y, 7, 0, Math.PI * 2);
+  c.lineWidth = 1;
+  c.strokeStyle = '#7cf2c0';
   c.stroke();
   raya(c, [MIRA_X, MIRA_Y - 10, MIRA_X, MIRA_Y + 10], 1, '#7cf2c0');
   raya(c, [MIRA_X - 10, MIRA_Y, MIRA_X + 10, MIRA_Y], 1, '#7cf2c0');
 
   // Suelo, cúpula y astrónoma
   fondo(c, '#3a3f7a', 0, 66, ANCHO, 24);
-  raya(c, [0, 66, ANCHO, 66]);
   c.beginPath();
   c.arc(118, 66, 22, Math.PI, 0);
   c.closePath();
   c.fillStyle = '#dfe3f0';
   c.fill();
-  c.stroke();
   poli(c, [114, 44.5, 122, 44.5, 122, 66, 114, 66], '#3a3f7a');
   poli(c, [106, 48, 132, 34, 135, 39, 109, 53], '#9aa3c7');
+  const brazo = v.desdePulsacion < 0.15 ? 2.4 : 0.6;
   persona(c, 44, 66, {
     ropa: '#7b5fd1',
     piel: '#9a5f3c',
     pelo: '#2a2230',
-    brazo: v.desdePulsacion < 0.15 ? 2.4 : 0.6,
+    brazo,
     contento: v.desdePulsacion < 0.4,
   });
-  caja(c, 48, 44, 6, 4, '#2a2230', 1);
-  circ(c, 51, 46, 1.2, '#7cf2c0', false);
+  // La cámara va en la mano (la mano acaba a 9 unidades del hombro, en x + 4,4 y y - 19)
+  const camX = 48.4 + Math.sin(brazo) * 9;
+  const camY = 47 + Math.cos(brazo) * 9;
+  caja(c, camX - 3, camY - 4.4, 6, 4, '#2a2230', 1);
+  circ(c, camX, camY - 2.4, 1.2, '#7cf2c0', false);
   // Trípode del telescopio pequeño junto a la astrónoma
-  raya(c, [10, 66, 14, 54, 18, 66], 1);
+  raya(c, [10, 66, 14, 54, 18, 66], 1, '#9aa3c7');
   poli(c, [8, 50, 20, 46, 21, 49, 9, 53], '#9aa3c7');
-  golpeDeComic(c, v, 106, 24, ['¡CLIC!', '¡FLASH!', '¡CHAS!']);
+  textoDeGolpe(c, v, 106, 24, ['¡CLIC!', '¡FLASH!', '¡CHAS!']);
 };
 
 export const observatorio: Escenario = {

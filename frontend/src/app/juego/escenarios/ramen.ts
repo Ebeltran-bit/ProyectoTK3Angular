@@ -19,6 +19,8 @@ import {
   TINTA,
   tono,
   ultimoGolpe,
+  mano,
+  extremidad,
 } from './dibujo';
 import { DibujarEscena, Escenario, VistaEscena } from './tipos';
 
@@ -83,9 +85,9 @@ function decorado(c: CanvasRenderingContext2D, t: number): void {
   }
   for (let i = 0; i < 4; i++) {
     const y = 16 + Math.sin(t * 2 + i) * 1;
-    raya(c, [20 + i * 40, 13, 20 + i * 40, y]);
+    raya(c, [20 + i * 40, 13, 20 + i * 40, y], 0.6, '#2a3366');
     elip(c, 20 + i * 40, y + 6, 5, 6.5, '#e8505b');
-    raya(c, [15.6 + i * 40, y + 6, 24.4 + i * 40, y + 6], 0.7);
+    raya(c, [15.6 + i * 40, y + 6, 24.4 + i * 40, y + 6], 0.7, '#c2364f');
     caja(c, 17.6 + i * 40, y - 1, 4.8, 1.6, TINTA, 0.5);
   }
   // Barra de madera y cuencos esperando
@@ -238,7 +240,7 @@ const dibujar: DibujarEscena = (c, v) => {
       1.8 + tapa * 1.4,
       '#ffffff',
     );
-  if (tapa >= 1) onomatopeya(c, 120, 18, '¡K!', 0.25, '#ffc93c');
+  if (tapa >= 1) onomatopeya(c, 120, 18, '¡K!', 0.25, '#ff9e3d');
 
   // Chef detrás de la tabla
   persona(c, 48, 52, {
@@ -295,8 +297,9 @@ const dibujar: DibujarEscena = (c, v) => {
   const corta = v.desdePulsacion < 0.12 && v.ultimaTecla === 'accion';
   const yk = corta ? TABLA_Y - 4 : proxima ? TABLA_Y - 16 : TABLA_Y - 11;
   const lx = X_CUCHILLO - 1.2;
-  raya(c, [52.4, 33, lx + 1.2, yk - 6], 4);
-  raya(c, [52.4, 33, lx + 1.2, yk - 6], 2.2, '#ffffff');
+  // Brazo del chef: la mano va antes que la manga para que salga del puño
+  mano(c, lx + 1.2, yk - 6.4, '#f2c19a');
+  extremidad(c, 51.8, 33, lx + 1, yk - 7.6, 4, 3.1, -0.8, '#ffffff');
   caja(c, lx - 0.4, yk - 8, 3.2, 4.4, '#5c3b24', 1);
   poli(
     c,

@@ -18,6 +18,7 @@ import {
   TINTA,
   tono,
   ultimoGolpe,
+  extremidad,
 } from './dibujo';
 import { SonidoAviso } from '../musica';
 import { DibujarEscena, Escenario, VistaEscena } from './tipos';
@@ -59,8 +60,8 @@ function decorado(c: CanvasRenderingContext2D, t: number): void {
   fondo(c, '#ffffff', 0, 62, ANCHO, 28);
   for (let fila = 0; fila < 4; fila++)
     for (let col = 0; col < 24; col++)
-      if ((col + fila) % 2) fondo(c, '#1b1830', col * 7, 62 + fila * 7, 7, 7);
-  raya(c, [0, 62, ANCHO, 62], 1);
+      if ((col + fila) % 2) fondo(c, '#4a4160', col * 7, 62 + fila * 7, 7, 7);
+  fondo(c, tono(P.zocalo, -0.25), 0, 61.6, ANCHO, 0.8);
   // Poste de barbero con las rayas que suben
   caja(c, 77.4, 8, 5.2, 3, P.metal, 1);
   caja(c, 77.8, 10.6, 4.4, 25, '#ffffff', 0.5);
@@ -235,10 +236,9 @@ function cliente(
   return { px, py };
 }
 
-/** Brazo como un tubo con contorno, del hombro a la mano. */
+/** Brazo de camisa del hombro a la muñeca, algo más estrecho en el puño y un poco curvado. */
 function brazo(c: CanvasRenderingContext2D, x0: number, y0: number, x1: number, y1: number): void {
-  raya(c, [x0, y0, x1, y1], 6);
-  raya(c, [x0, y0, x1, y1], 4.2, P.camisa);
+  extremidad(c, x0, y0, x1, y1, 5.2, 4, -0.9, P.camisa);
 }
 
 /** Tijeras que apuntan a la izquierda; cierre va de 0 (abiertas) a 1 (cerradas). */
@@ -279,21 +279,89 @@ function barbero(
   pasada: boolean,
 ): void {
   elip(c, x + 3.3, 81, 11.6, 2, 'rgba(20, 16, 25, 0.18)', 0, false);
-  caja(c, x - 1, y + 33.3, 5, 22, P.pelo, 1.6);
-  caja(c, x + 4.3, y + 33.3, 5, 22, tono(P.pelo, 0.12), 1.6);
-  elip(c, x - 0.3, y + 55.6, 4.3, 1.8, TINTA);
-  elip(c, x + 5.6, y + 55.6, 4.3, 1.8, TINTA);
+  // Pantalón de una pieza con las perneras separadas y zapatos con la puntera hacia el cliente
+  forma(
+    c,
+    (p) => {
+      p.moveTo(x - 1.4, y + 33);
+      p.lineTo(x + 9.6, y + 33);
+      p.quadraticCurveTo(x + 9.8, y + 45, x + 9.2, y + 54.6);
+      p.lineTo(x + 4.8, y + 54.6);
+      p.quadraticCurveTo(x + 4.6, y + 44, x + 4.1, y + 40);
+      p.quadraticCurveTo(x + 3.6, y + 44, x + 3.4, y + 54.6);
+      p.lineTo(x - 1, y + 54.6);
+      p.quadraticCurveTo(x - 1.6, y + 45, x - 1.4, y + 33);
+    },
+    P.pelo,
+    10,
+  );
+  for (const zx of [x + 1.2, x + 7]) {
+    forma(
+      c,
+      (p) => {
+        p.moveTo(zx + 2.6, y + 54.2);
+        p.lineTo(zx - 1.4, y + 54.2);
+        p.quadraticCurveTo(zx - 4.4, y + 54.6, zx - 4.4, y + 57.2);
+        p.lineTo(zx + 2.8, y + 57.2);
+        p.quadraticCurveTo(zx + 3.1, y + 55.6, zx + 2.6, y + 54.2);
+      },
+      '#33405e',
+      3,
+    );
+  }
   // Brazo de atrás con la navaja (K), por detrás del cuerpo
   const hx2 = punta.px + 5.6;
   const hy2 = punta.py - 6.6;
-  brazo(c, x + 8.3, y + 16.6, hx2 + 2, hy2);
   navaja(c, hx2 - (pasada ? 2 : 0), hy2, pasada);
   circ(c, hx2 + 0.6, hy2, 2.1, P.piel);
+  brazo(c, x + 7.6, y + 16.6, hx2 + 2.4, hy2);
   // Cuerpo: camisa, chaleco con botones y delantal
-  caja(c, x - 3.6, y + 11.6, 15.3, 23.3, P.camisa, 4.3);
-  poli(c, [x - 3.3, y + 14, x + 11.3, y + 14, x + 12, y + 31, x - 4, y + 31], chaleco);
+  forma(
+    c,
+    (p) => {
+      p.moveTo(x + 0.6, y + 11.4);
+      p.lineTo(x + 7.4, y + 11.4);
+      p.quadraticCurveTo(x + 11.8, y + 11.8, x + 11.6, y + 17);
+      p.quadraticCurveTo(x + 12, y + 26, x + 11.8, y + 34);
+      p.lineTo(x - 3.6, y + 34);
+      p.quadraticCurveTo(x - 3.8, y + 26, x - 3.4, y + 17);
+      p.quadraticCurveTo(x - 3.6, y + 11.8, x + 0.6, y + 11.4);
+    },
+    P.camisa,
+    15,
+  );
+  // Chaleco: escote en pico y bajo terminado en dos puntas
+  forma(
+    c,
+    (p) => {
+      p.moveTo(x - 3.3, y + 14.4);
+      p.lineTo(x - 0.4, y + 14.4);
+      p.lineTo(x + 4, y + 21);
+      p.lineTo(x + 8.4, y + 14.4);
+      p.lineTo(x + 11.4, y + 14.4);
+      p.quadraticCurveTo(x + 11.9, y + 23, x + 11.8, y + 30);
+      p.lineTo(x + 8, y + 32.4);
+      p.lineTo(x + 4, y + 30.6);
+      p.lineTo(x, y + 32.4);
+      p.lineTo(x - 3.6, y + 30);
+      p.quadraticCurveTo(x - 3.7, y + 23, x - 3.3, y + 14.4);
+    },
+    chaleco,
+    12,
+  );
   for (let i = 0; i < 3; i++) circ(c, x + 4, y + 17.6 + i * 4, 0.7, '#f0c84a', false);
-  poli(c, [x - 4, y + 28.3, x + 12, y + 28.3, x + 11, y + 42, x - 3, y + 42], P.delantal);
+  forma(
+    c,
+    (p) => {
+      p.moveTo(x - 3.8, y + 28.3);
+      p.lineTo(x + 11.8, y + 28.3);
+      p.quadraticCurveTo(x + 11.6, y + 36, x + 11.2, y + 41.4);
+      p.quadraticCurveTo(x + 4, y + 42.8, x - 3.2, y + 41.4);
+      p.quadraticCurveTo(x - 3.6, y + 36, x - 3.8, y + 28.3);
+    },
+    P.delantal,
+    12,
+  );
   caja(c, x + 5, y + 32.6, 4.3, 3.6, tono(P.delantal, -0.1), 0.6);
   // Cabeza: pelo engominado, nariz hacia el cliente y bigote de manillar
   caja(c, x + 1.3, y + 8.3, 5, 4.3, P.piel, 1.6);
@@ -339,15 +407,15 @@ function barbero(
   // Brazo de delante con las tijeras justo en la punta de la barba (J)
   const hx = punta.px + 7.3;
   const hy = punta.py - 0.3;
-  brazo(c, x - 0.6, y + 17.3, hx + 1.6, hy);
   tijeras(c, hx - 1, hy, tijera);
   circ(c, hx + 0.6, hy + 0.3, 2.1, P.piel);
+  brazo(c, x - 0.2, y + 17.3, hx + 2.2, hy);
 }
 
 /** Cartel del turno: «Escucha…» sobre el rival o «¡Tu turno!» sobre ti. */
 function cartel(c: CanvasRenderingContext2D, x: number, texto: string, color: string): void {
   c.save();
-  c.font = '900 5px "Arial Black", system-ui, sans-serif';
+  c.font = '700 5px Fredoka, Nunito, system-ui, sans-serif';
   const w = c.measureText(texto).width + 6;
   caja(c, x - w / 2, 2.5, w, 7.4, color, 3.7);
   c.fillStyle = '#ffffff';
@@ -425,7 +493,7 @@ const dibujar: DibujarEscena = (c, v) => {
       : v.teclas[golpe.indice] === 'alterna'
         ? '¡ZIS!'
         : '¡CHAS!';
-    onomatopeya(c, 100, 31, texto, golpe.k, golpe.acierto ? '#fff36b' : '#ff6b6b');
+    onomatopeya(c, 100, 31, texto, golpe.k, golpe.acierto ? '#4cc796' : '#ff6b6b');
   }
 };
 

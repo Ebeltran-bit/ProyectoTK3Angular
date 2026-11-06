@@ -1,21 +1,21 @@
 /**
- * Primitivas de dibujo en estilo cómic: contorno negro grueso, colores vivos,
- * una sombra con trama de puntos de imprenta y un brillo en cada forma.
+ * Primitivas de dibujo en estilo plano (aprobado por Eva el 06/11/2026, sustituye al cómic):
+ * sin contorno negro, colores planos sin degradados y una sola sombra por forma, una
+ * media luna abajo a la derecha del mismo color pero más oscuro (la luz viene siempre
+ * de arriba a la izquierda).
  * Todo se dibuja en un espacio de 160 x 90 unidades que se amplía al tamaño del lienzo.
  */
 import { VistaEscena } from './tipos';
 
 export const ANCHO = 160;
 export const ALTO = 90;
-export const TINTA = '#141019';
-const GROSOR = 1.15;
-/** Cuánto se oscurece la sombra y cuánto se aclara el brillo de cada color. */
-const SOMBRA = 0.24;
-const BRILLO = 0.3;
+/** Color de los detalles oscuros (ojos, rayas finas): morado muy oscuro, como el texto de la web. */
+export const TINTA = '#3a2e4a';
+const GROSOR = 0.8;
+/** Cuánto se oscurece la sombra de cada color. */
+const SOMBRA = 0.16;
 /** Las formas más pequeñas que esto (en unidades) no llevan sombra: serían ruido. */
 const TAM_MINIMO_SOMBRA = 2.2;
-/** La trama de puntos solo va en formas grandes (paredes, muebles): en caras parecería barba. */
-const TAM_MINIMO_TRAMA = 18;
 
 /** Aclara (k > 0) u oscurece (k < 0) un color #rrggbb. */
 export function tono(hex: string, k: number): string {
@@ -26,25 +26,6 @@ export function tono(hex: string, k: number): string {
   const g = canal((n >> 8) & 255);
   const b = canal(n & 255);
   return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
-}
-
-/** Trama de puntos de imprenta. Se crea una vez por lienzo. */
-const tramas = new WeakMap<CanvasRenderingContext2D, CanvasPattern | null>();
-function trama(c: CanvasRenderingContext2D): CanvasPattern | null {
-  if (!tramas.has(c)) {
-    const t = document.createElement('canvas');
-    t.width = t.height = 16;
-    const g = t.getContext('2d')!;
-    g.fillStyle = 'rgba(20, 16, 25, 0.22)';
-    g.beginPath();
-    g.arc(8, 8, 3.4, 0, Math.PI * 2);
-    g.fill();
-    const patron = c.createPattern(t, 'repeat');
-    // 16 píxeles de la trama ocupan 1,4 unidades del dibujo
-    patron?.setTransform(new DOMMatrix().scale(1.4 / 16));
-    tramas.set(c, patron);
-  }
-  return tramas.get(c) ?? null;
 }
 
 /** Ajusta la escala del lienzo para poder dibujar siempre en unidades de 160 x 90. */
@@ -70,37 +51,26 @@ export function fondo(
 }
 
 /**
- * Rellena y perfila una forma. Si es grande y de un color #rrggbb, le pone
- * sombra abajo a la derecha (con trama) y brillo arriba a la izquierda: la
- * sombra es la parte de la forma que queda fuera de una copia desplazada.
+ * Rellena una forma. Si `sombreado` está activo, es grande y de un color #rrggbb, le
+ * pone su sombra plana: la parte de la forma que queda fuera de una copia desplazada
+ * hacia arriba a la izquierda.
  */
 function trazar(
   c: CanvasRenderingContext2D,
   forma: Path2D,
-  relleno: string | null,
-  contorno: boolean,
+  relleno: string,
+  sombreado: boolean,
   tam: number,
 ): void {
-  if (relleno) {
-    c.fillStyle = relleno;
-    c.fill(forma);
-    if (tam >= TAM_MINIMO_SOMBRA && /^#[0-9a-f]{6}$/i.test(relleno)) {
-      const d = Math.min(2.6, tam * 0.2);
-      c.save();
-      c.clip(forma);
-      c.fillStyle = tono(relleno, -SOMBRA);
-      c.fill(fueraDe(forma, -d, -d * 0.8), 'evenodd');
-      const puntos = trama(c);
-      if (puntos && tam >= TAM_MINIMO_TRAMA) {
-        c.fillStyle = puntos;
-        c.fill(fueraDe(forma, -d, -d * 0.8), 'evenodd');
-      }
-      c.fillStyle = tono(relleno, BRILLO);
-      c.fill(fueraDe(forma, d * 0.4, d * 0.4), 'evenodd');
-      c.restore();
-    }
-  }
-  if (contorno) c.stroke(forma);
+  c.fillStyle = relleno;
+  c.fill(forma);
+  if (!sombreado || tam < TAM_MINIMO_SOMBRA || !/^#[0-9a-f]{6}$/i.test(relleno)) return;
+  const d = Math.min(1.8, tam * 0.14);
+  c.save();
+  c.clip(forma);
+  c.fillStyle = tono(relleno, -SOMBRA);
+  c.fill(fueraDe(forma, -d, -d), 'evenodd');
+  c.restore();
 }
 
 /** Un rectángulo enorme con un agujero con la forma desplazada (dx, dy). */
@@ -119,11 +89,11 @@ export function caja(
   h: number,
   relleno: string,
   radio = 1.5,
-  contorno = true,
+  sombreado = true,
 ): void {
   const p = new Path2D();
   p.roundRect(x, y, w, h, radio);
-  trazar(c, p, relleno, contorno, Math.min(w, h));
+  trazar(c, p, relleno, sombreado, Math.min(w, h));
 }
 
 export function circ(
@@ -132,11 +102,11 @@ export function circ(
   y: number,
   r: number,
   relleno: string,
-  contorno = true,
+  sombreado = true,
 ): void {
   const p = new Path2D();
   p.arc(x, y, r, 0, Math.PI * 2);
-  trazar(c, p, relleno, contorno, r * 2);
+  trazar(c, p, relleno, sombreado, r * 2);
 }
 
 export function elip(
@@ -147,11 +117,11 @@ export function elip(
   ry: number,
   relleno: string,
   rotacion = 0,
-  contorno = true,
+  sombreado = true,
 ): void {
   const p = new Path2D();
   p.ellipse(x, y, rx, ry, rotacion, 0, Math.PI * 2);
-  trazar(c, p, relleno, contorno, Math.min(rx, ry) * 2);
+  trazar(c, p, relleno, sombreado, Math.min(rx, ry) * 2);
 }
 
 /** Polígono a partir de una lista plana de puntos [x1, y1, x2, y2, ...]. */
@@ -159,13 +129,13 @@ export function poli(
   c: CanvasRenderingContext2D,
   puntos: number[],
   relleno: string,
-  contorno = true,
+  sombreado = true,
 ): void {
   const p = new Path2D();
   p.moveTo(puntos[0], puntos[1]);
   for (let i = 2; i < puntos.length; i += 2) p.lineTo(puntos[i], puntos[i + 1]);
   p.closePath();
-  trazar(c, p, relleno, contorno, ladoMenor(puntos));
+  trazar(c, p, relleno, sombreado, ladoMenor(puntos));
 }
 
 /** Lado menor de la caja que envuelve unos puntos: decide si la forma lleva sombra. */
@@ -175,21 +145,21 @@ function ladoMenor(puntos: number[]): number {
   return Math.min(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
 }
 
-/** Forma libre: `camino` dibuja sobre un Path2D y aquí se rellena con el estilo cómic. */
+/** Forma libre: `camino` dibuja sobre un Path2D y aquí se rellena con el estilo plano. */
 export function forma(
   c: CanvasRenderingContext2D,
   camino: (p: Path2D) => void,
   relleno: string,
   tam = 10,
-  contorno = true,
+  sombreado = true,
 ): void {
   const p = new Path2D();
   camino(p);
   p.closePath();
-  trazar(c, p, relleno, contorno, tam);
+  trazar(c, p, relleno, sombreado, tam);
 }
 
-/** Línea abierta (brazos, patas, olas). */
+/** Línea abierta con las puntas redondas (patas, olas, detalles finos). */
 export function raya(
   c: CanvasRenderingContext2D,
   puntos: number[],
@@ -206,100 +176,277 @@ export function raya(
   c.restore();
 }
 
+/**
+ * Brazo o pierna: una forma que se estrecha del ancho w1 al w2 y se curva un poco
+ * (curva > 0 hacia un lado y < 0 hacia el otro), con las puntas redondas. Sin sombra,
+ * para que la unión con el cuerpo no marque un borde.
+ */
+export function extremidad(
+  c: CanvasRenderingContext2D,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  w1: number,
+  w2: number,
+  curva: number,
+  color: string,
+): void {
+  const largo = Math.hypot(x2 - x1, y2 - y1) || 1;
+  const nx = -(y2 - y1) / largo;
+  const ny = (x2 - x1) / largo;
+  const mx = (x1 + x2) / 2 + nx * curva;
+  const my = (y1 + y2) / 2 + ny * curva;
+  const medio = (w1 + w2) / 4;
+  const a = Math.atan2(ny, nx);
+  c.fillStyle = color;
+  c.beginPath();
+  c.moveTo(x1 + (nx * w1) / 2, y1 + (ny * w1) / 2);
+  c.quadraticCurveTo(mx + nx * medio, my + ny * medio, x2 + (nx * w2) / 2, y2 + (ny * w2) / 2);
+  c.arc(x2, y2, w2 / 2, a, a + Math.PI);
+  c.quadraticCurveTo(mx - nx * medio, my - ny * medio, x1 - (nx * w1) / 2, y1 - (ny * w1) / 2);
+  c.arc(x1, y1, w1 / 2, a + Math.PI, a);
+  c.fill();
+}
+
+/** Mano redonda con el pulgar. mira: 1 si el cuerpo mira a la derecha, -1 a la izquierda. */
+export function mano(
+  c: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  piel: string,
+  mira = 1,
+): void {
+  circ(c, x, y, 1.7, piel);
+  elip(c, x - 1.2 * mira, y - 0.9, 0.7, 0.55, piel, 0, false);
+}
+
 export interface OpcionesPersona {
   ropa: string;
   piel: string;
   pelo?: string;
-  /** Color del pantalón (por defecto, azul oscuro). */
+  /** Color del pantalón (por defecto, azul vaquero). */
   pantalon?: string;
   /** Ángulo del brazo delantero en radianes (0 = hacia abajo). */
   brazo?: number;
   /** 1 mira a la derecha, -1 a la izquierda. */
   mira?: number;
-  /** Boca abierta de alegría (por ejemplo, justo después de un acierto). */
+  /** Sonrisa pequeña y ojos cerrados de alegría (por ejemplo, justo después de un acierto). */
   contento?: boolean;
+  /** Bigote del color que se indique. */
+  bigote?: string;
+  /** Lo que lleva en la cabeza: recibe el centro de la cabeza. */
   gorro?: (c: CanvasRenderingContext2D, x: number, y: number) => void;
 }
 
-/** Persona de cómic con los pies en (x, y): cabeza grande, ojos con brillo y brazo que se mueve. */
+/**
+ * Persona en estilo plano con los pies en (x, y). Las medidas de siempre: la cabeza
+ * tiene el centro en (x, y - 30) y la mano delantera acaba a 9 unidades del hombro
+ * (x + 4,4, y - 19), así los objetos que sujeta cada escena siguen en su sitio.
+ * Las piezas que se unen (hombro, codo, muñeca) se dibujan solapadas y del mismo color
+ * para que no queden huecos.
+ */
 export function persona(
   c: CanvasRenderingContext2D,
   x: number,
   y: number,
   o: OpcionesPersona,
 ): void {
-  const mira = o.mira ?? 1;
+  const m = o.mira ?? 1;
   const brazo = o.brazo ?? 0;
-  const pantalon = o.pantalon ?? '#2b3a67';
-  elip(c, x, y + 0.4, 8, 1.4, 'rgba(20, 16, 25, 0.18)', 0, false);
-  // Piernas y zapatos
-  caja(c, x - 4.6, y - 10, 4, 10, pantalon, 1);
-  caja(c, x + 0.6, y - 10, 4, 10, tono(pantalon, -0.15), 1);
-  elip(c, x - 2.6 + mira * 1.2, y - 0.4, 3, 1.5, TINTA);
-  elip(c, x + 2.6 + mira * 1.2, y - 0.4, 3, 1.5, TINTA);
-  // Cuerpo con cuello de la camisa
-  caja(c, x - 7, y - 23, 14, 15, o.ropa, 5);
-  poli(c, [x - 2.6, y - 23, x, y - 19.6, x + 2.6, y - 23], '#ffffff');
-  // Brazo delantero
-  const hx = x + 4.4 * mira;
-  const hy = y - 19;
-  const mx = hx + Math.sin(brazo) * 9 * mira;
-  const my = hy + Math.cos(brazo) * 9;
-  raya(c, [hx, hy, mx, my], 4);
-  raya(c, [hx, hy, mx, my], 2.2, o.ropa);
-  circ(c, mx, my, 2, o.piel);
-  // Cabeza: oreja, cara, pelo con flequillo
-  circ(c, x - 6.4 * mira, y - 29, 2, o.piel);
-  circ(c, x, y - 30, 8.2, o.piel);
-  if (o.pelo) {
+  const pantalon = o.pantalon ?? '#4a6797';
+  const ropaOscura = tono(o.ropa, -0.14);
+  const X = (d: number) => x + d * m;
+
+  elip(c, x, y + 0.3, 8.5, 1.3, 'rgba(58, 46, 74, 0.16)', 0, false);
+  // Zapatos: puntera redondeada hacia donde mira
+  for (const d of [-3, 2.8]) {
     forma(
       c,
       (p) => {
-        // Todo el pelo se refleja con mira, no solo el flequillo, para que no cruce la cara
-        p.moveTo(x - 8.4 * mira, y - 28);
-        p.bezierCurveTo(x - 9.5 * mira, y - 42, x + 9.5 * mira, y - 42, x + 8.4 * mira, y - 30);
-        p.quadraticCurveTo(x + 5 * mira, y - 36, x - 1 * mira, y - 34.5);
-        p.quadraticCurveTo(x - 4 * mira, y - 33, x - 7 * mira, y - 26);
+        p.moveTo(X(d - 2.2), y - 2.8);
+        p.lineTo(X(d + 1.2), y - 2.8);
+        p.quadraticCurveTo(X(d + 3.4), y - 2.4, X(d + 3.4), y);
+        p.lineTo(X(d - 2.4), y);
+        p.quadraticCurveTo(X(d - 2.6), y - 1.6, X(d - 2.2), y - 2.8);
       },
-      o.pelo,
-      8,
+      '#33405e',
+      3,
     );
   }
-  // Ojos: blanco, pupila mirando hacia delante y un punto de brillo
-  c.lineWidth = 0.6;
-  for (const ox of [1.6, 5.2]) {
-    elip(c, x + ox * mira, y - 30.5, 1.5, 2, '#ffffff', 0, true);
-    circ(c, x + (ox + 0.4) * mira, y - 30.2, 0.9, TINTA, false);
-    circ(c, x + (ox + 0.1) * mira, y - 30.8, 0.32, '#ffffff', false);
+  // Pantalón de una pieza, con las perneras separadas por una curva
+  forma(
+    c,
+    (p) => {
+      p.moveTo(x - 5.6, y - 12);
+      p.lineTo(x + 5.6, y - 12);
+      p.quadraticCurveTo(x + 5.9, y - 7, x + 5, y - 2.4);
+      p.lineTo(x + 0.9, y - 2.4);
+      p.quadraticCurveTo(x + 0.6, y - 7, x, y - 8.2);
+      p.quadraticCurveTo(x - 0.6, y - 7, x - 0.9, y - 2.4);
+      p.lineTo(x - 5, y - 2.4);
+      p.quadraticCurveTo(x - 5.9, y - 7, x - 5.6, y - 12);
+    },
+    pantalon,
+    8,
+  );
+  // Brazo de atrás: la mano se dibuja antes, así sale de dentro de la manga
+  mano(c, X(-6.4), y - 10.6, o.piel, m);
+  extremidad(c, X(-4.6), y - 20.5, X(-6.3), y - 12, 3.8, 3, 0.8 * m, ropaOscura);
+  // Cuerpo: hombros redondeados y bajo un poco acampanado
+  forma(
+    c,
+    (p) => {
+      p.moveTo(x - 3.6, y - 24.2);
+      p.quadraticCurveTo(x - 7.4, y - 24, x - 7.2, y - 19.4);
+      p.quadraticCurveTo(x - 7.6, y - 13, x - 7.8, y - 9.6);
+      p.quadraticCurveTo(x, y - 7.8, x + 7.8, y - 9.6);
+      p.quadraticCurveTo(x + 7.6, y - 13, x + 7.2, y - 19.4);
+      p.quadraticCurveTo(x + 7.4, y - 24, x + 3.6, y - 24.2);
+      p.quadraticCurveTo(x, y - 22.8, x - 3.6, y - 24.2);
+    },
+    o.ropa,
+    14,
+  );
+  // Cuello: un pico más oscuro
+  forma(
+    c,
+    (p) => {
+      p.moveTo(x - 3.8, y - 24.4);
+      p.quadraticCurveTo(x, y - 21.6, x + 3.8, y - 24.4);
+      p.quadraticCurveTo(x + 2.6, y - 21.8, x, y - 21);
+      p.quadraticCurveTo(x - 2.6, y - 21.8, x - 3.8, y - 24.4);
+    },
+    ropaOscura,
+    2,
+    false,
+  );
+  cabeza(c, x, y - 30, m, o);
+  o.gorro?.(c, x, y - 30);
+  // Brazo delantero: gira desde dentro del cuerpo y la mano sale de la manga
+  const hx = X(4.4);
+  const hy = y - 19;
+  const dx = Math.sin(brazo) * m;
+  const dy = Math.cos(brazo);
+  const mx = hx + dx * 9;
+  const my = hy + dy * 9;
+  mano(c, mx, my, o.piel, m);
+  extremidad(
+    c,
+    X(3.8),
+    hy - 0.2,
+    mx - dx * 1.1,
+    my - dy * 1.1,
+    4,
+    3.1,
+    (brazo > 1 ? -0.9 : 0.8) * m,
+    o.ropa,
+  );
+  // Sombra de la manga solo de medio brazo a la muñeca, en el lado contrario a la luz
+  let sx = dy;
+  let sy = -dx;
+  if (sx + sy < 0) {
+    sx = -sx;
+    sy = -sy;
   }
-  c.lineWidth = GROSOR;
-  raya(c, [x + 0.4 * mira, y - 33.6, x + 2.8 * mira, y - 34], 0.8);
-  raya(c, [x + 4.2 * mira, y - 34, x + 6.4 * mira, y - 33.4], 0.8);
-  // Boca y mofletes
+  raya(
+    c,
+    [
+      hx + dx * 4.5 + sx * 1.5,
+      hy + dy * 4.5 + sy * 1.5,
+      mx - dx * 1.1 + sx * 1.1,
+      my - dy * 1.1 + sy * 1.1,
+    ],
+    0.8,
+    ropaOscura,
+  );
+}
+
+/** Cabeza con orejas, cara algo ovalada, pelo, ojos con brillo, nariz y boca pequeña. */
+function cabeza(
+  c: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  m: number,
+  o: OpcionesPersona,
+): void {
+  const X = (d: number) => x + d * m;
+  const pielOscura = tono(o.piel, -0.08);
+  circ(c, x - 6.6, y + 0.6, 1.4, pielOscura, false);
+  circ(c, x + 6.6, y + 0.6, 1.4, pielOscura, false);
+  elip(c, x, y, 6.7, 7.1, o.piel);
+  if (o.pelo) {
+    // Casquete con flequillo hacia donde mira; las patillas bajan por los lados
+    forma(
+      c,
+      (p) => {
+        p.moveTo(X(-6.9), y + 1.2);
+        p.bezierCurveTo(X(-7.8), y - 10.4, X(7.8), y - 10.4, X(6.9), y - 0.4);
+        p.quadraticCurveTo(X(6.4), y - 3.4, X(4.6), y - 4.2);
+        p.quadraticCurveTo(X(0.6), y - 3.2, X(-2.4), y - 5);
+        p.quadraticCurveTo(X(-4.6), y - 3, X(-5.2), y + 1.6);
+      },
+      o.pelo,
+      6,
+    );
+  }
+  // Cejas finas
+  raya(
+    c,
+    [X(-0.4), y - 2.6, X(1), y - 3.1, X(2.2), y - 2.8],
+    0.5,
+    tono(o.pelo ?? '#8a6d5a', -0.15),
+  );
+  raya(
+    c,
+    [X(3.6), y - 2.8, X(4.8), y - 3.1, X(5.6), y - 2.5],
+    0.5,
+    tono(o.pelo ?? '#8a6d5a', -0.15),
+  );
+  // Ojos: miran hacia delante; cerrados en arco cuando está contento
+  for (const ox of [1, 4.6]) {
+    if (o.contento) {
+      raya(c, [X(ox - 0.7), y - 0.9, X(ox), y - 1.6, X(ox + 0.7), y - 0.9], 0.5);
+    } else {
+      elip(c, X(ox), y - 1, 0.6, 0.85, TINTA, 0, false);
+      circ(c, X(ox + 0.2), y - 1.35, 0.22, '#ffffff', false);
+    }
+  }
+  // Mejillas, nariz y boca
+  circ(c, X(-0.8), y + 1.8, 1, 'rgba(255, 143, 163, 0.45)', false);
+  circ(c, X(6), y + 1.6, 0.8, 'rgba(255, 143, 163, 0.45)', false);
+  elip(c, X(3), y + 0.9, 1, 0.9, tono(o.piel, -0.1), 0, false);
+  if (o.bigote) {
+    forma(
+      c,
+      (p) => {
+        p.moveTo(X(0.8), y + 2.6);
+        p.quadraticCurveTo(X(2), y + 1.4, X(3), y + 2.1);
+        p.quadraticCurveTo(X(4.2), y + 1.4, X(5.4), y + 2.6);
+        p.quadraticCurveTo(X(3), y + 2.9, X(0.8), y + 2.6);
+      },
+      o.bigote,
+      2,
+      false,
+    );
+  }
   if (o.contento) {
     forma(
       c,
       (p) => {
-        p.moveTo(x + 1.6 * mira, y - 26.6);
-        p.quadraticCurveTo(x + 4 * mira, y - 22.6, x + 6.4 * mira, y - 26.6);
+        p.moveTo(X(2.2), y + 3.3);
+        p.quadraticCurveTo(X(3.2), y + 4.6, X(4.2), y + 3.3);
       },
-      '#c2364f',
-      2,
+      '#8a3b4a',
+      1,
+      false,
     );
   } else {
-    c.beginPath();
-    c.moveTo(x + 2.2 * mira, y - 26.4);
-    c.quadraticCurveTo(x + 4 * mira, y - 25, x + 5.8 * mira, y - 26.4);
-    c.lineWidth = 0.8;
-    c.stroke();
-    c.lineWidth = GROSOR;
+    raya(c, [X(2.5), y + 3.5, X(3.2), y + 3.75, X(3.9), y + 3.5], 0.4, '#8a3b4a');
   }
-  // Un solo moflete, en la mejilla de atrás: el de delante quedaba en el borde y parecía la nariz
-  elip(c, x - 0.6 * mira, y - 27.6, 1.7, 1, '#ff8fa3', 0, false);
-  o.gorro?.(c, x, y - 30);
 }
 
-/** El último golpe juzgado, si fue hace poco: sirve para enseñar una onomatopeya. */
+/** El último golpe juzgado, si fue hace poco: sirve para enseñar una palabra. */
 export function ultimoGolpe(
   v: VistaEscena,
   duracion = 0.6,
@@ -315,8 +462,9 @@ export function ultimoGolpe(
 }
 
 /**
- * Onomatopeya de cómic dentro de una explosión (¡ZAS!, ¡CHOF!...). k va de 0 a 1
- * mientras se ve: crece de golpe al principio y se desvanece al final.
+ * Palabra del golpe (¡ÑAM!, ¡ZAS!...) sobre una píldora de color, como los botones de
+ * la web. k va de 0 a 1 mientras se ve: crece de golpe al principio, sube un poco y se
+ * desvanece al final.
  */
 export function onomatopeya(
   c: CanvasRenderingContext2D,
@@ -324,36 +472,38 @@ export function onomatopeya(
   y: number,
   texto: string,
   k: number,
-  color = '#fff36b',
+  color = '#4cc796',
 ): void {
-  const escala = (0.75 + Math.sin(Math.min(1, k * 3) * (Math.PI / 2)) * 0.35) * (1 - k * 0.15);
+  const escala = 1 + 0.25 * Math.max(0, 1 - k * 4);
   c.save();
   c.globalAlpha = k > 0.75 ? (1 - k) / 0.25 : 1;
-  c.translate(x, y);
-  c.rotate(-0.12);
+  c.translate(x, y - k * 3);
   c.scale(escala, escala);
-  const puntas: number[] = [];
-  for (let i = 0; i < 22; i++) {
-    const r = i % 2 ? 6.5 : 10;
-    const a = (i / 22) * Math.PI * 2;
-    puntas.push(Math.cos(a) * r * 1.5, Math.sin(a) * r);
-  }
-  poli(c, puntas, color);
-  c.font = '900 6.4px "Arial Black", system-ui, sans-serif';
+  c.font = '700 6px Fredoka, Nunito, system-ui, sans-serif';
+  const w = c.measureText(texto).width + 8;
+  // Que la píldora no se salga por los lados del escenario
+  const margen = (w / 2) * escala + 2;
+  c.translate(Math.max(margen - x, Math.min(ANCHO - margen - x, 0)), 0);
+  c.fillStyle = tono(color, -0.25);
+  c.beginPath();
+  c.roundRect(-w / 2, -3.2, w, 8.4, 4.2);
+  c.fill();
+  c.fillStyle = color;
+  c.beginPath();
+  c.roundRect(-w / 2, -4.2, w, 8.4, 4.2);
+  c.fill();
+  c.fillStyle = '#ffffff';
   c.textAlign = 'center';
   c.textBaseline = 'middle';
-  c.lineWidth = 1.6;
-  c.strokeText(texto, 0, 0.4);
-  c.fillStyle = '#ffffff';
   c.fillText(texto, 0, 0.4);
   c.restore();
 }
 
 /**
- * Lo habitual en todas las escenas: tras un acierto sale una palabra de la
- * lista (va rotando) y tras un fallo, «¡UY!» en rojo.
+ * Lo habitual en todas las escenas: tras un acierto sale una palabra de la lista
+ * (va rotando) en verde y tras un fallo, «¡UY!» en rojo.
  */
-export function golpeDeComic(
+export function textoDeGolpe(
   c: CanvasRenderingContext2D,
   v: VistaEscena,
   x: number,
