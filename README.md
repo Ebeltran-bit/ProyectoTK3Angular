@@ -525,7 +525,7 @@ no puede dibujar en 3D.
 | Etapa | Contenido | Estado |
 | --- | --- | --- |
 | 1. Base común y puerto | Motor 3D, personajes, materiales, luz, marcador nuevo y la escena del puerto animada | Hecha el 11/11/2026; Eva la probó en su portátil ese día y va fluida |
-| 2. Resto de escenas | Las otras ocho escenas en 3D | En curso: Brindis arcade, Huerto a compás, Ramen a contratiempo, Correos exprés y Paso de patitos hechas el 11/11/2026; faltan tres |
+| 2. Resto de escenas | Las otras ocho escenas en 3D | En curso: Brindis arcade, Huerto a compás, Ramen a contratiempo, Correos exprés, Paso de patitos y Estrellas fugaces hechas el 11/11/2026; faltan dos |
 | 3. Pantallas del juego | Inicio, final y transiciones (se enseñan propuestas antes) | Pendiente |
 | 4. Sonido y mecánicas | Las mejoras aprobadas de la lista de arriba | Pendiente |
 | 5. Pruebas, rendimiento y pulido | Revisión de las nueve escenas en ordenadores reales | Pendiente |
@@ -547,6 +547,7 @@ no puede dibujar en 3D.
 | Escena del ramen: cocinero, verduras que se cortan y olla | `ramen.ts` |
 | Escena de correos: cartera, cinta de cartas y sello | `correos.ts` |
 | Escena de los patitos: mamá pata, patitos que saltan el charco | `patitos.ts` |
+| Escena del observatorio: astrónoma, estrellas fugaces y mira | `observatorio.ts` |
 | Lista de escenas que ya tienen versión 3D | `disponibles.ts` e `index.ts` |
 
 - El reproductor (`components/reproductor-ritmo`) mira si el escenario de la canción está en
@@ -586,4 +587,4 @@ Detalles que decidí yo (Claude) en esta etapa:
 - [x] Fase 3 · Combates, rondas y campeón: registrar ganadores, avance automático, campeón y torneo cerrado.
 - [ ] Fase 4 · Informes y entrega: estadísticas e historial hechos; quedan la revisión final y el vídeo.
 - [x] Ampliación · Duelo de ritmo: sesión, motor con 9 escenarios, récords de práctica, IA y duelos en el torneo.
-- [ ] Renovación 3D del juego: etapa 1 (base común y puerto) hecha; de la etapa 2 están el bar, el huerto, el ramen, correos y los patitos y faltan tres escenas; después, pantallas, sonido, mecánicas y pulido.
+- [ ] Renovación 3D del juego: etapa 1 (base común y puerto) hecha; de la etapa 2 están el bar, el huerto, el ramen, correos, los patitos y el observatorio y faltan dos escenas; después, pantallas, sonido, mecánicas y pulido.

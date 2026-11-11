@@ -6,6 +6,7 @@
 import { bar3d } from './bar';
 import { correos3d } from './correos';
 import { huerto3d } from './huerto';
+import { observatorio3d } from './observatorio';
 import { patitos3d } from './patitos';
 import { puerto3d } from './puerto';
 import { ramen3d } from './ramen';
@@ -22,4 +23,5 @@ export const ESCENAS_3D: Record<string, Definicion3d> = {
   ramen: ramen3d,
   correos: correos3d,
   patitos: patitos3d,
+  observatorio: observatorio3d,
 };
