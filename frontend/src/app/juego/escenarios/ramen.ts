@@ -333,6 +333,7 @@ export const ramen: Escenario = {
     aviso: (tecla) => (tecla === 'alterna' ? 'ramen-aviso' : undefined),
     acierto: (tecla) => (tecla === 'alterna' ? 'ramen-olla' : 'ramen-cortar'),
   },
+  teclas: { accion: { texto: 'Cortar' }, alterna: { texto: 'A la olla', nota: 'A contratiempo' } },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Cola en la puerta del restaurante!'

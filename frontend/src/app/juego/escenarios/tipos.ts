@@ -7,6 +7,8 @@ export interface VistaEscena {
   segundos: number;
   /** Pulso actual de la canción, con decimales. */
   pulso: number;
+  /** Pulsos por minuto de la canción: sirve para pasar de pulsos a segundos. */
+  bpm: number;
   /** Notas de la canción con su juicio (null si aún no se ha juzgado). */
   notas: { pulso: number; juicio: Juicio | null }[];
   /** Tecla de cada nota, en el mismo orden que `notas`. */
@@ -15,6 +17,11 @@ export interface VistaEscena {
   desdePulsacion: number;
   /** Tecla de la última pulsación (null si no ha pulsado). */
   ultimaTecla: 'accion' | 'alterna' | null;
+}
+
+export interface RotuloTecla {
+  texto: string;
+  nota?: string;
 }
 
 export type DibujarEscena = (c: CanvasRenderingContext2D, vista: VistaEscena) => void;
@@ -36,6 +43,11 @@ export interface Escenario {
     aviso?: (tecla: 'accion' | 'alterna') => string | undefined;
     acierto?: (tecla: 'accion' | 'alterna') => string | undefined;
   };
+  /**
+   * Qué hace cada tecla en este escenario: se enseña abajo, junto a la J y la K.
+   * La «nota» es una aclaración corta (por ejemplo, «A contratiempo»).
+   */
+  teclas: { accion: RotuloTecla; alterna?: RotuloTecla };
   /** Frase del final según el Hype del público (0 a 100). */
   mensajeFinal: (hype: number) => string;
 }

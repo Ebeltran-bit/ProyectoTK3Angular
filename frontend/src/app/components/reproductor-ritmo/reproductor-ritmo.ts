@@ -14,8 +14,10 @@ import {
 } from '@angular/core';
 
 import { ESCENARIOS } from '../../juego/escenarios';
-import { ANCHO, preparar, TINTA } from '../../juego/escenarios/dibujo';
-import { Escenario } from '../../juego/escenarios/tipos';
+import { preparar } from '../../juego/escenarios/dibujo';
+import { Escenario, VistaEscena } from '../../juego/escenarios/tipos';
+import type { Calidad, Escena3d, Motor } from '../../juego/escenas3d';
+import { CON_3D } from '../../juego/escenas3d/disponibles';
 import {
   cerrarNotasPasadas,
   crearPartida,
@@ -29,20 +31,45 @@ import {
 } from '../../juego/evaluacion';
 import { Musica } from '../../juego/musica';
 import { SONIDOS_COMUNES, Sonidos } from '../../juego/sonidos';
-import { TECLAS } from '../../juego/reglas';
-import { Cancion, Pulsacion } from '../../models/cancion';
+import { PUNTOS, TECLAS } from '../../juego/reglas';
+import { Cancion, NOMBRE_NIVEL, Pulsacion } from '../../models/cancion';
 
 type Fase = 'preparada' | 'jugando' | 'terminada';
 
 const TEXTO_JUICIO: Record<Juicio, string> = {
-  perfect: 'PERFECT!',
-  great: 'GREAT!',
-  miss: 'MISS!',
+  perfect: '¡PERFECT!',
+  great: '¡GREAT!',
+  miss: 'MISS',
 };
+
+/** Palabra del golpe que sale junto a la acción en las escenas 3D (¡Ñam!, ¡Uy!…). */
+interface Palabra {
+  texto: string;
+  /** Posición en % del escenario. */
+  x: number;
+  y: number;
+  fallo: boolean;
+  vez: number;
+}
+
+/**
+ * Calidad gráfica elegida a mano, si la hay (por ahora solo se usa en las pruebas).
+ * Sin ella, el motor 3D empieza en alta y baja solo si el ordenador va justo.
+ */
+function calidadGuardada(): Calidad | null {
+  try {
+    const valor = localStorage.getItem('tk3_calidad');
+    return valor === 'alta' || valor === 'media' || valor === 'baja' ? valor : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Reproductor del duelo de ritmo: hace sonar la canción, recoge las teclas,
  * dibuja el escenario y enseña el marcador mientras se juega.
+ * Si el escenario tiene versión 3D (y el navegador puede con ella) se usa esa; si no, la
+ * versión plana de siempre, que se queda como respaldo.
  * Lo usan Práctica y el duelo del torneo. No llama a la API: al terminar
  * avisa con las pulsaciones (salida "terminada") y la pantalla las manda.
  * Lo que se ve al acabar lo pone la pantalla dentro de la etiqueta (ng-content).
@@ -59,11 +86,27 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
   readonly terminada = output<Pulsacion[]>();
 
   private readonly lienzo = viewChild<ElementRef<HTMLCanvasElement>>('lienzo');
+  private readonly marco3d = viewChild<ElementRef<HTMLDivElement>>('marco3d');
 
   readonly fase = signal<Fase>('preparada');
   readonly marcador = signal<Marcador>(marcadorInicial());
   protected readonly juicio = signal<{ texto: string; tipo: Juicio; vez: number } | null>(null);
   protected readonly aviso = signal<string | null>(null);
+  /** true cuando la escena 3D ya está cargada y dibujándose. */
+  protected readonly en3d = signal(false);
+  /** Avance de la canción, de 0 a 100. */
+  protected readonly progreso = signal(0);
+  /** Número de la cuenta atrás, o null cuando no toca. */
+  protected readonly cuenta = signal<number | null>(null);
+  protected readonly palabra = signal<Palabra | null>(null);
+  /** Última tecla pulsada, para iluminarla en la ayuda de abajo. */
+  protected readonly pulsada = signal<{ tecla: Tecla; vez: number } | null>(null);
+  protected readonly nombreNivel = NOMBRE_NIVEL;
+  protected readonly puntosGanados = PUNTOS;
+  /** Puntos con un espacio fino cada tres cifras: 12 400. */
+  protected readonly puntos = computed(() =>
+    String(this.marcador().puntos).replace(/\B(?=(\d{3})+$)/g, '\u202f'),
+  );
   /** Escenario de la canción; si no se conoce, el puerto. */
   readonly escenario = computed<Escenario>(
     () => ESCENARIOS[this.cancion().escenario] ?? ESCENARIOS['puerto'],
@@ -80,6 +123,10 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
   /** Todas las pulsaciones de la partida: es lo único que se manda al backend. */
   private pulsaciones: Pulsacion[] = [];
   private animacion = 0;
+  private motor: Motor | null = null;
+  private escena3d: Escena3d | null = null;
+  /** Instante del fotograma anterior, en segundos, para saber cuánto ha pasado. */
+  private fotogramaAnterior = 0;
 
   constructor() {
     // Si cambia la canción (por ejemplo, un duelo que se repite), se vuelve al principio
@@ -88,6 +135,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
       untracked(() => {
         this.cancelar(null);
         this.fase.set('preparada');
+        void this.cargarEscena3d(this.cancion().escenario);
       });
     });
   }
@@ -98,8 +146,43 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     cancelAnimationFrame(this.animacion);
+    this.soltarEscena3d();
     this.musica?.parar();
     this.audio?.close();
+  }
+
+  /**
+   * Prepara la versión 3D del escenario, si la tiene. La librería 3D pesa bastante, así
+   * que no va en el arranque de la aplicación: se descarga aquí, la primera vez que hace
+   * falta. Si algo falla (un navegador sin WebGL, por ejemplo) se sigue con la versión plana.
+   */
+  private async cargarEscena3d(id: string): Promise<void> {
+    this.soltarEscena3d();
+    if (!CON_3D.includes(id)) return;
+    try {
+      const { ESCENAS_3D, Motor } = await import('../../juego/escenas3d');
+      const marco = this.marco3d()?.nativeElement;
+      // Mientras se descargaba puede haber cambiado la canción o haberse cerrado la pantalla
+      if (!marco || this.cancion().escenario !== id || this.motor) return;
+      const definicion = ESCENAS_3D[id];
+      // Cada escena estrena lienzo: así no hereda nada de la anterior
+      const lienzo = document.createElement('canvas');
+      lienzo.style.cssText = 'display: block; width: 100%; height: 100%';
+      marco.replaceChildren(lienzo);
+      this.motor = new Motor(lienzo, definicion.motor, calidadGuardada());
+      this.escena3d = definicion.crear(this.motor);
+      this.en3d.set(true);
+    } catch {
+      this.soltarEscena3d();
+    }
+  }
+
+  private soltarEscena3d(): void {
+    this.motor?.liberar();
+    this.motor = null;
+    this.escena3d = null;
+    this.marco3d()?.nativeElement.replaceChildren();
+    this.en3d.set(false);
   }
 
   /** El audio solo puede arrancar después de un clic del usuario (norma de los navegadores). */
@@ -130,6 +213,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
     this.pulsaciones = [];
     this.marcador.set(this.partida.marcador);
     this.juicio.set(null);
+    this.palabra.set(null);
     this.aviso.set(null);
     this.fase.set('jugando');
   }
@@ -166,6 +250,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
     this.partida = r.partida;
     this.ultimaPulsacion = this.audio.currentTime;
     this.ultimaTecla = tecla;
+    this.pulsada.set({ tecla, vez: (this.pulsada()?.vez ?? 0) + 1 });
     const escenario = this.escenario();
     const generado = escenario.acierto
       ? (m: Musica, t: number) => escenario.acierto!(m, t, tecla)
@@ -181,12 +266,27 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
       tipo: juicio,
       vez: (this.juicio()?.vez ?? 0) + 1,
     });
+    // En 3D la palabra del golpe es un rótulo HTML; la versión plana la dibuja en su lienzo
+    const lugar = this.escena3d?.palabra;
+    if (!lugar) return;
+    const m = this.partida!.marcador;
+    const fallo = juicio === 'miss';
+    this.palabra.set({
+      texto: fallo ? '¡Uy!' : lugar.aciertos[(m.perfect + m.great - 1) % lugar.aciertos.length],
+      x: lugar.x,
+      y: lugar.y,
+      fallo,
+      vez: (this.palabra()?.vez ?? 0) + 1,
+    });
   }
 
   private cancelar(aviso: string | null): void {
     this.musica?.parar();
     this.partida = null;
     this.juicio.set(null);
+    this.palabra.set(null);
+    this.cuenta.set(null);
+    this.progreso.set(0);
     this.aviso.set(aviso);
     if (this.fase() === 'jugando') this.fase.set('preparada');
   }
@@ -198,27 +298,29 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
   /** Se llama en cada fotograma (unas 60 veces por segundo). */
   private readonly fotograma = (): void => {
     this.animacion = requestAnimationFrame(this.fotograma);
-    const lienzo = this.lienzo()?.nativeElement;
-    const c = lienzo?.getContext('2d');
+    const reloj = performance.now() / 1000;
+    const dt = Math.min(0.1, reloj - this.fotogramaAnterior);
+    this.fotogramaAnterior = reloj;
     const cancion = this.cancion();
-    const escena = this.escenario().dibujar;
-    if (!lienzo || !c) return;
-    preparar(c);
 
     // Al terminar se sigue dibujando la partida (no la escena en reposo), para que los
     // personajes se queden donde acabaron y no salten a su posición inicial
     const enPartida = this.fase() === 'jugando' || this.fase() === 'terminada';
     if (!enPartida || !this.partida || !this.audio) {
       // Escena de fondo en reposo, sin notas
-      const s = performance.now() / 1000;
-      escena(c, {
-        segundos: s,
-        pulso: (s * cancion.bpm) / 60,
-        notas: [],
-        teclas: [],
-        desdePulsacion: Infinity,
-        ultimaTecla: null,
-      });
+      this.dibujar(
+        {
+          segundos: reloj,
+          pulso: (reloj * cancion.bpm) / 60,
+          bpm: cancion.bpm,
+          notas: [],
+          teclas: [],
+          desdePulsacion: Infinity,
+          ultimaTecla: null,
+        },
+        reloj,
+        dt,
+      );
       return;
     }
 
@@ -229,18 +331,25 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
       this.mostrar('miss');
     }
     const pulso = (ms / 60000) * cancion.bpm;
-    escena(c, {
-      segundos: ms / 1000,
-      pulso,
-      notas: cancion.notas.map((n, i) => ({
-        pulso: n.pulso,
-        juicio: this.partida!.notas[i].juicio,
-      })),
-      teclas: cancion.notas.map((n) => n.tecla),
-      desdePulsacion: this.audio.currentTime - this.ultimaPulsacion,
-      ultimaTecla: this.ultimaTecla,
-    });
-    if (pulso >= 0 && pulso < cancion.cuenta_atras) this.cuentaAtras(c, Math.floor(pulso) + 1);
+    this.dibujar(
+      {
+        segundos: ms / 1000,
+        pulso,
+        bpm: cancion.bpm,
+        notas: cancion.notas.map((n, i) => ({
+          pulso: n.pulso,
+          juicio: this.partida!.notas[i].juicio,
+        })),
+        teclas: cancion.notas.map((n) => n.tecla),
+        desdePulsacion: this.audio.currentTime - this.ultimaPulsacion,
+        ultimaTecla: this.ultimaTecla,
+      },
+      reloj,
+      dt,
+    );
+    // Estas señales solo avisan a la pantalla cuando su valor cambia de verdad
+    this.cuenta.set(pulso >= 0 && pulso < cancion.cuenta_atras ? Math.floor(pulso) + 1 : null);
+    this.progreso.set(Math.round(Math.min(1, Math.max(0, pulso / cancion.fin)) * 200) / 2);
     if (pulso > cancion.fin + 1 && this.fase() === 'jugando') {
       this.fase.set('terminada');
       this.musica?.final(this.partida?.marcador.hype ?? 0);
@@ -248,22 +357,18 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
     }
   };
 
-  /** Número de la cuenta atrás en un círculo amarillo con su sombra, como el resto del estilo plano. */
-  private cuentaAtras(c: CanvasRenderingContext2D, numero: number): void {
-    c.save();
-    c.fillStyle = '#e0a21a';
-    c.beginPath();
-    c.arc(ANCHO / 2, 27.4, 10, 0, Math.PI * 2);
-    c.fill();
-    c.fillStyle = '#ffc93c';
-    c.beginPath();
-    c.arc(ANCHO / 2, 26, 10, 0, Math.PI * 2);
-    c.fill();
-    c.font = '700 13px Fredoka, Nunito, system-ui, sans-serif';
-    c.textAlign = 'center';
-    c.textBaseline = 'middle';
-    c.fillStyle = TINTA;
-    c.fillText(String(numero), ANCHO / 2, 26.8);
-    c.restore();
+  /** Dibuja el instante `vista` en 3D si la escena está cargada y, si no, en el lienzo plano. */
+  private dibujar(vista: VistaEscena, reloj: number, dt: number): void {
+    const marco = this.marco3d()?.nativeElement;
+    if (this.motor && this.escena3d && marco) {
+      this.motor.ajustar(marco.clientWidth, marco.clientHeight);
+      this.escena3d.actualizar(vista, reloj, dt);
+      this.motor.pintar(dt);
+      return;
+    }
+    const c = this.lienzo()?.nativeElement.getContext('2d');
+    if (!c) return;
+    preparar(c);
+    this.escenario().dibujar(c, vista);
   }
 }

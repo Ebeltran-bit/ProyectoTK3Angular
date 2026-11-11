@@ -542,6 +542,7 @@ export const barberia: Escenario = {
     aviso: (tecla) => (tecla === 'alterna' ? 'barberia-navaja' : 'barberia-tijeras'),
     acierto: (tecla) => (tecla === 'alterna' ? 'barberia-navaja' : 'barberia-tijeras'),
   },
+  teclas: { accion: { texto: 'Tijeretazo' }, alterna: { texto: 'Navaja' } },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Las barbas mejor recortadas de la ciudad!'

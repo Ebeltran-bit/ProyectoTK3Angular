@@ -170,6 +170,7 @@ export const huerto: Escenario = {
     aviso: () => 'huerto-aviso',
     acierto: () => 'huerto-acierto',
   },
+  teclas: { accion: { texto: 'Regar' } },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Las calabazas más grandes del pueblo!'

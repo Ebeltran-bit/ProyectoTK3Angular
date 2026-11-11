@@ -44,6 +44,7 @@ no aparece en él, propónla como ampliación y espera la aprobación de Eva.
 | Base de datos | MariaDB, gestionada con MySQL Workbench | Scripts en `database/` |
 | Pruebas backend | pytest | `backend/tests/` |
 | Pruebas del juego | Vitest (aprobado para el juego) | `frontend/src/app/juego/**/*.spec.ts` |
+| Dibujo 3D del juego | three.js (aprobada por Eva el 11/11/2026) | `frontend/src/app/juego/escenas3d/`; modelos y texturas hechos por código |
 | Seguridad | `hashlib.scrypt` y `secrets` de Python estándar | Sin librerías externas de cifrado |
 
 No añadas dependencias nuevas (librerías de UI, ORM, frameworks de
@@ -111,6 +112,7 @@ los convierte en respuestas HTTP.
 | 3. Combates, rondas y campeón | 16–20 nov | Hecha |
 | 4. Informes y entrega | 23 nov–2 dic | En curso: estadísticas e historial hechos; faltan revisión final y vídeo |
 | Ampliación: duelo de ritmo | — | Etapa 1, limpieza, etapa 3 (9 escenarios), récords de práctica y etapas 4 y 6 (IA y duelos en el torneo) hechos; etapa 5 (sonido): código listo, faltan los MP3 de ElevenLabs |
+| Renovación 3D del juego | — | Etapa 1 (motor 3D, personajes, marcador nuevo y escena del puerto) hecha el 11/11/2026; faltan las otras ocho escenas, pantallas del juego, sonido y mecánicas, y pruebas y pulido |
 
 El duelo de ritmo es una ampliación aprobada por Eva (31/10/2026) que sustituye
 al modo combate anterior: dos participantes siguen la misma canción y gana
@@ -118,10 +120,11 @@ quien la toca con más precisión. Sus decisiones y propuestas pendientes están
 en el README y en el documento *TK3 · Duelo de ritmo: propuesta técnica*.
 La fase 4 sigue siendo obligatoria para la entrega.
 
-Entrega final: vídeo de 5 minutos o más el **miércoles 2 de diciembre de
-2026**. Del 30/11 al 02/12 solo se corrigen errores; no se añaden
-funcionalidades nuevas. Prioridad del enunciado: una aplicación completa y
-comprendida antes que ampliaciones.
+El enunciado pide como entrega final un vídeo de 5 minutos o más el
+miércoles 2 de diciembre de 2026 y da prioridad a una aplicación completa y
+comprendida antes que a las ampliaciones. **Decisión de Eva (11/11/2026): las
+fechas del enunciado no limitan el trabajo.** Eva decide qué se hace y cuándo;
+no pares ni recortes una tarea por esas fechas.
 
 Mantén actualizada esta tabla cuando termine una fase.
 
@@ -140,6 +143,15 @@ Mantén actualizada esta tabla cuando termine una fase.
   sola sombra en media luna por forma, personajes con curvas y articulaciones sin huecos, y las
   palabras de cada golpe en píldoras de color. Las primitivas están en `escenarios/dibujo.ts` y los
   bocetos aprobados en `bocetos/plano/` (fuera del repositorio).
+- **Renovación 3D (aprobada por Eva el 11/11/2026, en curso):** el juego pasa a un 3D de dibujos
+  animados con three.js, según las nueve propuestas de `bocetos/renovacion-3d/` (fuera del
+  repositorio). Se hace por etapas (tabla en el README) y Eva revisa cada una antes de seguir. Si
+  una propuesta aprobada necesita un cambio importante, se consulta antes. Las escenas 3D están en
+  `juego/escenas3d/`; los escenarios planos se conservan en `juego/escenarios/` y se usan mientras
+  una escena no tenga versión 3D o si el navegador no puede dibujarla. La rama
+  `copia-version-plana` guarda la versión anterior intacta: no la modifiques ni la borres.
+- En las escenas 3D las animaciones se calculan en cada fotograma a partir del reloj de la canción
+  y de las notas ya juzgadas, sin guardar estado; las curvas van en funciones puras con Vitest.
 - Tres escenarios por nivel (lista en el README). El backend elige uno al
   azar para cada combate y lo guarda, así los dos jugadores tocan el mismo.
 - La puntuación que cuenta para el torneo la calcula el backend a partir de

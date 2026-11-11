@@ -107,6 +107,7 @@ export const correos: Escenario = {
     aviso: () => 'correos-aviso',
     acierto: () => 'correos-acierto',
   },
+  teclas: { accion: { texto: 'Sellar', nota: 'Urgentes: a contratiempo' } },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Todo el correo ha salido a tiempo!'

@@ -1,27 +1,105 @@
-<div class="pantalla">
+<div class="pantalla" (pointerdown)="alTocar($event)">
+  <!-- Versión plana: se ve mientras carga la 3D, o siempre si el escenario no la tiene -->
   <canvas
     #lienzo
     width="960"
     height="540"
     aria-label="Escenario del duelo de ritmo"
-    (pointerdown)="alTocar($event)"
+    [hidden]="en3d()"
   ></canvas>
+  <!-- Aquí dentro crea el motor 3D su propio lienzo -->
+  <div #marco3d class="marco3d" [hidden]="!en3d()"></div>
 
   <div class="marcador" aria-live="off">
-    <div class="hype" title="Hype del público">
-      <span>HYPE</span>
-      <div class="barra"><div class="relleno" [style.width.%]="marcador().hype"></div></div>
+    <div class="panel hype" title="Hype del público">
+      <span class="medalla" aria-hidden="true">★</span>
+      <div class="columna">
+        <div class="rotulo">
+          <span>HYPE</span><b>{{ marcador().hype }}%</b>
+        </div>
+        <div class="barra"><i [style.width.%]="marcador().hype"></i></div>
+      </div>
     </div>
-    <div class="puntos">
-      <strong>{{ marcador().puntos }}</strong>
-      <span>COMBO {{ marcador().combo }}</span>
+
+    <div class="panel progreso" title="Avance de la canción">
+      <div class="titulo">
+        {{ cancion().titulo }}
+        <span class="nivel" [attr.data-nivel]="cancion().nivel">{{
+          nombreNivel[cancion().nivel]
+        }}</span>
+      </div>
+      <div class="pista">
+        <i [style.width.%]="progreso()"></i><b [style.left.%]="progreso()" aria-hidden="true">♪</b>
+      </div>
     </div>
+
+    <div class="panel puntos">
+      <small>PUNTOS</small><strong>{{ puntos() }}</strong>
+    </div>
+
+    @if (marcador().combo >= 2) {
+      <!-- El «track» por el número hace que la píldora dé un salto cada vez que sube -->
+      @for (c of [marcador().combo]; track c) {
+        <div class="combo">
+          COMBO <b>×{{ c }}</b>
+        </div>
+      }
+    }
   </div>
+
+  @if (cuenta(); as n) {
+    @for (v of [n]; track v) {
+      <div class="cuenta">{{ v }}</div>
+    }
+  }
 
   @if (juicio(); as j) {
     @for (v of [j.vez]; track v) {
-      <p class="juicio" [attr.data-juicio]="j.tipo">{{ j.texto }}</p>
+      <p class="juicio" [class.plano]="!en3d()" [attr.data-juicio]="j.tipo">
+        <span>{{ j.texto }}</span>
+        @if (j.tipo !== 'miss') {
+          <em>+{{ puntosGanados[j.tipo] }}</em>
+        }
+      </p>
     }
+  }
+
+  @if (palabra(); as p) {
+    @for (v of [p.vez]; track v) {
+      <div class="palabra" [class.fallo]="p.fallo" [style.left.%]="p.x" [style.top.%]="p.y">
+        {{ p.texto }}
+      </div>
+    }
+  }
+
+  <!-- En la versión plana no se enseña: sus escenas ya usan la parte de abajo -->
+  @if (fase() === 'jugando' && en3d()) {
+    <div class="teclas">
+      <div class="tecla">
+        @for (v of [pulsada()?.tecla === 'accion' ? pulsada()!.vez : 0]; track v) {
+          <kbd [class.pulsada]="v > 0">J</kbd>
+        }
+        <div>
+          {{ escenario().teclas.accion.texto }}
+          @if (escenario().teclas.accion.nota; as nota) {
+            <small>{{ nota }}</small>
+          }
+        </div>
+      </div>
+      @if (escenario().teclas.alterna; as alterna) {
+        <div class="tecla alterna">
+          @for (v of [pulsada()?.tecla === 'alterna' ? pulsada()!.vez : 0]; track v) {
+            <kbd [class.pulsada]="v > 0">K</kbd>
+          }
+          <div>
+            {{ alterna.texto }}
+            @if (alterna.nota) {
+              <small>{{ alterna.nota }}</small>
+            }
+          </div>
+        </div>
+      }
+    </div>
   }
 
   @if (fase() === 'preparada') {

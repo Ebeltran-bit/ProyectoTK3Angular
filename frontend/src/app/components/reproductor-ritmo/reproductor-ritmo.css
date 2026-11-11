@@ -1,7 +1,8 @@
 /*
- * Marcador del duelo en estilo plano (aprobado por Eva el 06/11/2026), con las variables
- * del tema «Pop Ritmo»: sin bordes negros, píldoras blancas con sombra sólida inferior y
- * el juicio de cada pulsación en una píldora de color.
+ * Marcador del duelo, diseño aprobado por Eva el 11/11/2026 junto a las escenas 3D.
+ * Sigue siendo HTML encima del escenario. Todas las medidas van en «cqw» (centésimas del
+ * ancho del escenario), así el marcador crece y encoge con él y se ve igual en un móvil
+ * que en una pantalla grande.
  */
 .pantalla {
   position: relative;
@@ -11,101 +12,404 @@
   box-shadow: 0 6px 0 var(--sombra-tarjeta);
   touch-action: manipulation;
   user-select: none;
-}
-canvas {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.marcador {
-  position: absolute;
-  inset: 0.6rem 0.8rem auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  pointer-events: none;
+  container-type: inline-size;
   font-family: 'Fredoka', 'Nunito', sans-serif;
   font-weight: 700;
   color: var(--tinta);
 }
+canvas,
+.marco3d {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+/* Los dos escenarios (plano y 3D) tienen «display» propio, así que hay que ocultarlos a mano */
+[hidden] {
+  display: none;
+}
+
+/* ---------- Paneles de arriba ---------- */
+.marcador {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.panel {
+  position: absolute;
+  top: 2cqw;
+  height: 4.6cqw;
+  border-radius: 1.7cqw;
+  background: linear-gradient(#ffffff, #fff1d6);
+  box-shadow:
+    0 0.32cqw 0 #e2c992,
+    0 1cqw 1.8cqw rgb(45 25 60 / 0.35),
+    inset 0 0.16cqw 0 #ffffff;
+}
 .hype {
+  left: 2cqw;
+  width: 25cqw;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  width: min(45%, 16rem);
-  padding: 0.3rem 0.4rem 0.3rem 0.8rem;
-  border-radius: var(--redondo);
-  background: var(--tarjeta);
-  box-shadow: 0 3px 0 var(--sombra-tarjeta);
-  font-size: 0.85rem;
+  gap: 0.9cqw;
+  padding: 0 1.2cqw 0 0.7cqw;
+}
+.medalla {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3.3cqw;
+  height: 3.3cqw;
+  border-radius: 50%;
+  font-size: 1.9cqw;
+  line-height: 1;
+  color: #ffffff;
+  background: radial-gradient(circle at 35% 30%, #ffe58a, #ffb72e 60%, #f08a1c);
+  box-shadow:
+    inset 0 -0.25cqw 0 rgb(160 70 0 / 0.35),
+    0 0.2cqw 0.4cqw rgb(0 0 0 / 0.25);
+}
+.columna {
+  flex: 1;
+}
+.rotulo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.05cqw;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+}
+.rotulo b {
+  color: var(--coral);
 }
 .barra {
-  flex: 1;
-  height: 0.8rem;
+  position: relative;
+  height: 1.35cqw;
   border-radius: var(--redondo);
-  background: var(--fondo);
+  background: #4a3a5c;
+  box-shadow: inset 0 0.18cqw 0.3cqw rgb(0 0 0 / 0.5);
   overflow: hidden;
 }
-.relleno {
-  height: 100%;
+.barra i {
+  position: absolute;
+  inset: 0 auto 0 0;
   border-radius: var(--redondo);
-  background: var(--amarillo);
-  box-shadow: inset 0 -3px 0 var(--amarillo-oscuro);
+  background: linear-gradient(90deg, var(--coral), var(--amarillo) 70%, #fff3a0);
+  box-shadow:
+    inset 0 0.35cqw 0 rgb(255 255 255 / 0.45),
+    inset 0 -0.2cqw 0 rgb(160 60 0 / 0.25);
   transition: width 0.15s;
 }
-.puntos {
+.progreso {
+  left: 50%;
+  width: 30cqw;
+  padding: 0.55cqw 1.3cqw;
+  transform: translateX(-50%);
+  text-align: center;
+}
+.titulo {
   display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
-  padding: 0.3rem 0.9rem;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7cqw;
+  font-size: 1.25cqw;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.nivel {
+  padding: 0.1cqw 0.7cqw;
   border-radius: var(--redondo);
-  background: var(--tarjeta);
-  box-shadow: 0 3px 0 var(--sombra-tarjeta);
+  font-size: 0.8cqw;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: var(--menta-oscuro);
+  box-shadow: 0 0.14cqw 0 #2f9c72;
 }
-.puntos strong {
-  font-size: 1.3rem;
+.nivel[data-nivel='media'] {
+  background: var(--azul);
+  box-shadow: 0 0.14cqw 0 var(--azul-oscuro);
 }
-.puntos span {
-  font-size: 0.8rem;
+.nivel[data-nivel='dificil'] {
+  background: var(--coral);
+  box-shadow: 0 0.14cqw 0 var(--coral-oscuro);
+}
+.pista {
+  position: relative;
+  height: 0.8cqw;
+  margin-top: 0.45cqw;
+  border-radius: var(--redondo);
+  background: #eadbb8;
+  box-shadow: inset 0 0.12cqw 0.2cqw rgb(90 60 20 / 0.35);
+}
+.pista i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: var(--redondo);
+  background: linear-gradient(90deg, var(--menta), var(--menta-oscuro));
+  box-shadow: inset 0 0.2cqw 0 rgb(255 255 255 / 0.5);
+}
+.pista b {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 1.7cqw;
+  height: 1.7cqw;
+  margin: -0.85cqw 0 0 -0.85cqw;
+  border: 0.22cqw solid var(--menta-oscuro);
+  border-radius: 50%;
+  font-size: 0.9cqw;
+  line-height: 1;
+  color: #2f9c72;
+  background: radial-gradient(circle at 35% 30%, #ffffff, #ffe9a8);
+  box-shadow: 0 0.2cqw 0.4cqw rgb(0 0 0 / 0.3);
+}
+.puntos {
+  right: 2cqw;
+  width: 17cqw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.3cqw;
+}
+.puntos small {
+  font-size: 0.95cqw;
+  letter-spacing: 0.14em;
   color: var(--tinta-suave);
 }
+.puntos strong {
+  font-size: 2.5cqw;
+  line-height: 1;
+}
+.combo {
+  position: absolute;
+  right: 3cqw;
+  top: 7.4cqw;
+  padding: 0.25cqw 1.2cqw 0.3cqw;
+  border-radius: var(--redondo);
+  font-size: 1.5cqw;
+  color: #ffffff;
+  background: linear-gradient(#ff8a7a, #ff5a5a);
+  box-shadow:
+    0 0.28cqw 0 #c93c3c,
+    0 0.7cqw 1.2cqw rgb(60 10 20 / 0.4),
+    inset 0 0.14cqw 0 rgb(255 255 255 / 0.5);
+  transform: rotate(-5deg);
+  animation: salto 0.25s ease-out;
+}
+.combo b {
+  font-size: 2.1cqw;
+}
+@keyframes salto {
+  from {
+    transform: rotate(-5deg) scale(1.35);
+  }
+}
+
+/* ---------- Juicio de cada pulsación ---------- */
 .juicio {
   position: absolute;
-  top: 28%;
-  left: 50%;
+  inset: 7.6cqw 0 auto;
   margin: 0;
-  padding: 0.1em 0.7em;
-  border-radius: var(--redondo);
-  font-family: 'Fredoka', 'Nunito', sans-serif;
-  font-size: clamp(1.3rem, 4.5vw, 2.4rem);
-  font-weight: 700;
-  color: #ffffff;
-  transform: translateX(-50%);
+  text-align: center;
+  font-size: 4.6cqw;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: #ffd23c;
+  -webkit-text-stroke: 0.9cqw #ffffff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0.4cqw 0 #e0891a) drop-shadow(0 1cqw 1.2cqw rgb(50 20 60 / 0.45));
   pointer-events: none;
-  animation: aparecer 0.45s ease-out forwards;
+  animation: aparecer 0.6s ease-out forwards;
 }
-.juicio[data-juicio='perfect'] {
-  background: var(--menta-oscuro);
-  box-shadow: 0 4px 0 #35a07a;
+/* Las escenas planas dibujan su palabra del golpe arriba: ahí el juicio va más abajo */
+.juicio.plano {
+  top: 15cqw;
+}
+.juicio span,
+.juicio em {
+  display: block;
+}
+.juicio em {
+  margin-top: 0.2cqw;
+  font-size: 2cqw;
+  font-style: normal;
+  color: var(--coral);
+  -webkit-text-stroke: 0.5cqw #ffffff;
 }
 .juicio[data-juicio='great'] {
-  background: var(--azul);
-  box-shadow: 0 4px 0 var(--azul-oscuro);
+  color: var(--menta);
+  filter: drop-shadow(0 0.4cqw 0 #2f9c72) drop-shadow(0 1cqw 1.2cqw rgb(50 20 60 / 0.45));
 }
 .juicio[data-juicio='miss'] {
-  background: var(--coral);
-  box-shadow: 0 4px 0 var(--coral-oscuro);
+  color: #b9aecb;
+  filter: drop-shadow(0 0.4cqw 0 #6d5f85) drop-shadow(0 1cqw 1.2cqw rgb(50 20 60 / 0.45));
 }
+/* Entra grande y de golpe, se asienta y se desvanece subiendo */
 @keyframes aparecer {
-  from {
-    opacity: 1;
-    transform: translate(-50%, 0.5rem) scale(1.2);
-  }
-  to {
+  0% {
     opacity: 0;
-    transform: translate(-50%, -0.8rem) scale(1);
+    transform: rotate(-3deg) scale(1.6);
+  }
+  12% {
+    opacity: 1;
+    transform: rotate(-3deg) scale(0.94);
+  }
+  22%,
+  70% {
+    opacity: 1;
+    transform: rotate(-3deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(-3deg) translateY(-1.2cqw);
   }
 }
+
+/* ---------- Palabra del golpe, junto a la acción ---------- */
+.palabra {
+  position: absolute;
+  padding: 0.3cqw 1.5cqw 0.45cqw;
+  border-radius: var(--redondo);
+  font-size: 2.5cqw;
+  white-space: nowrap;
+  color: #ffffff;
+  background: linear-gradient(#ffd76a, #ffb72e);
+  box-shadow:
+    0 0.35cqw 0 #e0891a,
+    0 0.9cqw 1.4cqw rgb(50 20 60 / 0.4),
+    inset 0 0.16cqw 0 rgb(255 255 255 / 0.55);
+  pointer-events: none;
+  animation: palabra 0.6s ease-out forwards;
+}
+.palabra.fallo {
+  background: linear-gradient(#ff8fa3, #ff5f7e);
+  box-shadow:
+    0 0.35cqw 0 #c93c5c,
+    0 0.9cqw 1.4cqw rgb(50 20 60 / 0.4),
+    inset 0 0.16cqw 0 rgb(255 255 255 / 0.55);
+}
+@keyframes palabra {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(7deg) scale(0.4);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(7deg) scale(1.15);
+  }
+  30%,
+  75% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(7deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -90%) rotate(7deg) scale(1);
+  }
+}
+
+/* ---------- Cuenta atrás ---------- */
+.cuenta {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  display: grid;
+  place-items: center;
+  width: 11cqw;
+  height: 11cqw;
+  margin: -5.5cqw 0 0 -5.5cqw;
+  border-radius: 50%;
+  font-size: 6.5cqw;
+  line-height: 1;
+  background: radial-gradient(
+    circle at 35% 30%,
+    #fff3a0,
+    var(--amarillo) 60%,
+    var(--amarillo-oscuro)
+  );
+  box-shadow:
+    0 0.6cqw 0 #c98a12,
+    0 1.4cqw 2cqw rgb(50 20 60 / 0.45),
+    inset 0 0.3cqw 0 rgb(255 255 255 / 0.6);
+  pointer-events: none;
+  animation: latido 0.45s ease-out;
+}
+@keyframes latido {
+  from {
+    transform: scale(1.5);
+    opacity: 0.4;
+  }
+}
+
+/* ---------- Qué hace cada tecla ---------- */
+.teclas {
+  position: absolute;
+  left: 50%;
+  bottom: 2.2cqw;
+  display: flex;
+  gap: 1.6cqw;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.tecla {
+  display: flex;
+  align-items: center;
+  gap: 0.8cqw;
+  padding: 0.55cqw 1.4cqw 0.55cqw 0.6cqw;
+  border-radius: var(--redondo);
+  font-size: 1.2cqw;
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: nowrap;
+  color: #ffffff;
+  background: rgb(40 28 56 / 0.72);
+  box-shadow:
+    0 0.6cqw 1.2cqw rgb(20 10 30 / 0.4),
+    inset 0 0.1cqw 0 rgb(255 255 255 / 0.2);
+}
+.tecla small {
+  display: block;
+  font-size: 0.8cqw;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.tecla kbd {
+  display: grid;
+  place-items: center;
+  width: 3cqw;
+  height: 3cqw;
+  padding: 0;
+  border-radius: 0.8cqw;
+  font-size: 1.7cqw;
+  color: var(--tinta);
+  background: linear-gradient(#ffffff, #ffe9b8);
+  box-shadow:
+    0 0.3cqw 0 #d9b56a,
+    inset 0 0.14cqw 0 #ffffff;
+}
+.tecla.alterna kbd {
+  background: linear-gradient(#fff6c8, var(--amarillo));
+  box-shadow:
+    0 0.3cqw 0 var(--amarillo-oscuro),
+    inset 0 0.14cqw 0 #ffffff;
+}
+/* La tecla recién pulsada se hunde y brilla un instante */
+.tecla kbd.pulsada {
+  animation: pulsada 0.22s ease-out;
+}
+@keyframes pulsada {
+  from {
+    transform: translateY(0.2cqw);
+    box-shadow:
+      0 0.1cqw 0 #d9b56a,
+      0 0 0 0.3cqw rgb(255 255 255 / 0.55),
+      0 0 1.6cqw #ffe58a;
+  }
+}
+
+/* ---------- Capas de inicio y de final ---------- */
 .capa {
   position: absolute;
   inset: 0;
@@ -116,6 +420,7 @@ canvas {
   gap: 0.5rem;
   padding: 1rem;
   text-align: center;
+  font-family: 'Nunito', system-ui, sans-serif;
   background: rgb(255 246 224 / 0.88);
 }
 .capa p {
@@ -133,4 +438,13 @@ kbd {
 
 .ayuda {
   color: var(--tinta-suave);
+}
+
+/* Quien pide menos movimiento en su sistema se queda sin los saltos del marcador */
+@media (prefers-reduced-motion: reduce) {
+  .combo,
+  .cuenta,
+  .tecla kbd.pulsada {
+    animation: none;
+  }
 }

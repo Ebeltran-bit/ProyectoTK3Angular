@@ -143,6 +143,7 @@ export const observatorio: Escenario = {
     aviso: () => 'observatorio-aviso',
     acierto: () => 'observatorio-acierto',
   },
+  teclas: { accion: { texto: 'Foto a la estrella' }, alterna: { texto: 'Foto al cometa' } },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Fotos para la portada de la revista!'

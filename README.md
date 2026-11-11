@@ -39,7 +39,7 @@ tk3/
         ├── services/          Comunicación con la API (HttpClient) y sesión
         ├── guards/            Bloquean pantallas si no hay sesión
         ├── interceptors/      Añaden el token a cada petición
-        ├── juego/             Duelo de ritmo: reglas, evaluación, música y escenarios
+        ├── juego/             Duelo de ritmo: reglas, evaluación, música, escenarios planos y escenas 3D
         ├── components/        Piezas reutilizables (el cuadro KO, el reproductor de ritmo y la carita)
         └── pages/             Pantallas (componentes con vista)
 ```
@@ -166,6 +166,9 @@ usuarios de prueba en la base de datos.
 Desde `frontend/`: `npm test`. Ejecuta con Vitest los tests de la lógica del duelo de ritmo
 (`src/app/juego/*.spec.ts`): juicio PERFECT/GREAT/MISS en los límites de 40 y 90 ms, puntos, combo, Hype
 entre 0 y 100, tecla equivocada, pulsaciones sin nota, notas que pasan sin pulsar y una canción de ejemplo.
+También prueba las funciones puras de las escenas 3D (`src/app/juego/escenas3d/*.spec.ts`): las curvas de
+animación (anticipación, rebote, parpadeo) y cómo se deduce de las pulsaciones qué nota se acaba de acertar o
+fallar.
 
 En pytest también se comprueba que todos los beatmaps de `backend/app/beatmaps/` son válidos y que los mal
 hechos (notas desordenadas, durante la cuenta atrás, nivel o tecla que no existen…) se rechazan.
@@ -491,6 +494,83 @@ y cinta.
 - Pantalla nueva `/combate` con el enlace "Combate" en el menú. Al acabar: "Revancha" o "Cambiar
   personaje". En esta etapa el rival (CPU, aspecto al azar) no se mueve; la IA llega en la etapa 4.
 
+## Renovación 3D del juego (en curso)
+
+**Pedida por Eva el 10/11/2026 y aprobada el 11/11/2026.** El duelo de ritmo pasa del estilo plano a un 3D
+de dibujos animados con aire de película de animación: personajes con volumen y expresiones, luz cálida,
+sombras suaves, profundidad y materiales. Las nueve propuestas visuales que Eva aprobó están en
+[Renovación 3D del juego](https://claude.ai/artifact/RiV4UDHJMBYMvWZstDgP7L) y en
+`bocetos/renovacion-3d/` de la carpeta del proyecto.
+
+**Aprobado por Eva el 11/11/2026**
+- Las nueve escenas tal como salen en las propuestas.
+- La librería **three.js** (licencia MIT) para dibujar en 3D. Es la única dependencia nueva; sustituye a D6
+  (motor de dibujo propio sin librerías) solo en la parte del dibujo. Todos los modelos, texturas y
+  animaciones siguen siendo originales y hechos por código: no se descarga ningún modelo ni imagen.
+- La música sigue generándose por código, con arreglos nuevos sobre los mismos BPM y las mismas notas.
+- Mejoras de sonido y mecánicas: volumen y silencio separados para música y efectos, aviso de «pronto» o
+  «tarde», compás de demostración, premios de combo a los 10, 25 y 50, pausa solo en Práctica, pantalla
+  final con desglose y efectos de sonido nuevos.
+- Las fechas del enunciado no limitan este trabajo (decisión de Eva).
+- Las reglas no cambian: mismas ventanas de juicio, mismos puntos, mismas teclas y el backend sigue
+  calculando la puntuación oficial.
+
+**Copia intacta de la versión plana.** La rama `copia-version-plana` guarda el proyecto tal como estaba
+antes de empezar (commit `688ed10`). Además, los nueve escenarios planos siguen en el código
+(`juego/escenarios/`): son lo que se ve mientras una escena no tiene versión 3D, y también si el navegador
+no puede dibujar en 3D.
+
+**Etapas**
+
+| Etapa | Contenido | Estado |
+| --- | --- | --- |
+| 1. Base común y puerto | Motor 3D, personajes, materiales, luz, marcador nuevo y la escena del puerto animada | Hecha el 11/11/2026, pendiente de que Eva la pruebe |
+| 2. Resto de escenas | Las otras ocho escenas en 3D | Pendiente |
+| 3. Pantallas del juego | Inicio, final y transiciones (se enseñan propuestas antes) | Pendiente |
+| 4. Sonido y mecánicas | Las mejoras aprobadas de la lista de arriba | Pendiente |
+| 5. Pruebas, rendimiento y pulido | Revisión de las nueve escenas en ordenadores reales | Pendiente |
+
+**Cómo funciona (etapa 1)**
+
+| Pieza | Archivo (en `frontend/src/app/juego/escenas3d/`) |
+| --- | --- |
+| Motor: cámara, luces, sombras, efectos de imagen y niveles de calidad | `motor.ts` |
+| Curvas de animación, funciones puras con Vitest | `animacion.ts` |
+| Qué nota se acaba de acertar o fallar, funciones puras con Vitest | `golpes.ts` |
+| Materiales (piel, tela, plástico, metal) y texturas pintadas por código | `materiales.ts` |
+| Formas básicas redondeadas y el tubo flexible de brazos y piernas | `formas.ts` |
+| Personaje humano: cuerpo, cara, expresiones, parpadeo y respiración | `personaje.ts` |
+| Objetos compartidos: mar, nubes, chispas, salpicaduras | `objetos.ts` |
+| Escena del puerto: decorado, gaviotas y pescador | `puerto.ts` |
+| Lista de escenas que ya tienen versión 3D | `disponibles.ts` e `index.ts` |
+
+- El reproductor (`components/reproductor-ritmo`) mira si el escenario de la canción está en
+  `disponibles.ts`. Si está, carga la parte 3D y la dibuja; si no, o si algo falla, dibuja el escenario
+  plano de siempre. La lógica de la partida (reloj del audio, juicio, marcador) es la misma en los dos casos.
+- La parte 3D se descarga aparte y solo al abrir una canción: las pantallas de gestión no cargan three.js.
+  Medido al compilar: 653 kB (139 kB comprimido) que se suman una sola vez.
+- **Las animaciones no guardan estado.** En cada fotograma la escena recibe lo mismo que el dibujo plano
+  (segundos, pulso, notas con su juicio y última pulsación) y calcula con eso la postura de cada personaje:
+  anticipación antes del golpe, acción en el pulso y reacción según el juicio. Así el dibujo no puede
+  desincronizarse de la música y las curvas se prueban sin navegador.
+- **Calidad automática.** Hay tres niveles (alta, media y baja) que cambian la resolución, el tamaño de las
+  sombras y los efectos (desenfoque del fondo y resplandor). Si el ordenador encadena 45 fotogramas de más
+  de 25 ms, el motor baja un nivel él solo: en un juego de ritmo importa más la fluidez que el adorno.
+- El marcador (Hype, progreso de la canción, puntos, combo, juicio, palabra del golpe y ayuda de teclas) es
+  HTML encima del dibujo, con el diseño de las propuestas. Se usa también sobre los escenarios planos.
+
+Detalles que decidí yo (Claude) en esta etapa:
+- three.js en la versión 0.187.0 (las propuestas se hicieron con la 0.170; el resultado es el mismo).
+  `@types/three` solo se usa al compilar.
+- Cada escenario dice ahora qué hace cada tecla (`teclas` en `escenarios/tipos.ts`) para la ayuda en pantalla,
+  y la vista que reciben los escenarios incluye el `bpm`.
+- En `angular.json` sube el aviso de tamaño de la hoja de estilos de un componente (de 4 a 8 kB): el
+  marcador nuevo ocupa unos 7 kB.
+- La calidad se puede fijar a mano guardando `tk3_calidad` (`alta`, `media` o `baja`) en el almacenamiento
+  local del navegador; lo usan las pruebas. Un selector en pantalla sería una propuesta para la etapa 4.
+- Sin comprobar todavía: el rendimiento en un portátil real (aquí solo se ha podido probar con un navegador
+  sin tarjeta gráfica) y el diseño del marcador en pantallas de móvil.
+
 ## Estado por fases
 
 - [x] Fase 1 · Participantes: crear, consultar, editar, activar/desactivar, persistencia.
@@ -498,3 +578,4 @@ y cinta.
 - [x] Fase 3 · Combates, rondas y campeón: registrar ganadores, avance automático, campeón y torneo cerrado.
 - [ ] Fase 4 · Informes y entrega: estadísticas e historial hechos; quedan la revisión final y el vídeo.
 - [x] Ampliación · Duelo de ritmo: sesión, motor con 9 escenarios, récords de práctica, IA y duelos en el torneo.
+- [ ] Renovación 3D del juego: etapa 1 (base común y puerto) hecha; faltan las otras ocho escenas, pantallas, sonido, mecánicas y pulido.

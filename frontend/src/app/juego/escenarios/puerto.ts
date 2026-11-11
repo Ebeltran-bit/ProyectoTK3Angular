@@ -321,6 +321,7 @@ export const puerto: Escenario = {
     aviso: () => 'puerto-aviso',
     acierto: () => 'puerto-acierto',
   },
+  teclas: { accion: { texto: 'Lanzar sardina' } },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡El puerto entero aplaude!'

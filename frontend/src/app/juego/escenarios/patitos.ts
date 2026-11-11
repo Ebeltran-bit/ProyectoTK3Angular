@@ -161,6 +161,10 @@ export const patitos: Escenario = {
     aviso: () => 'patitos-aviso',
     acierto: () => 'patitos-acierto',
   },
+  teclas: {
+    accion: { texto: 'Saltar' },
+    alterna: { texto: 'El segundo', nota: 'Cuando vienen dos' },
+  },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Todos los patitos secos y felices!'
