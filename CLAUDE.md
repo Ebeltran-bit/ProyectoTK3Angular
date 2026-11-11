@@ -112,7 +112,7 @@ los convierte en respuestas HTTP.
 | 3. Combates, rondas y campeón | 16–20 nov | Hecha |
 | 4. Informes y entrega | 23 nov–2 dic | En curso: estadísticas e historial hechos; faltan revisión final y vídeo |
 | Ampliación: duelo de ritmo | — | Etapa 1, limpieza, etapa 3 (9 escenarios), récords de práctica y etapas 4 y 6 (IA y duelos en el torneo) hechos; etapa 5 (sonido): código listo, faltan los MP3 de ElevenLabs |
-| Renovación 3D del juego | — | Etapa 1 (motor 3D, personajes, marcador nuevo y escena del puerto) hecha el 11/11/2026; etapa 2 en curso (bar, huerto y ramen hechos; faltan correos, patitos, observatorio, barbería y mecanógrafa); después, pantallas del juego, sonido y mecánicas, y pruebas y pulido |
+| Renovación 3D del juego | — | Etapa 1 (motor 3D, personajes, marcador nuevo y escena del puerto) hecha el 11/11/2026; etapa 2 en curso (bar, huerto, ramen, correos y patitos hechos; faltan observatorio, barbería y mecanógrafa); después, pantallas del juego, sonido y mecánicas, y pruebas y pulido |
 
 El duelo de ritmo es una ampliación aprobada por Eva (31/10/2026) que sustituye
 al modo combate anterior: dos participantes siguen la misma canción y gana

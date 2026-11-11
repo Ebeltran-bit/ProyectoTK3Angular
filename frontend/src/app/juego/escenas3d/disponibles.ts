@@ -3,4 +3,4 @@
  * que el reproductor pueda saberlo sin descargar la librería.
  * El resto de escenas siguen usando su versión plana.
  */
-export const CON_3D: readonly string[] = ['puerto', 'bar', 'huerto', 'ramen'];
+export const CON_3D: readonly string[] = ['puerto', 'bar', 'huerto', 'ramen', 'correos', 'patitos'];
