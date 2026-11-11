@@ -11,4 +11,5 @@ export const CON_3D: readonly string[] = [
   'correos',
   'patitos',
   'observatorio',
+  'barberia',
 ];

@@ -4,6 +4,7 @@
  * cuando hace falta (ver `cargarEscena3d` en el reproductor).
  */
 import { bar3d } from './bar';
+import { barberia3d } from './barberia';
 import { correos3d } from './correos';
 import { huerto3d } from './huerto';
 import { observatorio3d } from './observatorio';
@@ -24,4 +25,5 @@ export const ESCENAS_3D: Record<string, Definicion3d> = {
   correos: correos3d,
   patitos: patitos3d,
   observatorio: observatorio3d,
+  barberia: barberia3d,
 };
