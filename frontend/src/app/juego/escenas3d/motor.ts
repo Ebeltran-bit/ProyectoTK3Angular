@@ -162,7 +162,20 @@ export class Motor {
       calidadRecordada = this.calidadActual;
       this.lentos = 0;
       this.aplicarCalidad();
+      this.precalentar();
     }
+  }
+
+  /**
+   * Prepara ya los materiales de todo lo que hay en la escena, también de lo que empieza
+   * escondido (chispas, gotas, trozos…). Si no, el navegador los prepara la primera vez que
+   * aparecen y da un tirón justo al pulsar la primera nota.
+   */
+  precalentar(): void {
+    // Con efectos se dibuja sobre una imagen intermedia: se prepara para ese mismo destino
+    if (this.compositor) this.render.setRenderTarget(this.compositor.readBuffer);
+    this.render.compile(this.escena, this.camara);
+    this.render.setRenderTarget(null);
   }
 
   /** Dónde cae en la pantalla un punto de la escena, en % del ancho y del alto del lienzo. */

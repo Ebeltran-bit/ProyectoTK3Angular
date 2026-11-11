@@ -525,7 +525,7 @@ no puede dibujar en 3D.
 | Etapa | Contenido | Estado |
 | --- | --- | --- |
 | 1. Base común y puerto | Motor 3D, personajes, materiales, luz, marcador nuevo y la escena del puerto animada | Hecha el 11/11/2026; Eva la probó en su portátil ese día y va fluida |
-| 2. Resto de escenas | Las otras ocho escenas en 3D | En curso: Brindis arcade hecha el 11/11/2026; faltan siete |
+| 2. Resto de escenas | Las otras ocho escenas en 3D | En curso: Brindis arcade, Huerto a compás y Ramen a contratiempo hechas el 11/11/2026; faltan cinco |
 | 3. Pantallas del juego | Inicio, final y transiciones (se enseñan propuestas antes) | Pendiente |
 | 4. Sonido y mecánicas | Las mejoras aprobadas de la lista de arriba | Pendiente |
 | 5. Pruebas, rendimiento y pulido | Revisión de las nueve escenas en ordenadores reales | Pendiente |
@@ -543,13 +543,15 @@ no puede dibujar en 3D.
 | Objetos compartidos: mar, nubes, chispas, salpicaduras | `objetos.ts` |
 | Escena del puerto: decorado, gaviotas y pescador | `puerto.ts` |
 | Escena del bar: barra, clientes y jarras que chocan | `bar.ts` |
+| Escena del huerto: hortelana, abejas y calabazas que crecen | `huerto.ts` |
+| Escena del ramen: cocinero, verduras que se cortan y olla | `ramen.ts` |
 | Lista de escenas que ya tienen versión 3D | `disponibles.ts` e `index.ts` |
 
 - El reproductor (`components/reproductor-ritmo`) mira si el escenario de la canción está en
   `disponibles.ts`. Si está, carga la parte 3D y la dibuja; si no, o si algo falla, dibuja el escenario
   plano de siempre. La lógica de la partida (reloj del audio, juicio, marcador) es la misma en los dos casos.
 - La parte 3D se descarga aparte y solo al abrir una canción: las pantallas de gestión no cargan three.js.
-  Medido al compilar: 653 kB (139 kB comprimido) que se suman una sola vez.
+  Medido al compilar con cuatro escenas: 699 kB (153 kB comprimido) que se suman una sola vez.
 - **Las animaciones no guardan estado.** En cada fotograma la escena recibe lo mismo que el dibujo plano
   (segundos, pulso, notas con su juicio y última pulsación) y calcula con eso la postura de cada personaje:
   anticipación antes del golpe, acción en el pulso y reacción según el juicio. Así el dibujo no puede
@@ -557,6 +559,9 @@ no puede dibujar en 3D.
 - **Calidad automática.** Hay tres niveles (alta, media y baja) que cambian la resolución, el tamaño de las
   sombras y los efectos (desenfoque del fondo y resplandor). Si el ordenador encadena 45 fotogramas de más
   de 25 ms, el motor baja un nivel él solo: en un juego de ritmo importa más la fluidez que el adorno.
+- **Materiales preparados antes de empezar.** Al crear la escena el motor prepara los materiales de todo,
+  también de lo que empieza escondido (chispas, gotas, trozos). Si no, el navegador los prepararía la
+  primera vez que aparecen y daría un tirón justo al pulsar la primera nota (`precalentar` en `motor.ts`).
 - El marcador (Hype, progreso de la canción, puntos, combo, juicio, palabra del golpe y ayuda de teclas) es
   HTML encima del dibujo, con el diseño de las propuestas. Se usa también sobre los escenarios planos.
 
@@ -579,4 +584,4 @@ Detalles que decidí yo (Claude) en esta etapa:
 - [x] Fase 3 · Combates, rondas y campeón: registrar ganadores, avance automático, campeón y torneo cerrado.
 - [ ] Fase 4 · Informes y entrega: estadísticas e historial hechos; quedan la revisión final y el vídeo.
 - [x] Ampliación · Duelo de ritmo: sesión, motor con 9 escenarios, récords de práctica, IA y duelos en el torneo.
-- [ ] Renovación 3D del juego: etapa 1 (base común y puerto) hecha; faltan las otras ocho escenas, pantallas, sonido, mecánicas y pulido.
+- [ ] Renovación 3D del juego: etapa 1 (base común y puerto) hecha; de la etapa 2 están el bar, el huerto y el ramen y faltan cinco escenas; después, pantallas, sonido, mecánicas y pulido.

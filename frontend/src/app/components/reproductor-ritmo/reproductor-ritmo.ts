@@ -171,6 +171,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
       marco.replaceChildren(lienzo);
       this.motor = new Motor(lienzo, definicion.motor, calidadGuardada());
       this.escena3d = definicion.crear(this.motor);
+      this.motor.precalentar();
       this.en3d.set(true);
     } catch {
       this.soltarEscena3d();
