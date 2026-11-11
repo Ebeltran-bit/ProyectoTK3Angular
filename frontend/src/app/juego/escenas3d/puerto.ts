@@ -239,7 +239,7 @@ class Puerto implements Escena3d {
   constructor(motor: Motor) {
     const S = motor.escena;
     this.mar = new Mar(S, 0x27b3c6);
-    this.palabra = { ...motor.proyectar([3.85, 2.15, 0.3]), aciertos: ['¡Ñam!', '¡Hop!', '¡Zas!'] };
+    this.palabra = { ...motor.proyectar([3.85, 1.72, 0.3]), aciertos: ['¡Ñam!', '¡Hop!', '¡Zas!'] };
 
     // Sol bajo, con su halo
     const sol = malla(

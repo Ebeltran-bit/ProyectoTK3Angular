@@ -167,6 +167,8 @@ export class Motor {
 
   /** Dónde cae en la pantalla un punto de la escena, en % del ancho y del alto del lienzo. */
   proyectar(punto: V3): { x: number; y: number } {
+    // La cámara solo recalcula su posición al dibujar: aquí se le pide antes, por si aún no ha dibujado
+    this.camara.updateMatrixWorld();
     const p = new THREE.Vector3(...punto).project(this.camara);
     return { x: (p.x + 1) * 50, y: (1 - p.y) * 50 };
   }

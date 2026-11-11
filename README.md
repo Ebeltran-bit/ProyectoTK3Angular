@@ -524,8 +524,8 @@ no puede dibujar en 3D.
 
 | Etapa | Contenido | Estado |
 | --- | --- | --- |
-| 1. Base común y puerto | Motor 3D, personajes, materiales, luz, marcador nuevo y la escena del puerto animada | Hecha el 11/11/2026, pendiente de que Eva la pruebe |
-| 2. Resto de escenas | Las otras ocho escenas en 3D | Pendiente |
+| 1. Base común y puerto | Motor 3D, personajes, materiales, luz, marcador nuevo y la escena del puerto animada | Hecha el 11/11/2026; Eva la probó en su portátil ese día y va fluida |
+| 2. Resto de escenas | Las otras ocho escenas en 3D | En curso: Brindis arcade hecha el 11/11/2026; faltan siete |
 | 3. Pantallas del juego | Inicio, final y transiciones (se enseñan propuestas antes) | Pendiente |
 | 4. Sonido y mecánicas | Las mejoras aprobadas de la lista de arriba | Pendiente |
 | 5. Pruebas, rendimiento y pulido | Revisión de las nueve escenas en ordenadores reales | Pendiente |
@@ -542,6 +542,7 @@ no puede dibujar en 3D.
 | Personaje humano: cuerpo, cara, expresiones, parpadeo y respiración | `personaje.ts` |
 | Objetos compartidos: mar, nubes, chispas, salpicaduras | `objetos.ts` |
 | Escena del puerto: decorado, gaviotas y pescador | `puerto.ts` |
+| Escena del bar: barra, clientes y jarras que chocan | `bar.ts` |
 | Lista de escenas que ya tienen versión 3D | `disponibles.ts` e `index.ts` |
 
 - El reproductor (`components/reproductor-ritmo`) mira si el escenario de la canción está en

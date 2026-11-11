@@ -80,7 +80,7 @@ export function tono(color: number, k: number): number {
 
 // ---------- Texturas pintadas en un lienzo 2D ----------
 
-type Pintar = (g: CanvasRenderingContext2D, ancho: number, alto: number) => void;
+export type Pintar = (g: CanvasRenderingContext2D, ancho: number, alto: number) => void;
 
 function lienzo(ancho: number, alto: number, pintar: Pintar, repetir = true): THREE.CanvasTexture {
   const cv = document.createElement('canvas');
@@ -174,6 +174,30 @@ export function texturaRuido(
   });
   t.repeat.set(repetir[0], repetir[1]);
   return t;
+}
+
+/** Suelo de baldosas de dos colores, como un tablero de ajedrez. */
+export function texturaCuadros(
+  a: number,
+  b: number,
+  cuadros = 8,
+  repetir: [number, number] = [1, 1],
+): THREE.CanvasTexture {
+  const t = lienzo(256, 256, (g, w, h) => {
+    const lado = w / cuadros;
+    for (let i = 0; i < cuadros; i++)
+      for (let j = 0; j < cuadros; j++) {
+        g.fillStyle = css((i + j) % 2 ? a : b);
+        g.fillRect(i * lado, j * lado, lado, (h / w) * lado);
+      }
+  });
+  t.repeat.set(...repetir);
+  return t;
+}
+
+/** Textura pintada a mano por la escena (una pantalla, un cartel, una carta). No se repite. */
+export function texturaPintada(ancho: number, alto: number, pintar: Pintar): THREE.CanvasTexture {
+  return lienzo(ancho, alto, pintar, false);
 }
 
 /** Cielo en degradado de arriba abajo: lista de [posición de 0 a 1, color]. */

@@ -123,6 +123,7 @@ export class Personaje {
   private readonly brazos: { manga: TuboFlexible; antebrazo: TuboFlexible | null }[] = [];
   private readonly piernas: TuboFlexible[] = [];
   private readonly zapatos: THREE.Mesh[] = [];
+  private readonly posCabeza = new THREE.Vector3();
   /** Valores actuales de la cara: se acercan poco a poco a los del gesto elegido. */
   private cara = { parpado: 0.26, caida: 0, ceja: 0, alturaCeja: 0.42 };
 
@@ -279,6 +280,29 @@ export class Personaje {
       this.bocas[nombre].visible = nombre === gesto.boca;
     }
     this.bocas.sonrisa.scale.setScalar(this.expresion === 'risa' ? 1.3 : 1);
+  }
+
+  /**
+   * Gira un poco la cabeza hacia un punto de la escena y deja que los ojos hagan el resto,
+   * para que el personaje no llegue a dar la espalda a la cámara.
+   * Hay que llamarlo antes de `actualizar`.
+   */
+  mirarA(punto: THREE.Vector3, dt: number): void {
+    const cabeza = this.cabeza.getWorldPosition(this.posCabeza);
+    const dx = punto.x - cabeza.x;
+    const dz = punto.z - cabeza.z;
+    const giroCuerpo = this.raiz.rotation.y + this.torso.rotation.y;
+    // Ángulo hacia el punto, medido desde donde mira el cuerpo y llevado a −180°…180°
+    let lado = Math.atan2(dx, dz) - giroCuerpo;
+    lado = Math.atan2(Math.sin(lado), Math.cos(lado));
+    const arriba = Math.atan2(punto.y - cabeza.y, Math.hypot(dx, dz) || 1);
+    const giro = Math.max(-0.55, Math.min(0.55, lado));
+    const k = Math.min(1, dt * 9);
+    this.cabeza.rotation.y += (giro - this.cabeza.rotation.y) * k;
+    this.cabeza.rotation.x +=
+      (Math.max(-0.3, Math.min(0.3, -arriba * 0.6)) - this.cabeza.rotation.x) * k;
+    this.mirada[0] = Math.max(-1, Math.min(1, (lado - giro) * 1.4));
+    this.mirada[1] = Math.max(-1, Math.min(1, arriba * 1.6));
   }
 
   private crearMano(mPiel: THREE.Material, lado: number): THREE.Group {
