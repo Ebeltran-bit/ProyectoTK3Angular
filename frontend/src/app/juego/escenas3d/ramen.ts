@@ -49,7 +49,7 @@ import {
 } from './materiales';
 import { Motor } from './motor';
 import { Chispas } from './objetos';
-import { Personaje } from './personaje';
+import { alcanzar, Personaje } from './personaje';
 import { Definicion3d, Escena3d } from './tipos';
 
 const PI = Math.PI;
@@ -102,8 +102,6 @@ const OLLA: V3 = [3.5, BARRA, 0.5];
 const CALDO = 1.08;
 const CUENCO_RESTOS: V3 = [1.7, BARRA + 0.2, 2.5];
 const ESCALA_COCINERO = 1.7;
-/** Largo máximo del brazo, de hombro a mano. */
-const ALCANCE = 0.72;
 
 /**
  * Cómo es cada verdura (mismos nombres y orden que el escenario plano): grosor, largo de la
@@ -685,7 +683,7 @@ class Ramen implements Escena3d {
     this.cuchillo.localToWorld(this.punto.set(...MANGO));
     p.cuerpo.updateWorldMatrix(true, false);
     p.cuerpo.worldToLocal(this.punto);
-    const mano = alcanzar([this.punto.x, this.punto.y, this.punto.z]);
+    const mano = alcanzar([this.punto.x, this.punto.y, this.punto.z], 1);
     // La izquierda descansa en la tabla, detrás de la verdura, y sube al celebrar
     const vaiven = Math.sin(reloj * 1.4) * 0.012;
     const reposo: V3 = [-0.3, 0.52 + vaiven, 0.52];
@@ -882,15 +880,6 @@ function pares(lista: number[]): [number, number][] {
   const res: [number, number][] = [];
   for (let i = 0; i < lista.length; i += 2) res.push([lista[i], lista[i + 1]]);
   return res;
-}
-
-/** Acorta la posición de la mano derecha para que el brazo no se estire más de lo que da. */
-function alcanzar(mano: V3): V3 {
-  const hombro: V3 = [0.15, 0.93, 0];
-  const d = Math.hypot(mano[0] - hombro[0], mano[1] - hombro[1], mano[2] - hombro[2]);
-  if (d <= ALCANCE) return mano;
-  const k = ALCANCE / d;
-  return [0, 1, 2].map((i) => hombro[i] + (mano[i] - hombro[i]) * k) as V3;
 }
 
 const css = (c: number) => '#' + new THREE.Color(c).getHexString();

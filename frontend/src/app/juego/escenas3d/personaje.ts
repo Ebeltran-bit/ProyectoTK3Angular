@@ -314,7 +314,7 @@ export class Personaje {
   }
 
   private colocarBrazo(indice: number, lado: number, mano: V3, objeto: THREE.Group): void {
-    const hombro: V3 = [lado * 0.15, 0.93, 0];
+    const hombro = hombroDe(lado);
     const d = Math.hypot(mano[0] - hombro[0], mano[1] - hombro[1], mano[2] - hombro[2]) || 1;
     // Cuanto más cerca está la mano del hombro, más se dobla el codo (hacia fuera y abajo)
     const doblez = Math.max(0.04, 0.6 - d) * 0.6;
@@ -594,4 +594,22 @@ function crearPelo(cab: THREE.Object3D, peinado: Peinado, color: number): void {
       mechon([lado * R * 0.36, R * 0.78, R * 0.56], lado * -0.4, 0.28);
     }
   }
+}
+
+/** Dónde está el hombro (en coordenadas del personaje): 1 es el brazo derecho y −1 el izquierdo. */
+const hombroDe = (lado: number): V3 => [lado * 0.15, 0.93, 0];
+/** Largo máximo del brazo, de hombro a mano. */
+const ALCANCE = 0.72;
+
+/**
+ * Acorta una posición de la mano para que el brazo no se estire más de lo que da de sí.
+ * Sirve cuando la mano sigue a un objeto (una jarra, un cuchillo) que puede alejarse.
+ * @param lado 1 para la mano derecha del personaje y −1 para la izquierda
+ */
+export function alcanzar(mano: V3, lado: number): V3 {
+  const hombro = hombroDe(lado);
+  const d = Math.hypot(mano[0] - hombro[0], mano[1] - hombro[1], mano[2] - hombro[2]);
+  if (d <= ALCANCE) return mano;
+  const k = ALCANCE / d;
+  return [0, 1, 2].map((i) => hombro[i] + (mano[i] - hombro[i]) * k) as V3;
 }

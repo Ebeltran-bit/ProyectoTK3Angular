@@ -31,7 +31,7 @@ import {
 } from './materiales';
 import { Motor } from './motor';
 import { Chispas, estrella } from './objetos';
-import { Personaje } from './personaje';
+import { alcanzar, Personaje } from './personaje';
 import { Definicion3d, Escena3d } from './tipos';
 
 const PI = Math.PI;
@@ -50,8 +50,6 @@ const SEPARACION = 0.62;
 const ESCALA_JARRA = 1.22;
 const RUBIA = 0xf08a00;
 const TOSTADA = 0x7a3210;
-/** Largo máximo del brazo de un cliente, de hombro a mano. */
-const ALCANCE = 0.72;
 
 /** Piezas que comparten todas las jarras: se crean una sola vez. */
 interface PiezasJarra {
@@ -676,15 +674,6 @@ class Bar implements Escena3d {
     malla(g, cilindro(0.02, 0.02, 0.2, 8), metal(), [-0.3, 1.5, 0.3], [0.25, 0, 0]);
     malla(g, esfera(0.07, 12, 8), plastico(0xff5a5a), [-0.3, 1.62, 0.33]);
   }
-}
-
-/** Acorta una posición de la mano para que el brazo no se estire más de lo que da de sí. */
-function alcanzar(mano: V3, ladoHombro: number): V3 {
-  const hombro: V3 = [ladoHombro * 0.15, 0.93, 0];
-  const d = Math.hypot(mano[0] - hombro[0], mano[1] - hombro[1], mano[2] - hombro[2]);
-  if (d <= ALCANCE) return mano;
-  const k = ALCANCE / d;
-  return [0, 1, 2].map((i) => hombro[i] + (mano[i] - hombro[i]) * k) as V3;
 }
 
 export const bar3d: Definicion3d = {
