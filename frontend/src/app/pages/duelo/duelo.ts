@@ -2,6 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { IconoUsuario } from '../../components/icono-usuario/icono-usuario';
+import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
 import { ReproductorRitmo } from '../../components/reproductor-ritmo/reproductor-ritmo';
 import { Cancion, NOMBRE_NIVEL, Pulsacion } from '../../models/cancion';
 import { Duelo as DatosDuelo } from '../../models/duelo';
@@ -19,7 +20,7 @@ import { mensajeError } from '../../services/mensaje-error';
  */
 @Component({
   selector: 'app-duelo',
-  imports: [RouterLink, ReproductorRitmo, IconoUsuario],
+  imports: [RouterLink, ReproductorRitmo, IconoUsuario, PantallaCarga],
   templateUrl: './duelo.html',
   styleUrl: './duelo.css',
 })

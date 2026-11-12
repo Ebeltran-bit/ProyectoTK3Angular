@@ -6,7 +6,7 @@
       {{ error() }} <button type="button" (click)="cargar()">Reintentar</button>
     </p>
   } @else if (cargando()) {
-    <p class="mensaje-carga">Preparando el podio…</p>
+    <app-pantalla-carga titulo="Podio" texto="Preparando el podio…" />
   } @else if (duelo(); as d) {
     @if (d.id_ganador === null) {
       <p class="aviso">Este duelo todavía no tiene ganador: el podio sale cuando termina.</p>

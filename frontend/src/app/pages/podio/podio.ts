@@ -2,6 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { IconoUsuario } from '../../components/icono-usuario/icono-usuario';
+import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
 import { Duelo, ResultadoDuelo } from '../../models/duelo';
 import { nombreRonda, ParticipanteResumen, TorneoDetalle } from '../../models/torneo';
 import { DuelosService } from '../../services/duelos.service';
@@ -24,7 +25,7 @@ export interface Escalon {
  */
 @Component({
   selector: 'app-podio',
-  imports: [RouterLink, IconoUsuario],
+  imports: [RouterLink, IconoUsuario, PantallaCarga],
   templateUrl: './podio.html',
   styleUrl: './podio.css',
 })

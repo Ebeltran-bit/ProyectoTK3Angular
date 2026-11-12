@@ -8,7 +8,7 @@
   }
 
   @if (cargando()) {
-    <p class="mensaje-carga">Cargando duelo…</p>
+    <app-pantalla-carga titulo="Duelo" texto="Preparando el duelo…" />
   } @else if (duelo(); as d) {
     <h2>Duelo · {{ titulo() }}</h2>
     <p>
