@@ -150,7 +150,8 @@ p {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0.55em 1.2em 0.65em;
+  /* Poco margen a los lados: así «COMBO MÁX.» cabe sin ensanchar su ficha */
+  padding: 0.55em 0.4em 0.65em;
   border-radius: 1.6em;
 }
 .ficha b {

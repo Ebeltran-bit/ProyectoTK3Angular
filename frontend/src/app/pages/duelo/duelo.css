@@ -62,7 +62,9 @@
 .versus {
   display: flex;
   align-items: center;
-  gap: 1em;
+  flex-wrap: wrap; /* con nicks largos, el rival baja a otra línea */
+  justify-content: center;
+  gap: 0.6em 1em;
   font:
     700 max(1.6em, 12px) 'Fredoka',
     sans-serif;
