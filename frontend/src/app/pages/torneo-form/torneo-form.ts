@@ -10,6 +10,7 @@ import { mensajeError } from '../../services/mensaje-error';
 import { ParticipantesService } from '../../services/participantes.service';
 import { TorneosService } from '../../services/torneos.service';
 import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
+import { iconoDe } from '../../models/iconos';
 
 /** Crear (/torneos/nuevo) o editar (/torneos/:id/editar) un torneo en preparación. */
 @Component({
@@ -19,6 +20,7 @@ import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
   styleUrl: './torneo-form.css',
 })
 export class TorneoForm implements OnInit {
+  protected readonly iconoDe = iconoDe;
   private readonly torneos = inject(TorneosService);
   private readonly participantes = inject(ParticipantesService);
   private readonly ruta = inject(ActivatedRoute);

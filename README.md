@@ -40,7 +40,7 @@ tk3/
         ├── guards/            Bloquean pantallas si no hay sesión
         ├── interceptors/      Añaden el token a cada petición
         ├── juego/             Duelo de ritmo: reglas, evaluación, música, escenarios planos y escenas 3D
-        ├── components/        Piezas reutilizables (el cuadro KO, el reproductor de ritmo y la carita)
+        ├── components/        Piezas reutilizables (cuadro KO, reproductor de ritmo, iconos, carga, confirmación…)
         └── pages/             Pantallas (componentes con vista)
 ```
 
@@ -218,7 +218,8 @@ antes de programarlas.
   con 15 personajes en el estilo de la web (gato, rana, patito, gaviota, zorro, oso, pulpo, robot, estrella,
   nota musical, fantasma, seta, calabaza, ramen y trofeo). Se guarda en la columna `icono` de `tk3_usuarios`
   (solo el id; la lista válida está en `auth_servicio.py`) y los dibujos son SVG propios en
-  `frontend/src/app/models/iconos.ts`. Sin icono se ve la inicial, como antes.
+  `frontend/src/app/models/iconos.ts`. Sin icono, en la cabecera se ve la inicial; en las listas, el
+  duelo y el podio, un animal fijo según su participante (ver «Mejoras del torneo»).
 - Pantalla de inicio (`/`) con cuatro botones grandes: Torneos, Estadísticas, Práctica y Participantes.
   Tras iniciar sesión se llega aquí. Pedida por Eva el 05/11/2026.
 - Pantallas: participantes (lista y formulario), torneos (lista, formulario y detalle con el cuadro y el
@@ -239,9 +240,14 @@ antes de programarlas.
 - Tipografías Fredoka (títulos y botones) y Nunito (texto), cargadas desde Google Fonts en `index.html`.
 - Todo el tema está en variables CSS al principio de `frontend/src/styles.css`; cada pantalla solo
   ajusta su distribución.
-- Los botones del inicio y los avatares de los participantes sin logo son caritas: un SVG propio en
-  `components/cara/` que parpadea, abre la boca con el ratón encima y duerme si el participante está
-  desactivado. El color de cada participante sale de su id, así siempre es el mismo.
+- Los botones del inicio son caritas: un SVG propio en `components/cara/` que parpadea y abre la boca
+  con el ratón encima.
+- Cada participante se pinta con un icono (`models/iconos.ts`): el que eligió su usuario o, si no
+  tiene, uno de los siete animales que sale de su id (`iconoDe`), así siempre es el mismo. Si no tiene icono de
+  usuario pero sí logo, se ve el logo. Un participante desactivado sale con el icono apagado
+  (cambiado el 12/11/2026 a petición de Eva; antes eran caritas).
+- Mientras carga una página sale `components/pantalla-carga`: una nota dorada que bota, un título y un
+  texto, sobre el fondo de rayas (petición de Eva, 12/11/2026).
 - Las listas son tarjetas-pastilla en vez de filas con líneas, y entran una tras otra con una pequeña
   animación. Con «reducir movimiento» activado en el sistema, no hay animaciones.
 - Los escenarios del juego tienen su propio estilo plano (ver «Duelo de ritmo»): este tema solo cambia las
@@ -249,7 +255,7 @@ antes de programarlas.
 
 **Mejoras del torneo (pedidas por Eva el 12/11/2026)**
 - Al crear o editar un torneo, el participante del usuario con sesión sale el primero (con la etiqueta
-  «tú») y cada participante lleva el icono de su usuario; los que no tienen cuenta, su inicial. El icono
+  «tú») y cada participante lleva el icono de su usuario; los que no tienen, un animal fijo por id. El icono
   vive en `tk3_usuarios`, así que la API de participantes lo trae con un `LEFT JOIN` (sin cambiar el
   esquema).
 - Los enlaces de volver (`a.volver`) y los secundarios como «Editar torneo» o «Cancelar» (`a.secundario`)

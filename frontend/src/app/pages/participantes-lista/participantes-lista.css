@@ -54,6 +54,11 @@
 .lista li.inactivo {
   background: #f4efe4;
 }
+/* Un participante desactivado se ve con su icono apagado */
+.lista li.inactivo .logo {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
 .lista li.inactivo .nick {
   color: var(--tinta-suave);
 }

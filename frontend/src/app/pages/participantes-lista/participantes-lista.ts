@@ -1,20 +1,21 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { Cara } from '../../components/cara/cara';
+import { IconoUsuario } from '../../components/icono-usuario/icono-usuario';
 import { Participante } from '../../models/participante';
 import { mensajeError } from '../../services/mensaje-error';
 import { ParticipantesService } from '../../services/participantes.service';
 import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
+import { iconoDe } from '../../models/iconos';
 
 type Filtro = 'todos' | 'activos' | 'inactivos';
 
-/** Colores de las caritas: cada participante tiene siempre el mismo, según su id. */
+/** Color del borde del logo: cada participante tiene siempre el mismo, según su id. */
 const COLORES_CARA = ['#e8505b', '#5aa0c8', '#7cc56a', '#ff8fa3', '#e0a21a', '#9b6fd6'];
 
 @Component({
   selector: 'app-participantes-lista',
-  imports: [RouterLink, Cara, PantallaCarga],
+  imports: [RouterLink, IconoUsuario, PantallaCarga],
   templateUrl: './participantes-lista.html',
   styleUrl: './participantes-lista.css',
 })
@@ -59,6 +60,9 @@ export class ParticipantesLista implements OnInit {
       },
     });
   }
+
+  /** Su icono de usuario o un animal fijo según su id (ver models/iconos.ts). */
+  protected readonly iconoDe = iconoDe;
 
   colorDe(participante: Participante): string {
     return COLORES_CARA[participante.id % COLORES_CARA.length];

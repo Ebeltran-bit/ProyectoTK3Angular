@@ -35,8 +35,8 @@
   } @else {
     <ul class="lista">
       @for (p of visibles(); track p.id; let i = $index) {
-        <li class="con-cara" [class.inactivo]="!p.activo" [style.animation-delay.ms]="i * 60">
-          @if (p.logo && !logosRotos().has(p.id)) {
+        <li [class.inactivo]="!p.activo" [style.animation-delay.ms]="i * 60">
+          @if (!p.icono && p.logo && !logosRotos().has(p.id)) {
             <img
               [src]="p.logo"
               [alt]="'Logo de ' + p.nick"
@@ -45,12 +45,7 @@
               (error)="marcarLogoRoto(p.id)"
             />
           } @else {
-            <app-cara
-              class="logo"
-              [color]="colorDe(p)"
-              [expresion]="p.activo ? 'feliz' : 'dormida'"
-              [tam]="58"
-            />
+            <app-icono-usuario class="logo" [icono]="iconoDe(p)" [nombre]="p.nick" [tam]="58" />
           }
           <span class="nick">
             {{ p.nick }}

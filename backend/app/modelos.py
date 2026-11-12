@@ -42,7 +42,7 @@ class Participante(BaseModel):
     logo: str | None
     activo: bool
     creado_en: datetime
-    # Del usuario vinculado: su icono (null = se ve la inicial) y si tiene cuenta.
+    # Del usuario vinculado: su icono (null = el frontend pinta un animal fijo) y si tiene cuenta.
     # Sin cuenta es un «bot» y en los duelos juega la IA por él.
     icono: str | None = None
     tiene_usuario: bool = False

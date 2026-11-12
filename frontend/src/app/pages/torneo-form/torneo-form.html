@@ -33,7 +33,7 @@
               [checked]="seleccionados().has(p.id)"
               (change)="alternar(p.id)"
             />
-            <app-icono-usuario [icono]="p.icono" [nombre]="p.nick" [tam]="36" />
+            <app-icono-usuario [icono]="iconoDe(p)" [nombre]="p.nick" [tam]="36" />
             <span class="nick">{{ p.nick }}</span>
             @if (esMio(p)) {
               <span class="tu">tú</span>

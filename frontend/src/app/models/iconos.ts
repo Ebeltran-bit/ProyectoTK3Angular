@@ -135,3 +135,15 @@ export const ICONOS: Icono[] = [
       '<path d="M28 30 q-14 0 -12 14 q2 10 16 10 M72 30 q14 0 12 14 q-2 10 -16 10" fill="none" stroke="#3a2e4a" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><rect x="34" y="74" width="32" height="10" rx="3" fill="#b5763f" stroke="#3a2e4a" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M44 66 h12 v8 h-12 z" fill="#ffc93c" stroke="#3a2e4a" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M26 22 H74 V40 Q74 66 50 66 Q26 66 26 40 Z" fill="#ffc93c" stroke="#3a2e4a" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M34 28 v10" stroke="#fff3c4" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="41" cy="40" rx="3.8" ry="5" fill="#3a2e4a"/><ellipse cx="59" cy="40" rx="3.8" ry="5" fill="#3a2e4a"/><circle cx="42.6" cy="37.6" r="1.9" fill="#fff"/><circle cx="60.6" cy="37.6" r="1.9" fill="#fff"/><path d="M45 49q5 4.5 10 0" fill="none" stroke="#3a2e4a" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="33" cy="48" rx="5" ry="3.4" fill="#ff8fa3" opacity="0.7"/><ellipse cx="67" cy="48" rx="5" ry="3.4" fill="#ff8fa3" opacity="0.7"/>',
   },
 ];
+
+/**
+ * Icono con el que se pinta a un participante: el que eligió su usuario o, si no tiene
+ * (no ha elegido o es un bot sin cuenta), uno de los animales, que sale de su id, así siempre
+ * es el mismo (decisión de Eva, 12/11/2026).
+ */
+export function iconoDe(p: { id: number; icono?: string | null }): string {
+  return p.icono ?? ANIMALES[p.id % ANIMALES.length];
+}
+
+/** Los animales de la lista, para repartir entre los que no tienen icono. */
+const ANIMALES = ['gato', 'rana', 'patito', 'gaviota', 'zorro', 'oso', 'pulpo'];

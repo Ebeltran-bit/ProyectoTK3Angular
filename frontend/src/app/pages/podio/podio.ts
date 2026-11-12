@@ -8,6 +8,7 @@ import { nombreRonda, ParticipanteResumen, TorneoDetalle } from '../../models/to
 import { DuelosService } from '../../services/duelos.service';
 import { mensajeError } from '../../services/mensaje-error';
 import { TorneosService } from '../../services/torneos.service';
+import { iconoDe } from '../../models/iconos';
 
 /** Un escalón del podio: puesto (1, 2 o 3) y quién está en él. */
 export interface Escalon {
@@ -30,6 +31,7 @@ export interface Escalon {
   styleUrl: './podio.css',
 })
 export class Podio implements OnInit {
+  protected readonly iconoDe = iconoDe;
   private readonly duelos = inject(DuelosService);
   private readonly torneos = inject(TorneosService);
   private readonly ruta = inject(ActivatedRoute);

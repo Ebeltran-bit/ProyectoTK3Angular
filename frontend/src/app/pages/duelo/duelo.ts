@@ -16,6 +16,7 @@ import { AuthService } from '../../services/auth.service';
 import { CancionesService } from '../../services/canciones.service';
 import { DuelosService } from '../../services/duelos.service';
 import { mensajeError } from '../../services/mensaje-error';
+import { iconoDe } from '../../models/iconos';
 
 /**
  * Duelo de ritmo de un combate del torneo.
@@ -30,6 +31,7 @@ import { mensajeError } from '../../services/mensaje-error';
   styleUrl: './duelo.css',
 })
 export class Duelo implements OnInit {
+  protected readonly iconoDe = iconoDe;
   private readonly servicio = inject(DuelosService);
   private readonly canciones = inject(CancionesService);
   private readonly ruta = inject(ActivatedRoute);

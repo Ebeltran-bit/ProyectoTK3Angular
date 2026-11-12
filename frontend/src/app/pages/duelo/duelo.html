@@ -28,7 +28,7 @@
       @for (j of d.jugadores; track j.participante.id) {
         <li [class.gana]="d.id_ganador === j.participante.id">
           <app-icono-usuario
-            [icono]="j.participante.icono"
+            [icono]="iconoDe(j.participante)"
             [nombre]="j.participante.nick"
             [tam]="40"
           />

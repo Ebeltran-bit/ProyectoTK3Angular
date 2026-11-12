@@ -5,7 +5,7 @@ export interface Participante {
   logo: string | null;
   activo: boolean;
   creado_en: string;
-  /** Icono del usuario vinculado (null = se ve la inicial). */
+  /** Icono del usuario vinculado (null = se pinta un animal fijo según su id, ver iconoDe). */
   icono: string | null;
   /** false = no tiene cuenta (un «bot»): en los duelos juega la IA por él. */
   tiene_usuario: boolean;

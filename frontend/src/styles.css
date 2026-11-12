@@ -302,7 +302,6 @@ tbody tr > :last-child {
   color: var(--error);
   font-weight: 700;
 }
-.mensaje-carga,
 .ayuda,
 .vacio {
   color: var(--tinta-suave);
