@@ -5,10 +5,11 @@ import { RouterLink } from '@angular/router';
 import { NOMBRE_ESTADO, TorneoResumen } from '../../models/torneo';
 import { mensajeError } from '../../services/mensaje-error';
 import { TorneosService } from '../../services/torneos.service';
+import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
 
 @Component({
   selector: 'app-torneos-lista',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, PantallaCarga],
   templateUrl: './torneos-lista.html',
   styleUrl: './torneos-lista.css',
 })

@@ -5,13 +5,14 @@ import { NOMBRE_NIVEL } from '../../models/cancion';
 import { EstadisticaParticipante, RecordsCancion } from '../../models/estadistica';
 import { EstadisticasService } from '../../services/estadisticas.service';
 import { mensajeError } from '../../services/mensaje-error';
+import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
 
 type Pestana = 'participantes' | 'canciones';
 
 /** Informes: victorias y derrotas por participante (fase 4) y récords por canción. */
 @Component({
   selector: 'app-estadisticas',
-  imports: [DatePipe],
+  imports: [DatePipe, PantallaCarga],
   templateUrl: './estadisticas.html',
   styleUrl: './estadisticas.css',
 })

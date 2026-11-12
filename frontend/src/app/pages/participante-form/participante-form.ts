@@ -4,11 +4,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { mensajeError } from '../../services/mensaje-error';
 import { ParticipantesService } from '../../services/participantes.service';
+import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
 
 /** Formulario para crear (ruta /participantes/nuevo) o editar (/participantes/:id/editar). */
 @Component({
   selector: 'app-participante-form',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, PantallaCarga],
   templateUrl: './participante-form.html',
   styleUrl: './participante-form.css',
 })

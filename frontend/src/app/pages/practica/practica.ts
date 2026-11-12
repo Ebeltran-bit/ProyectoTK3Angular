@@ -13,6 +13,7 @@ import {
 } from '../../models/cancion';
 import { CancionesService } from '../../services/canciones.service';
 import { mensajeError } from '../../services/mensaje-error';
+import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
 
 /**
  * Pantalla de práctica del duelo de ritmo.
@@ -21,7 +22,7 @@ import { mensajeError } from '../../services/mensaje-error';
  */
 @Component({
   selector: 'app-practica',
-  imports: [ReproductorRitmo, TarjetaResultado],
+  imports: [ReproductorRitmo, TarjetaResultado, PantallaCarga],
   templateUrl: './practica.html',
   styleUrl: './practica.css',
 })

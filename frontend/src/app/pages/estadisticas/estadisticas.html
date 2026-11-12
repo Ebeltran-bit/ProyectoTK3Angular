@@ -41,7 +41,7 @@
   }
 
   @if (cargando()) {
-    <p class="mensaje-carga">Cargando estadísticas…</p>
+    <app-pantalla-carga titulo="Estadísticas" texto="Preparando las estadísticas…" />
   } @else if (!error() && pestana() === 'canciones') {
     @for (c of records(); track c.id) {
       <h3>

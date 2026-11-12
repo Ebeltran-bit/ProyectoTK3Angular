@@ -8,7 +8,7 @@
   }
 
   @if (cargando()) {
-    <p class="mensaje-carga">Cargando torneo…</p>
+    <app-pantalla-carga titulo="Torneo" texto="Preparando el torneo…" />
   } @else if (torneo(); as t) {
     <div class="cabecera">
       <h2>{{ t.nombre }}</h2>

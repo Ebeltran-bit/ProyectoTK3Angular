@@ -2,7 +2,7 @@
   <h2>{{ idEditando() === null ? 'Nuevo participante' : 'Editar participante' }}</h2>
 
   @if (cargando()) {
-    <p class="mensaje-carga">Cargando…</p>
+    <app-pantalla-carga titulo="Participante" texto="Preparando el participante…" />
   } @else {
     <form [formGroup]="formulario" (ngSubmit)="guardar()">
       <label>

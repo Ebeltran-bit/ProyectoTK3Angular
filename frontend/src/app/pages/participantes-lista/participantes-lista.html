@@ -31,7 +31,7 @@
   }
 
   @if (cargando()) {
-    <p class="mensaje-carga">Cargando participantes…</p>
+    <app-pantalla-carga titulo="Participantes" texto="Preparando los participantes…" />
   } @else {
     <ul class="lista">
       @for (p of visibles(); track p.id; let i = $index) {

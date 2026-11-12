@@ -1,11 +1,11 @@
 import { Component, input } from '@angular/core';
 
 /**
- * Pantalla de carga de las páginas del duelo y del podio: una nota musical que bota,
- * un título y un texto. Con «enEscena» tapa el escenario del juego mientras se prepara la
- * parte 3D (propuesta F1): ocupa todo el escenario y sus medidas crecen con él. Es la «cortina de carga» de las propuestas de la etapa 3
+ * Pantalla de carga de las páginas (torneos, práctica, duelo, podio…): una nota que bota,
+ * un título y un texto. Es la «cortina de carga» de las propuestas de la etapa 3
  * (bocetos/renovacion-3d), pero sobre el fondo de rayas de la web (decisión de Eva,
- * 12/11/2026).
+ * 12/11/2026). Con «enEscena» tapa el escenario del juego mientras se prepara la parte 3D
+ * (propuesta F1): ocupa todo el escenario y sus medidas crecen con él.
  */
 @Component({
   selector: 'app-pantalla-carga',

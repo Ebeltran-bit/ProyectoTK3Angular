@@ -2,7 +2,7 @@
   <h2>{{ idEditando() === null ? 'Nuevo torneo' : 'Editar torneo' }}</h2>
 
   @if (cargando()) {
-    <p class="mensaje-carga">Cargando…</p>
+    <app-pantalla-carga titulo="Torneo" texto="Preparando el torneo…" />
   } @else {
     <form (ngSubmit)="guardar()">
       <label>

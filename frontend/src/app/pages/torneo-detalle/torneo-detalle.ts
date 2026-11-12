@@ -6,6 +6,7 @@ import { Cuadro, GanadorElegido } from '../../components/cuadro/cuadro';
 import { Combate, NOMBRE_ESTADO, nombreRonda, TorneoDetalle as Torneo } from '../../models/torneo';
 import { mensajeError } from '../../services/mensaje-error';
 import { TorneosService } from '../../services/torneos.service';
+import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
 
 /** Lo que pregunta la ventana de confirmación y qué hacer si se acepta. */
 interface Pregunta {
@@ -17,7 +18,7 @@ interface Pregunta {
 
 @Component({
   selector: 'app-torneo-detalle',
-  imports: [RouterLink, Cuadro, Confirmacion],
+  imports: [RouterLink, Cuadro, Confirmacion, PantallaCarga],
   templateUrl: './torneo-detalle.html',
   styleUrl: './torneo-detalle.css',
 })

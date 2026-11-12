@@ -11,7 +11,7 @@
   }
 
   @if (cargando()) {
-    <p class="mensaje-carga">Cargando torneos…</p>
+    <app-pantalla-carga titulo="Torneos" texto="Preparando los torneos…" />
   } @else {
     <ul class="lista">
       @for (t of torneos(); track t.id) {

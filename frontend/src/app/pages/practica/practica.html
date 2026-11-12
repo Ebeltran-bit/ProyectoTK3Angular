@@ -49,7 +49,7 @@
   } @else {
     <p class="ayuda">Elige una canción para practicar. Aquí no cuenta para ningún torneo.</p>
     @if (cargando()) {
-      <p class="mensaje-carga">Cargando canciones…</p>
+      <app-pantalla-carga titulo="Práctica" texto="Preparando las canciones…" />
     } @else {
       <div class="controles">
         <div class="filtros" role="group" aria-label="Filtrar por nivel">

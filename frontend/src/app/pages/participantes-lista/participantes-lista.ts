@@ -5,6 +5,7 @@ import { Cara } from '../../components/cara/cara';
 import { Participante } from '../../models/participante';
 import { mensajeError } from '../../services/mensaje-error';
 import { ParticipantesService } from '../../services/participantes.service';
+import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
 
 type Filtro = 'todos' | 'activos' | 'inactivos';
 
@@ -13,7 +14,7 @@ const COLORES_CARA = ['#e8505b', '#5aa0c8', '#7cc56a', '#ff8fa3', '#e0a21a', '#9
 
 @Component({
   selector: 'app-participantes-lista',
-  imports: [RouterLink, Cara],
+  imports: [RouterLink, Cara, PantallaCarga],
   templateUrl: './participantes-lista.html',
   styleUrl: './participantes-lista.css',
 })

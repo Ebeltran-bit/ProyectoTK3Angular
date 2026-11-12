@@ -9,11 +9,12 @@ import { AuthService } from '../../services/auth.service';
 import { mensajeError } from '../../services/mensaje-error';
 import { ParticipantesService } from '../../services/participantes.service';
 import { TorneosService } from '../../services/torneos.service';
+import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
 
 /** Crear (/torneos/nuevo) o editar (/torneos/:id/editar) un torneo en preparación. */
 @Component({
   selector: 'app-torneo-form',
-  imports: [FormsModule, RouterLink, IconoUsuario],
+  imports: [FormsModule, RouterLink, IconoUsuario, PantallaCarga],
   templateUrl: './torneo-form.html',
   styleUrl: './torneo-form.css',
 })
