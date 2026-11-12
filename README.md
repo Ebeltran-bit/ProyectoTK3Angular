@@ -627,7 +627,9 @@ Aprobado por Eva el 12/11/2026, sobre las propuestas de la A a la H de
 - **G · Transiciones.** La cortina se desvanece, la tarjeta entra con un rebote y sube al pulsar Jugar,
   los paneles del marcador caen uno detrás de otro mientras suena la cuenta y la tarjeta final sube con
   las estrellas de una en una y los puntos contando. Todo con CSS y las animaciones de entrada y salida de
-  Angular (`animate.enter` y `animate.leave`), sin librerías. Con «reducir movimiento» no hay animación.
+  Angular (`animate.enter` y `animate.leave`), sin librerías. Con «reducir movimiento» estas transiciones
+  y la nota de la cortina se quedan quietas (los rótulos del juicio y de la palabra del golpe, de antes,
+  siguen animados).
 - **H · Textos cortos.** La explicación de cada escena se queda en lo que hay que pulsar y cuándo, y se
   corrigen las de la barbería y la mecanógrafa, que describían la versión plana.
 - Además, Eva pidió que **el escenario salga centrado** en la página (antes quedaba a la izquierda).

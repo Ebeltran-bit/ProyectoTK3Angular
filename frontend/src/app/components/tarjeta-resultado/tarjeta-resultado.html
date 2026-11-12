@@ -9,11 +9,12 @@
     <span class="cinta">{{ cinta() }}</span>
   }
 
-  <p class="mensaje">{{ titulo() }}</p>
+  <!-- role="status": el lector de pantalla avisa cuando cambia (enviando, enviada, gana…) -->
+  <p class="mensaje" role="status">{{ titulo() }}</p>
 
   @if (resultado(); as r) {
     <p class="puntos">
-      <strong>{{ puntosVistos() }}</strong
+      <strong>{{ conEspacios(puntosVistos()) }}</strong
       ><small>PUNTOS</small>
     </p>
     <div class="fichas">

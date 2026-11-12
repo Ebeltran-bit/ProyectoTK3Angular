@@ -11,7 +11,12 @@
   <div #marco3d class="marco3d" [hidden]="!en3d()"></div>
 
   <!-- El marcador solo se ve mientras suena la canción: cae desde arriba al empezar -->
-  <div class="marcador" [class.fuera]="fase() !== 'jugando'" aria-live="off">
+  <div
+    class="marcador"
+    [class.fuera]="fase() !== 'jugando'"
+    [attr.aria-hidden]="fase() !== 'jugando'"
+    aria-live="off"
+  >
     <div class="panel hype" title="Hype del público">
       <span class="medalla" aria-hidden="true">★</span>
       <div class="columna">
@@ -147,7 +152,7 @@
 </div>
 
 <!-- En el móvil la tarjeta de inicio no cabe entera: la explicación pasa aquí debajo (F2) -->
-@if (fase() === 'preparada') {
+@if (fase() === 'preparada' && !cargando3d()) {
   <p class="explicacion-movil">{{ escenario().instrucciones }}</p>
 }
 

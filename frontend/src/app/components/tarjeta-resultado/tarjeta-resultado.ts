@@ -1,5 +1,7 @@
 import { Component, computed, effect, input, OnDestroy, signal, untracked } from '@angular/core';
 
+import { conEspacios } from '../../juego/formato';
+
 /** Datos que enseña la tarjeta: sirven el marcador del navegador y el resultado del backend. */
 export interface DatosResultado {
   puntos: number;
@@ -7,11 +9,6 @@ export interface DatosResultado {
   great: number;
   miss: number;
   comboMaximo: number;
-}
-
-/** Puntos con un espacio fino cada tres cifras: 12 400. */
-export function conEspacios(n: number): string {
-  return String(n).replace(/\B(?=(\d{3})+$)/g, ' ');
 }
 
 /**
@@ -37,7 +34,8 @@ export class TarjetaResultado implements OnDestroy {
 
   protected readonly tres = [1, 2, 3];
   /** Puntos que se ven: suben contando hasta el total. */
-  protected readonly puntosVistos = signal('0');
+  protected readonly puntosVistos = signal(0);
+  protected readonly conEspacios = conEspacios;
   private animacion = 0;
   /** Solo el total: así la cuenta no vuelve a empezar si llegan los mismos puntos del backend. */
   private readonly total = computed(() => this.resultado()?.puntos ?? 0);
@@ -56,17 +54,17 @@ export class TarjetaResultado implements OnDestroy {
   /** Sube el número poco a poco (menos de un segundo), salvo si se pide menos movimiento. */
   private contarHasta(total: number): void {
     cancelAnimationFrame(this.animacion);
-    const desde = Number(this.puntosVistos().replace(/\D/g, ''));
+    const desde = this.puntosVistos();
     const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (quieto || desde === total) {
-      this.puntosVistos.set(conEspacios(total));
+      this.puntosVistos.set(total);
       return;
     }
     // Espera a que la tarjeta haya entrado (0,5 s) y cuenta durante 0,9 s
     const inicio = performance.now() + 500;
     const paso = (ahora: number): void => {
       const t = Math.min(1, Math.max(0, (ahora - inicio) / 900));
-      this.puntosVistos.set(conEspacios(Math.round(desde + (total - desde) * t)));
+      this.puntosVistos.set(Math.round(desde + (total - desde) * t));
       if (t < 1) this.animacion = requestAnimationFrame(paso);
     };
     this.animacion = requestAnimationFrame(paso);

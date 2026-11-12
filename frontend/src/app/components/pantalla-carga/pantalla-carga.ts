@@ -85,6 +85,11 @@ import { Component, input } from '@angular/core';
     :host(.en-escena) .texto {
       font-size: 1.4cqw;
     }
+    @media (prefers-reduced-motion: reduce) {
+      .nota {
+        animation: none;
+      }
+    }
     @keyframes bote {
       to {
         transform: translateY(-1rem);

@@ -491,6 +491,8 @@ canvas,
 }
 /* Al pulsar Jugar: el velo se va y la tarjeta sube */
 .inicio.sale {
+  /* Mientras se va, la tarjeta ya no se puede pulsar */
+  pointer-events: none;
   animation: velo-entra 0.38s ease-in reverse forwards;
 }
 .inicio.sale app-tarjeta-inicio {

@@ -5,10 +5,10 @@ import { IconoUsuario } from '../../components/icono-usuario/icono-usuario';
 import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
 import { ReproductorRitmo } from '../../components/reproductor-ritmo/reproductor-ritmo';
 import {
-  conEspacios,
   DatosResultado,
   TarjetaResultado,
 } from '../../components/tarjeta-resultado/tarjeta-resultado';
+import { conEspacios } from '../../juego/formato';
 import { Cancion, NOMBRE_NIVEL, Pulsacion } from '../../models/cancion';
 import { Duelo as DatosDuelo } from '../../models/duelo';
 import { nombreRonda } from '../../models/torneo';

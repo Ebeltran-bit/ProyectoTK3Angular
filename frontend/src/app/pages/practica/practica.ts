@@ -46,7 +46,9 @@ export class Practica implements OnInit {
    */
   protected readonly final = computed(() => {
     const reproductor = this.reproductor();
-    if (!reproductor) return null;
+    // Angular crea el contenido proyectado aunque todavía no se vea. Si la tarjeta existiera
+    // durante la canción, contaría los puntos sin que nadie la viera: se crea al terminar.
+    if (!reproductor || reproductor.fase() !== 'terminada') return null;
     const r = this.oficial();
     const datos = r ? { ...r, comboMaximo: r.combo_maximo } : reproductor.marcador();
     return {

@@ -31,6 +31,7 @@ import {
   pulsoAMs,
   Tecla,
 } from '../../juego/evaluacion';
+import { conEspacios } from '../../juego/formato';
 import { Musica } from '../../juego/musica';
 import { SONIDOS_COMUNES, Sonidos } from '../../juego/sonidos';
 import { PUNTOS, TECLAS } from '../../juego/reglas';
@@ -114,9 +115,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
   protected readonly nombreNivel = NOMBRE_NIVEL;
   protected readonly puntosGanados = PUNTOS;
   /** Puntos con un espacio fino cada tres cifras: 12 400. */
-  protected readonly puntos = computed(() =>
-    String(this.marcador().puntos).replace(/\B(?=(\d{3})+$)/g, '\u202f'),
-  );
+  protected readonly puntos = computed(() => conEspacios(this.marcador().puntos));
   /** Pulsos de la cuenta de entrada (1, 2, 3, 4…), uno por cada punto bajo la cuenta. */
   protected readonly pulsosCuenta = computed(() =>
     Array.from({ length: this.cancion().cuenta_atras }, (_, i) => i + 1),
@@ -208,8 +207,9 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
 
   /** El audio solo puede arrancar después de un clic del usuario (norma de los navegadores). */
   async jugar(): Promise<void> {
-    // Mientras se preparan el audio y los sonidos no se puede volver a empezar (doble clic o J)
-    if (this.arrancando) return;
+    // Mientras se preparan el audio y los sonidos, o ya suena la canción, no se puede volver
+    // a empezar (un doble clic o una segunda J reiniciarían la partida)
+    if (this.arrancando || this.fase() === 'jugando') return;
     this.arrancando = true;
     try {
       await this.empezar();
@@ -256,7 +256,9 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
     if (!tecla) return;
     // En la tarjeta de inicio, J hace lo mismo que el botón de jugar
     if (this.fase() === 'preparada' && tecla === 'accion' && this.conTeclaJ()) {
-      if (!this.cargando3d() && !evento.repeat) {
+      // Sin Ctrl, Alt ni Cmd: esas combinaciones son atajos del navegador
+      const atajo = evento.ctrlKey || evento.altKey || evento.metaKey;
+      if (!this.cargando3d() && !evento.repeat && !atajo) {
         evento.preventDefault();
         void this.jugar();
       }
