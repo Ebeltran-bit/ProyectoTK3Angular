@@ -45,7 +45,9 @@
   } @else if (!error() && pestana() === 'canciones') {
     @for (c of records(); track c.id) {
       <h3>
-        <a class="cancion" [routerLink]="['/estadisticas/canciones', c.id]">{{ c.titulo }} →</a>
+        <a class="cancion" [routerLink]="['/estadisticas/canciones', c.id]"
+          >{{ c.titulo }} <span aria-hidden="true">→</span></a
+        >
         <span class="nivel" [attr.data-nivel]="c.nivel">{{ nombreNivel[c.nivel] }}</span>
       </h3>
       @if (c.marcas.length > 0) {

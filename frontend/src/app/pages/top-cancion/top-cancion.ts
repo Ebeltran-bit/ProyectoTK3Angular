@@ -18,8 +18,8 @@ import { mensajeError } from '../../services/mensaje-error';
   selector: 'app-top-cancion',
   imports: [DatePipe, RouterLink, IconoUsuario, PantallaCarga],
   templateUrl: './top-cancion.html',
-  // El podio usa los mismos estilos que el del duelo, para que los dos se vean iguales
-  styleUrls: ['../podio/podio.css', './top-cancion.css'],
+  // Mismos estilos que el podio del duelo y que la tabla de estadísticas, para que se vean iguales
+  styleUrls: ['../podio/podio.css', '../estadisticas/estadisticas.css', './top-cancion.css'],
 })
 export class TopCancion implements OnInit {
   private readonly servicio = inject(EstadisticasService);
