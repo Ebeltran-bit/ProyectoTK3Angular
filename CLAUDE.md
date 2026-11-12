@@ -112,7 +112,7 @@ los convierte en respuestas HTTP.
 | 3. Combates, rondas y campeón | 16–20 nov | Hecha |
 | 4. Informes y entrega | 23 nov–2 dic | En curso: estadísticas e historial hechos; faltan revisión final y vídeo |
 | Ampliación: duelo de ritmo | — | Etapa 1, limpieza, etapa 3 (9 escenarios), récords de práctica y etapas 4 y 6 (IA y duelos en el torneo) hechos; etapa 5 (sonido): código listo, faltan los MP3 de ElevenLabs |
-| Renovación 3D del juego | — | Etapa 1 (motor 3D, personajes, marcador nuevo y escena del puerto) hecha el 11/11/2026; etapa 2 en curso (bar, huerto, ramen, correos, patitos, observatorio y barbería hechos; falta la mecanógrafa); después, pantallas del juego, sonido y mecánicas, y pruebas y pulido |
+| Renovación 3D del juego | — | Etapa 1 (motor 3D, personajes, marcador nuevo y escena del puerto) hecha el 11/11/2026; etapa 2 (las otras ocho escenas en 3D) hecha el 12/11/2026, pendiente de que Eva la pruebe; faltan pantallas del juego, sonido y mecánicas, y pruebas y pulido |
 
 El duelo de ritmo es una ampliación aprobada por Eva (31/10/2026) que sustituye
 al modo combate anterior: dos participantes siguen la misma canción y gana
@@ -147,8 +147,8 @@ Mantén actualizada esta tabla cuando termine una fase.
   animados con three.js, según las nueve propuestas de `bocetos/renovacion-3d/` (fuera del
   repositorio). Se hace por etapas (tabla en el README) y Eva revisa cada una antes de seguir. Si
   una propuesta aprobada necesita un cambio importante, se consulta antes. Las escenas 3D están en
-  `juego/escenas3d/`; los escenarios planos se conservan en `juego/escenarios/` y se usan mientras
-  una escena no tenga versión 3D o si el navegador no puede dibujarla. La rama
+  `juego/escenas3d/`; los escenarios planos se conservan en `juego/escenarios/` y se usan si el
+  navegador no puede dibujar la versión 3D. La rama
   `copia-version-plana` guarda la versión anterior intacta: no la modifiques ni la borres.
 - En las escenas 3D las animaciones se calculan en cada fotograma a partir del reloj de la canción
   y de las notas ya juzgadas, sin guardar estado; las curvas van en funciones puras con Vitest.

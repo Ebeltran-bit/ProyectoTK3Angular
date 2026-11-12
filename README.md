@@ -525,7 +525,7 @@ no puede dibujar en 3D.
 | Etapa | Contenido | Estado |
 | --- | --- | --- |
 | 1. Base común y puerto | Motor 3D, personajes, materiales, luz, marcador nuevo y la escena del puerto animada | Hecha el 11/11/2026; Eva la probó en su portátil ese día y va fluida |
-| 2. Resto de escenas | Las otras ocho escenas en 3D | En curso: Brindis arcade, Huerto a compás, Ramen a contratiempo, Correos exprés, Paso de patitos, Estrellas fugaces y Duelo de barberos hechas el 11/11/2026; falta La mecanógrafa |
+| 2. Resto de escenas | Las otras ocho escenas en 3D | Hecha el 12/11/2026: las nueve escenas tienen versión 3D; falta que Eva las pruebe |
 | 3. Pantallas del juego | Inicio, final y transiciones (se enseñan propuestas antes) | Pendiente |
 | 4. Sonido y mecánicas | Las mejoras aprobadas de la lista de arriba | Pendiente |
 | 5. Pruebas, rendimiento y pulido | Revisión de las nueve escenas en ordenadores reales | Pendiente |
@@ -549,13 +549,14 @@ no puede dibujar en 3D.
 | Escena de los patitos: mamá pata, patitos que saltan el charco | `patitos.ts` |
 | Escena del observatorio: astrónoma, estrellas fugaces y mira | `observatorio.ts` |
 | Escena de la barbería: maestro que marca el patrón, barbero que lo repite y barbas que se recortan | `barberia.ts` |
+| Escena de la mecanógrafa: pauta con cursor, máquina de escribir y campanilla | `mecanografa.ts` |
 | Lista de escenas que ya tienen versión 3D | `disponibles.ts` e `index.ts` |
 
 - El reproductor (`components/reproductor-ritmo`) mira si el escenario de la canción está en
   `disponibles.ts`. Si está, carga la parte 3D y la dibuja; si no, o si algo falla, dibuja el escenario
   plano de siempre. La lógica de la partida (reloj del audio, juicio, marcador) es la misma en los dos casos.
 - La parte 3D se descarga aparte y solo al abrir una canción: las pantallas de gestión no cargan three.js.
-  Medido al compilar con seis escenas: 721 kB (160 kB comprimido) que se suman una sola vez.
+  Medido al compilar con las nueve escenas: 768 kB (174 kB comprimido) que se suman una sola vez.
 - **Las animaciones no guardan estado.** En cada fotograma la escena recibe lo mismo que el dibujo plano
   (segundos, pulso, notas con su juicio y última pulsación) y calcula con eso la postura de cada personaje:
   anticipación antes del golpe, acción en el pulso y reacción según el juicio. Así el dibujo no puede
@@ -588,4 +589,4 @@ Detalles que decidí yo (Claude) en esta etapa:
 - [x] Fase 3 · Combates, rondas y campeón: registrar ganadores, avance automático, campeón y torneo cerrado.
 - [ ] Fase 4 · Informes y entrega: estadísticas e historial hechos; quedan la revisión final y el vídeo.
 - [x] Ampliación · Duelo de ritmo: sesión, motor con 9 escenarios, récords de práctica, IA y duelos en el torneo.
-- [ ] Renovación 3D del juego: etapa 1 (base común y puerto) hecha; de la etapa 2 están el bar, el huerto, el ramen, correos, los patitos, el observatorio y la barbería y falta una escena; después, pantallas, sonido, mecánicas y pulido.
+- [ ] Renovación 3D del juego: etapas 1 y 2 hechas (base común y las nueve escenas en 3D); faltan pantallas, sonido, mecánicas y pulido.

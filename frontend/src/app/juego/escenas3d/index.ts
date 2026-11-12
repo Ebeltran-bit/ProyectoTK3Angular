@@ -7,6 +7,7 @@ import { bar3d } from './bar';
 import { barberia3d } from './barberia';
 import { correos3d } from './correos';
 import { huerto3d } from './huerto';
+import { mecanografa3d } from './mecanografa';
 import { observatorio3d } from './observatorio';
 import { patitos3d } from './patitos';
 import { puerto3d } from './puerto';
@@ -26,4 +27,5 @@ export const ESCENAS_3D: Record<string, Definicion3d> = {
   patitos: patitos3d,
   observatorio: observatorio3d,
   barberia: barberia3d,
+  mecanografa: mecanografa3d,
 };
