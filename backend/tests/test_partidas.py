@@ -62,12 +62,13 @@ def test_pulsaciones_fuera_de_la_cancion(repo, ms):
 
 
 def marca(usuario, puntos, perfect=0, miss=0, dia=1, cancion="puerto"):
-    return {"id_cancion": cancion, "nombre_usuario": usuario, "puntos": puntos, "perfect": perfect,
+    return {"id_cancion": cancion, "id_usuario": 1, "id_participante": None, "icono": None,
+            "nombre_usuario": usuario, "puntos": puntos, "perfect": perfect,
             "great": 0, "miss": miss, "combo_maximo": 0, "jugada_en": datetime(2026, 11, dia)}
 
 
-CANCIONES = [{"id": "puerto", "titulo": "Puerto", "nivel": "facil"},
-             {"id": "bar", "titulo": "Brindis", "nivel": "facil"}]
+CANCIONES = [{"id": "puerto", "titulo": "Puerto", "nivel": "facil", "bpm": 88},
+             {"id": "bar", "titulo": "Brindis", "nivel": "facil", "bpm": 92}]
 
 
 def test_records_ordenados_y_con_puesto():
@@ -93,3 +94,32 @@ def test_solo_el_top_5():
 
 def test_cancion_sin_partidas_sale_vacia():
     assert partidas_servicio.agrupar_records(CANCIONES, [])[1]["marcas"] == []
+
+
+def test_canciones_de_mas_facil_a_mas_dificil():
+    canciones = [{"id": "d", "titulo": "D", "nivel": "dificil", "bpm": 100},
+                 {"id": "m", "titulo": "M", "nivel": "media", "bpm": 90},
+                 {"id": "f2", "titulo": "F2", "nivel": "facil", "bpm": 95},
+                 {"id": "f1", "titulo": "F1", "nivel": "facil", "bpm": 80}]
+    r = partidas_servicio.agrupar_records(canciones, [])
+    assert [c["id"] for c in r] == ["f1", "f2", "m", "d"]
+
+
+def test_records_de_una_cancion_top_10(monkeypatch):
+    pedidas = []
+
+    class RepoFalso:
+        def mejor_de_cada_usuario(self, id_cancion=None):
+            pedidas.append(id_cancion)
+            return [marca(f"u{i}", i * 100) for i in range(12)]
+
+    monkeypatch.setattr(partidas_servicio, "partidas_repo", RepoFalso())
+    r = partidas_servicio.records_de("puerto")
+    assert pedidas == ["puerto"]
+    assert r["id"] == "puerto" and len(r["marcas"]) == 10
+    assert r["marcas"][0]["nombre_usuario"] == "u11" and r["marcas"][9]["puesto"] == 10
+
+
+def test_records_de_cancion_que_no_existe():
+    with pytest.raises(NoEncontrado):
+        partidas_servicio.records_de("no-existe")

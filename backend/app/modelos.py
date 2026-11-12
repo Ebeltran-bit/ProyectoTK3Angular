@@ -120,6 +120,8 @@ class EstadisticaParticipante(BaseModel):
     id: int
     nick: str
     logo: str | None
+    # Icono del usuario vinculado (None = el animal que le toca por su id)
+    icono: str | None
     activo: bool
     combates: int
     victorias: int
@@ -254,6 +256,10 @@ class Marca(BaseModel):
     """Una fila del récord de una canción: la mejor partida de un usuario."""
 
     puesto: int
+    id_usuario: int
+    # Para pintar su icono: el que eligió o, si no tiene, el animal de su participante (o de su id)
+    id_participante: int | None
+    icono: str | None
     nombre_usuario: str
     puntos: int
     perfect: int

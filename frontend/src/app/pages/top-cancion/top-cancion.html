@@ -1,0 +1,89 @@
+<section>
+  <a routerLink="/estadisticas" class="volver">← Volver a las estadísticas</a>
+
+  @if (error()) {
+    <p class="mensaje-error">
+      {{ error() }} <button type="button" (click)="cargar()">Reintentar</button>
+    </p>
+  } @else if (cargando()) {
+    <app-pantalla-carga titulo="Récords" texto="Preparando el podio…" />
+  } @else if (records(); as c) {
+    <h2 class="titulo">{{ c.titulo }}</h2>
+    <p class="subtitulo">
+      <span class="nivel" [attr.data-nivel]="c.nivel">{{ nombreNivel[c.nivel] }}</span>
+      Las 10 mejores puntuaciones, una por usuario
+    </p>
+
+    @if (c.marcas.length > 0) {
+      <ol class="podio" role="list">
+        @for (m of podio(); track m.puesto; let i = $index) {
+          <li
+            class="escalon"
+            [attr.data-puesto]="m.puesto"
+            [style.--orden]="i"
+            [attr.aria-label]="descripcion(m)"
+          >
+            <div class="persona">
+              @if (m.puesto === 1) {
+                <span class="corona" aria-hidden="true">👑</span>
+              }
+              <app-icono-usuario
+                [icono]="iconoDeMarca(m)"
+                [nombre]="m.nombre_usuario"
+                [tam]="m.puesto === 1 ? 88 : m.puesto === 2 ? 64 : 48"
+              />
+              <span class="nick">{{ m.nombre_usuario }}</span>
+            </div>
+            <p class="puntos">
+              <strong>{{ m.puntos }}</strong> puntos
+              <span>{{ m.perfect }} PERFECT · {{ m.great }} GREAT · {{ m.miss }} MISS</span>
+            </p>
+            <div class="bloque">
+              <span class="numero">{{ m.puesto }}</span>
+            </div>
+          </li>
+        }
+      </ol>
+
+      <table class="records">
+        <thead>
+          <tr>
+            <th scope="col">Puesto</th>
+            <th scope="col">Usuario</th>
+            <th scope="col">Puntos</th>
+            <th scope="col">PERFECT</th>
+            <th scope="col">GREAT</th>
+            <th scope="col">MISS</th>
+            <th scope="col">Combo máx.</th>
+            <th scope="col">Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of c.marcas; track m.puesto) {
+            <tr [class.record]="m.puesto === 1">
+              <td>{{ m.puesto }}</td>
+              <th scope="row">
+                <span class="usuario">
+                  <app-icono-usuario
+                    [icono]="iconoDeMarca(m)"
+                    [nombre]="m.nombre_usuario"
+                    [tam]="32"
+                  />
+                  {{ m.nombre_usuario }}
+                </span>
+              </th>
+              <td>{{ m.puntos }}</td>
+              <td>{{ m.perfect }}</td>
+              <td>{{ m.great }}</td>
+              <td>{{ m.miss }}</td>
+              <td>{{ m.combo_maximo }}</td>
+              <td>{{ m.jugada_en | date: 'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="vacio">Nadie ha jugado esta canción todavía.</p>
+    }
+  }
+</section>

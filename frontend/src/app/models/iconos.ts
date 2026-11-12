@@ -145,5 +145,17 @@ export function iconoDe(p: { id: number; icono?: string | null }): string {
   return p.icono ?? ANIMALES[p.id % ANIMALES.length];
 }
 
+/**
+ * Icono de una marca de las estadísticas: el del usuario o, si no eligió ninguno, el mismo animal
+ * que su participante (o el de su id de usuario si no tiene participante).
+ */
+export function iconoDeMarca(m: {
+  id_usuario: number;
+  id_participante: number | null;
+  icono: string | null;
+}): string {
+  return iconoDe({ id: m.id_participante ?? m.id_usuario, icono: m.icono });
+}
+
 /** Los animales de la lista, para repartir entre los que no tienen icono. */
 const ANIMALES = ['gato', 'rana', 'patito', 'gaviota', 'zorro', 'oso', 'pulpo'];

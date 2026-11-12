@@ -18,4 +18,9 @@ export class EstadisticasService {
   recordsPorCancion(): Observable<RecordsCancion[]> {
     return this.http.get<RecordsCancion[]>(`${this.url}/canciones`);
   }
+
+  /** Top 10 de una canción, para su pantalla con el podio. */
+  recordsDeCancion(id: string): Observable<RecordsCancion> {
+    return this.http.get<RecordsCancion>(`${this.url}/canciones/${encodeURIComponent(id)}`);
+  }
 }

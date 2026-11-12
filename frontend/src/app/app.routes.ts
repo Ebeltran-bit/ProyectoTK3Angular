@@ -9,6 +9,7 @@ import { ParticipanteForm } from './pages/participante-form/participante-form';
 import { ParticipantesLista } from './pages/participantes-lista/participantes-lista';
 import { Podio } from './pages/podio/podio';
 import { Practica } from './pages/practica/practica';
+import { TopCancion } from './pages/top-cancion/top-cancion';
 import { Registro } from './pages/registro/registro';
 import { TorneoDetalle } from './pages/torneo-detalle/torneo-detalle';
 import { TorneoForm } from './pages/torneo-form/torneo-form';
@@ -35,6 +36,7 @@ export const routes: Routes = [
       { path: 'torneos/:id/combates/:idCombate/duelo', component: Duelo },
       { path: 'torneos/:id/combates/:idCombate/podio', component: Podio },
       { path: 'estadisticas', component: Estadisticas },
+      { path: 'estadisticas/canciones/:id', component: TopCancion },
       { path: 'practica', component: Practica },
     ],
   },

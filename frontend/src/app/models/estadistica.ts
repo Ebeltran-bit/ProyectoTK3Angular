@@ -3,6 +3,8 @@ export interface EstadisticaParticipante {
   id: number;
   nick: string;
   logo: string | null;
+  /** Icono del usuario vinculado (null = el animal que le toca por su id, ver iconoDe). */
+  icono: string | null;
   activo: boolean;
   /** Combates jugados; los BYE no cuentan. */
   combates: number;
@@ -14,6 +16,10 @@ export interface EstadisticaParticipante {
 /** Mejor partida de un usuario en una canción. */
 export interface Marca {
   puesto: number;
+  id_usuario: number;
+  /** Participante vinculado al usuario, si tiene: así su animal es el mismo que en el torneo. */
+  id_participante: number | null;
+  icono: string | null;
   nombre_usuario: string;
   puntos: number;
   perfect: number;
@@ -23,7 +29,7 @@ export interface Marca {
   jugada_en: string;
 }
 
-/** Récords de una canción: el top 5, con una marca por usuario. */
+/** Récords de una canción: el top 5 (o el top 10 en su pantalla), con una marca por usuario. */
 export interface RecordsCancion {
   id: string;
   titulo: string;

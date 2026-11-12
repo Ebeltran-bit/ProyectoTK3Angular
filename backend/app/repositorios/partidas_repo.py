@@ -15,19 +15,22 @@ def guardar(id_usuario: int, id_cancion: str, m: dict) -> int:
         return cursor.lastrowid
 
 
-def mejor_de_cada_usuario() -> list[dict]:
-    """La mejor partida de cada usuario en cada canción.
+def mejor_de_cada_usuario(id_cancion: str | None = None) -> list[dict]:
+    """La mejor partida de cada usuario en cada canción (o solo en una, si se indica).
 
     ROW_NUMBER numera las partidas de cada usuario en cada canción de mejor a
     peor; nos quedamos con la número 1. El orden es el de los empates:
     más puntos, más PERFECT, menos MISS y, si todo es igual, la más antigua.
+    También devuelve el icono del usuario y su participante, para pintar su animal.
     """
     with obtener_conexion() as conexion, conexion.cursor() as cursor:
         cursor.execute(
             """
-            SELECT id_cancion, nombre_usuario, puntos, perfect, great, miss, combo_maximo, jugada_en
+            SELECT id_cancion, id_usuario, id_participante, icono, nombre_usuario,
+                   puntos, perfect, great, miss, combo_maximo, jugada_en
             FROM (
-                SELECT p.id_cancion, u.nombre_usuario, p.puntos, p.perfect, p.great, p.miss,
+                SELECT p.id_cancion, p.id_usuario, u.id_participante, u.icono, u.nombre_usuario,
+                       p.puntos, p.perfect, p.great, p.miss,
                        p.combo_maximo, p.jugada_en,
                        ROW_NUMBER() OVER (
                            PARTITION BY p.id_cancion, p.id_usuario
@@ -35,8 +38,10 @@ def mejor_de_cada_usuario() -> list[dict]:
                        ) AS orden
                 FROM tk3_partidas p
                 JOIN tk3_usuarios u ON u.id = p.id_usuario
+                WHERE %s IS NULL OR p.id_cancion = %s
             ) AS mejores
             WHERE orden = 1
-            """
+            """,
+            (id_cancion, id_cancion),
         )
         return cursor.fetchall()

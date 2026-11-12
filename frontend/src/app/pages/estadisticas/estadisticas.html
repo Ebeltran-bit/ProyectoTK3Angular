@@ -5,32 +5,32 @@
     <button
       type="button"
       role="tab"
-      [attr.aria-selected]="pestana() === 'participantes'"
-      [class.seleccionado]="pestana() === 'participantes'"
-      (click)="verPestana('participantes')"
-    >
-      Participantes
-    </button>
-    <button
-      type="button"
-      role="tab"
       [attr.aria-selected]="pestana() === 'canciones'"
       [class.seleccionado]="pestana() === 'canciones'"
       (click)="verPestana('canciones')"
     >
       Canciones
     </button>
+    <button
+      type="button"
+      role="tab"
+      [attr.aria-selected]="pestana() === 'participantes'"
+      [class.seleccionado]="pestana() === 'participantes'"
+      (click)="verPestana('participantes')"
+    >
+      Participantes
+    </button>
   </div>
 
-  @if (pestana() === 'participantes') {
+  @if (pestana() === 'canciones') {
     <p class="ayuda">
-      Victorias y derrotas de cada participante en todos los torneos. Pasar por BYE no cuenta como
-      combate.
+      Récords de la Práctica: las 5 mejores puntuaciones de cada canción, una por usuario, de la
+      canción más fácil a la más difícil. Pulsa una canción para ver su top 10 y el podio.
     </p>
   } @else {
     <p class="ayuda">
-      Récords de la Práctica: las 5 mejores puntuaciones de cada canción, una por usuario. La
-      puntuación la calcula el servidor.
+      Victorias y derrotas de cada participante en todos los torneos. Pasar por BYE no cuenta como
+      combate.
     </p>
   }
 
@@ -45,11 +45,11 @@
   } @else if (!error() && pestana() === 'canciones') {
     @for (c of records(); track c.id) {
       <h3>
-        {{ c.titulo }}
+        <a class="cancion" [routerLink]="['/estadisticas/canciones', c.id]">{{ c.titulo }} →</a>
         <span class="nivel" [attr.data-nivel]="c.nivel">{{ nombreNivel[c.nivel] }}</span>
       </h3>
       @if (c.marcas.length > 0) {
-        <table>
+        <table class="records">
           <thead>
             <tr>
               <th scope="col">Puesto</th>
@@ -66,7 +66,16 @@
             @for (m of c.marcas; track m.puesto) {
               <tr [class.record]="m.puesto === 1">
                 <td>{{ m.puesto }}</td>
-                <th scope="row">{{ m.nombre_usuario }}</th>
+                <th scope="row">
+                  <span class="usuario">
+                    <app-icono-usuario
+                      [icono]="iconoDeMarca(m)"
+                      [nombre]="m.nombre_usuario"
+                      [tam]="32"
+                    />
+                    {{ m.nombre_usuario }}
+                  </span>
+                </th>
                 <td>{{ m.puntos }}</td>
                 <td>{{ m.perfect }}</td>
                 <td>{{ m.great }}</td>
@@ -98,10 +107,13 @@
         @for (f of filas(); track f.id) {
           <tr [class.inactivo]="!f.activo">
             <th scope="row">
-              {{ f.nick }}
-              @if (!f.activo) {
-                <span class="estado">Inactivo</span>
-              }
+              <span class="usuario">
+                <app-icono-usuario [icono]="iconoDe(f)" [nombre]="f.nick" [tam]="32" />
+                {{ f.nick }}
+                @if (!f.activo) {
+                  <span class="estado">Inactivo</span>
+                }
+              </span>
             </th>
             <td>{{ f.combates }}</td>
             <td>{{ f.victorias }}</td>

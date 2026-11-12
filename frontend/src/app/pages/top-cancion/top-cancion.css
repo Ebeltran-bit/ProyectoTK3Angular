@@ -1,0 +1,42 @@
+/* El podio viene de podio.css; aquí solo lo propio de esta pantalla */
+.subtitulo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+/* En esta pantalla cada escalón tiene una sola persona */
+.escalon > .persona {
+  margin-top: 1.6rem;
+}
+table {
+  margin-top: 2rem;
+}
+th,
+td {
+  text-align: right;
+}
+th:first-child,
+tbody th {
+  text-align: left;
+}
+/* La cabecera «Usuario» va alineada con los nombres */
+.records thead th:nth-child(2) {
+  text-align: left;
+}
+tbody th {
+  font:
+    700 1.05rem 'Fredoka',
+    sans-serif;
+}
+.usuario {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.record td,
+.record th {
+  background: #fff1c4;
+  font-weight: 900;
+}

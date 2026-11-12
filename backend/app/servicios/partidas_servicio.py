@@ -8,6 +8,10 @@ from app.servicios import canciones_servicio, ritmo
 from app.servicios.errores import ErrorDeNegocio
 
 TOP = 5
+# La pantalla de una canción enseña más puestos que la lista de todas
+TOP_CANCION = 10
+# Orden de los niveles en las estadísticas: de más fácil a más difícil
+ORDEN_NIVEL = {"facil": 0, "media": 1, "dificil": 2}
 
 
 def notas_en_ms(cancion: dict) -> list[dict]:
@@ -43,10 +47,15 @@ def ordenar(filas: list[dict]) -> list[dict]:
     return sorted(filas, key=lambda f: (-f["puntos"], -f["perfect"], f["miss"], f["jugada_en"]))
 
 
+def ordenar_canciones(canciones: list[dict]) -> list[dict]:
+    """De más fácil a más difícil: por nivel y, dentro del mismo nivel, la más lenta primero."""
+    return sorted(canciones, key=lambda c: (ORDEN_NIVEL[c["nivel"]], c["bpm"], c["titulo"]))
+
+
 def agrupar_records(canciones: list[dict], mejores: list[dict], limite: int = TOP) -> list[dict]:
     """Junta cada canción con sus mejores marcas (una por usuario). Función pura, se prueba con pytest."""
     resultado = []
-    for c in canciones:
+    for c in ordenar_canciones(canciones):
         filas = ordenar([f for f in mejores if f["id_cancion"] == c["id"]])[:limite]
         marcas = [{"puesto": i + 1, **{k: v for k, v in f.items() if k != "id_cancion"}} for i, f in enumerate(filas)]
         resultado.append({"id": c["id"], "titulo": c["titulo"], "nivel": c["nivel"], "marcas": marcas})
@@ -55,3 +64,10 @@ def agrupar_records(canciones: list[dict], mejores: list[dict], limite: int = TO
 
 def records() -> list[dict]:
     return agrupar_records(canciones_servicio.listar(), partidas_repo.mejor_de_cada_usuario())
+
+
+def records_de(id_cancion: str) -> dict:
+    """El top 10 de una sola canción, para su pantalla con el podio."""
+    cancion = canciones_servicio.obtener(id_cancion)  # NoEncontrado si no existe
+    mejores = partidas_repo.mejor_de_cada_usuario(id_cancion)
+    return agrupar_records([cancion], mejores, TOP_CANCION)[0]

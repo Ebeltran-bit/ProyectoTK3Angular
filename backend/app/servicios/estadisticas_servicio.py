@@ -15,7 +15,8 @@ def calcular(participantes: list[dict], combates: list[dict], campeones: list[in
     Es una función pura (no toca la base de datos) para poder probarla con pytest.
     """
     filas = {
-        p["id"]: {"id": p["id"], "nick": p["nick"], "logo": p["logo"], "activo": p["activo"],
+        p["id"]: {"id": p["id"], "nick": p["nick"], "logo": p["logo"], "icono": p["icono"],
+                  "activo": p["activo"],
                   "combates": 0, "victorias": 0, "derrotas": 0, "torneos_ganados": 0}
         for p in participantes
     }

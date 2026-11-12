@@ -17,3 +17,9 @@ def estadisticas_participantes():
 def records_canciones():
     """Top 5 de cada canción: la mejor partida de práctica de cada usuario."""
     return partidas_servicio.records()
+
+
+@router.get("/canciones/{id_cancion}", response_model=RecordsCancion)
+def records_de_cancion(id_cancion: str):
+    """Top 10 de una canción, una marca por usuario. 404 si la canción no existe."""
+    return partidas_servicio.records_de(id_cancion)

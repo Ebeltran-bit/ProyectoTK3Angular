@@ -6,10 +6,10 @@ from app.servicios.estadisticas_servicio import calcular
 
 ANA, LUIS, MARTA, PEDRO = 1, 2, 3, 4
 PARTICIPANTES = [
-    {"id": ANA, "nick": "Ana", "logo": None, "activo": True},
-    {"id": LUIS, "nick": "Luis", "logo": None, "activo": True},
-    {"id": MARTA, "nick": "Marta", "logo": None, "activo": False},
-    {"id": PEDRO, "nick": "Pedro", "logo": None, "activo": True},
+    {"id": ANA, "nick": "Ana", "logo": None, "icono": "gato", "activo": True},
+    {"id": LUIS, "nick": "Luis", "logo": None, "icono": None, "activo": True},
+    {"id": MARTA, "nick": "Marta", "logo": None, "icono": None, "activo": False},
+    {"id": PEDRO, "nick": "Pedro", "logo": None, "icono": None, "activo": True},
 ]
 
 
@@ -45,8 +45,13 @@ def test_salen_inactivos_y_participantes_sin_combates():
     filas = por_nick(calcular(PARTICIPANTES, [combate(MARTA, ANA, MARTA)], []))
     assert len(filas) == 4
     assert filas["Marta"]["activo"] is False and filas["Marta"]["victorias"] == 1
-    assert filas["Pedro"] == {"id": PEDRO, "nick": "Pedro", "logo": None, "activo": True,
-                              "combates": 0, "victorias": 0, "derrotas": 0, "torneos_ganados": 0}
+    assert filas["Pedro"] == {"id": PEDRO, "nick": "Pedro", "logo": None, "icono": None,
+                              "activo": True, "combates": 0, "victorias": 0, "derrotas": 0, "torneos_ganados": 0}
+
+
+def test_cada_fila_lleva_el_icono_de_su_usuario():
+    filas = por_nick(calcular(PARTICIPANTES, [], []))
+    assert filas["Ana"]["icono"] == "gato" and filas["Luis"]["icono"] is None
 
 
 def test_torneos_ganados():
