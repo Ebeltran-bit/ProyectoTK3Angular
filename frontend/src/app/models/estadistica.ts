@@ -29,7 +29,7 @@ export interface Marca {
   jugada_en: string;
 }
 
-/** Récords de una canción: el top 5 (o el top 10 en su pantalla), con una marca por usuario. */
+/** Récords de una canción: el top 3 (o el top 10 en su pantalla), con una marca por usuario. */
 export interface RecordsCancion {
   id: string;
   titulo: string;

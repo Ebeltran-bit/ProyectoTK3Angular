@@ -82,14 +82,14 @@ def test_records_ordenados_y_con_puesto():
 def test_empates_mas_perfect_luego_menos_miss_luego_el_primero():
     filas = [marca("a", 900, perfect=2, miss=1, dia=3), marca("b", 900, perfect=3, miss=5),
              marca("c", 900, perfect=2, miss=0, dia=5), marca("d", 900, perfect=2, miss=1, dia=2)]
-    r = partidas_servicio.agrupar_records(CANCIONES, filas)
+    r = partidas_servicio.agrupar_records(CANCIONES, filas, limite=10)
     assert [m["nombre_usuario"] for m in r[0]["marcas"]] == ["b", "c", "d", "a"]
 
 
-def test_solo_el_top_5():
+def test_solo_el_top_3():
     filas = [marca(f"u{i}", i * 100) for i in range(8)]
     marcas = partidas_servicio.agrupar_records(CANCIONES, filas)[0]["marcas"]
-    assert len(marcas) == 5 and marcas[0]["nombre_usuario"] == "u7"
+    assert len(marcas) == 3 and marcas[0]["nombre_usuario"] == "u7"
 
 
 def test_cancion_sin_partidas_sale_vacia():

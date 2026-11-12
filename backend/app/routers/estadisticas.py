@@ -15,7 +15,7 @@ def estadisticas_participantes():
 
 @router.get("/canciones", response_model=list[RecordsCancion])
 def records_canciones():
-    """Top 5 de cada canción: la mejor partida de práctica de cada usuario."""
+    """Top 3 de cada canción: la mejor partida de práctica de cada usuario."""
     return partidas_servicio.records()
 
 

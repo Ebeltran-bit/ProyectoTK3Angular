@@ -7,7 +7,7 @@ from app.repositorios import partidas_repo
 from app.servicios import canciones_servicio, ritmo
 from app.servicios.errores import ErrorDeNegocio
 
-TOP = 5
+TOP = 3
 # La pantalla de una canción enseña más puestos que la lista de todas
 TOP_CANCION = 10
 # Orden de los niveles en las estadísticas: de más fácil a más difícil
