@@ -653,9 +653,11 @@ Detalles que decidí yo (Claude) en esta etapa:
 - En `angular.json` suben los avisos de tamaño: el de la carga inicial de 500 a 550 kB (las pantallas
   del juego suman unos 28 kB; comprimido, unos 6 kB) y el de los estilos de un componente de 8 a 10 kB.
   Si se quisiera bajar, las pantallas de Práctica y Duelo podrían cargarse aparte, solo al abrirlas.
-- Los textos pequeños de las tarjetas (datos, etiquetas de las fichas, estado del guardado…) llevan un
-  tamaño mínimo, `max(…em, 11px)`, para que se lean cuando el escenario mide entre 640 y 800 px (aprobado
-  por Eva el 12/11/2026). En una pantalla grande se ven igual que en las propuestas.
+- Los textos pequeños de las tarjetas (datos, teclas, nombres, etiquetas de las fichas, estado del
+  guardado…) llevan un tamaño mínimo en px, `max(…em, …px)` de 8 a 12 px según el texto, para que se lean
+  cuando el escenario mide entre 640 y 800 px (aprobado por Eva el 12/11/2026). Ningún mínimo pasa del
+  tamaño que tiene el texto con el escenario a 960 px, así que en una pantalla grande se ven como en las
+  propuestas.
 - Sigue pendiente lo que anoté en la etapa 2: el rótulo PERFECT, GREAT o MISS sale siempre arriba en
   el centro y en Correos tapa el moño de la cartera.
 

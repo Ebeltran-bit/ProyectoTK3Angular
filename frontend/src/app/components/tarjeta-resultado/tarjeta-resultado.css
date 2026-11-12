@@ -1,7 +1,8 @@
 /*
  * Tarjeta de resultado (propuestas D y E, aprobadas por Eva el 12/11/2026).
  * 1em es la centésima parte del ancho del escenario: la letra base la fija el reproductor.
- * Los textos pequeños llevan un mínimo, max(…em, 11px), para que se lean en pantallas medianas.
+ * Los textos pequeños llevan un mínimo en px, max(…em, …px), para que se lean en pantallas
+ * medianas. El mínimo nunca pasa del tamaño a 960 px: en una pantalla grande se ven igual.
  * Los colores de las fichas son los del juicio durante la canción.
  */
 :host {
@@ -158,8 +159,9 @@ p {
   font-variant-numeric: tabular-nums;
 }
 .ficha span {
-  font-size: max(0.95em, 11px);
+  font-size: max(0.95em, 9px);
   letter-spacing: 0.14em;
+  white-space: nowrap;
 }
 .ficha.perfect {
   color: #a86a00;
@@ -189,7 +191,7 @@ p {
 }
 .hype span,
 .hype b {
-  font-size: max(1.05em, 11px);
+  font-size: max(1.05em, 10px);
   letter-spacing: 0.14em;
 }
 .hype b {
