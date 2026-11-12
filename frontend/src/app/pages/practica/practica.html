@@ -15,37 +15,36 @@
       </span>
     </div>
 
-    <app-reproductor-ritmo #reproductor [cancion]="c" (terminada)="alTerminar($event)">
-      <div class="resultado-ritmo">
-        @if (oficial(); as r) {
-          <p class="grande">{{ reproductor.escenario().mensajeFinal(r.hype) }}</p>
-          <p>
-            {{ r.puntos }} puntos · {{ r.perfect }} PERFECT · {{ r.great }} GREAT ·
-            {{ r.miss }} MISS · combo máximo {{ r.combo_maximo }}
-          </p>
-          <p class="ayuda">Partida guardada. Mira los récords en Estadísticas › Canciones.</p>
-        } @else {
-          @let m = reproductor.marcador();
-          <p class="grande">{{ reproductor.escenario().mensajeFinal(m.hype) }}</p>
-          <p>
-            {{ m.puntos }} puntos · {{ m.perfect }} PERFECT · {{ m.great }} GREAT ·
-            {{ m.miss }} MISS · combo máximo {{ m.comboMaximo }}
-          </p>
-          @if (guardando()) {
-            <p class="mensaje-carga">Guardando la partida…</p>
+    <app-reproductor-ritmo [cancion]="c" (terminada)="alTerminar($event)">
+      <!-- Mientras se guarda se ve lo que ha contado el navegador; después, lo del backend -->
+      @if (final(); as f) {
+        <app-tarjeta-resultado
+          [estrellas]="f.estrellas"
+          [titulo]="f.mensaje"
+          [resultado]="f.datos"
+          [hype]="f.hype"
+        >
+          @if (oficial()) {
+            <p class="estado-partida guardada">
+              ✓ Partida guardada. Mira los récords en Estadísticas › Canciones.
+            </p>
+          } @else if (guardando()) {
+            <p class="estado-partida">Guardando la partida…</p>
           }
           @if (errorGuardar()) {
-            <p class="mensaje-error">
+            <p class="estado-partida error">
               No se ha guardado: {{ errorGuardar() }}
               <button type="button" (click)="guardarPartida()">Reintentar</button>
             </p>
           }
-        }
-        <div class="acciones">
-          <button type="button" class="principal" (click)="otraVez(reproductor)">Otra vez</button>
-          <button type="button" (click)="volverALaLista()">Elegir otra canción</button>
-        </div>
-      </div>
+          <div class="acciones">
+            <button type="button" class="boton-juego" (click)="otraVez()">Otra vez</button>
+            <button type="button" class="boton-juego claro" (click)="volverALaLista()">
+              Elegir otra canción
+            </button>
+          </div>
+        </app-tarjeta-resultado>
+      }
     </app-reproductor-ritmo>
   } @else {
     <p class="ayuda">Elige una canción para practicar. Aquí no cuenta para ningún torneo.</p>

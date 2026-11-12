@@ -150,7 +150,7 @@ const dibujar: DibujarEscena = (c, v) => {
 export const bar: Escenario = {
   dibujar,
   instrucciones:
-    'Los clientes deslizan sus jarras por la barra. Pulsa J cuando las jarras rubias chocan en el centro, y K cuando llegan las jarras dobles de tostada.',
+    'Pulsa J cuando las jarras rubias chocan en el centro de la barra, y K cuando llegan las jarras dobles de tostada.',
   aviso: (m, t, tecla) => {
     // Jarra que se desliza por la madera: un ruido grave que dura el pulso del aviso
     m.ruido(t, 0.35, tecla === 'alterna' ? 0.1 : 0.07, 'lowpass', tecla === 'alterna' ? 500 : 900);

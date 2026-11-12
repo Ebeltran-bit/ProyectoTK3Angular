@@ -6,6 +6,7 @@
  * Todos los tiempos van en milisegundos desde el inicio de la canción.
  */
 import {
+  ESTRELLAS,
   HYPE,
   HYPE_INICIAL,
   HYPE_MAXIMO,
@@ -58,6 +59,13 @@ export function juzgarDesfase(desfaseMs: number): Juicio {
   if (distancia <= VENTANA_PERFECT_MS) return 'perfect';
   if (distancia <= VENTANA_GREAT_MS) return 'great';
   return 'miss';
+}
+
+/** Estrellas de la tarjeta final (de 1 a 3) según el Hype con que acaba la canción. */
+export function estrellasPorHype(hype: number): 1 | 2 | 3 {
+  if (hype >= ESTRELLAS.tres) return 3;
+  if (hype >= ESTRELLAS.dos) return 2;
+  return 1;
 }
 
 /** Suma un juicio al marcador: puntos, combo (se rompe con MISS) y Hype entre 0 y 100. */

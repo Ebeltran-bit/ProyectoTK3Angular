@@ -68,51 +68,89 @@
 
     @if (cancion(); as c) {
       @if (d.puedo_jugar || enviado()) {
-        @if (d.puedo_jugar) {
-          <p class="ayuda">
-            Te toca. Solo cuenta la primera vez que llegas al final de la canción.
-          </p>
-        }
         <app-reproductor-ritmo
           [cancion]="c"
           textoJugar="Jugar el duelo"
+          [ronda]="titulo()"
+          [conTeclaJ]="false"
           (terminada)="alTerminar($event)"
         >
-          <div class="resultado-ritmo">
-            @if (miResultado(); as r) {
-              <p class="grande">
-                @if (ganador(); as g) {
-                  {{ g.participante.nick }} gana el duelo
-                } @else {
-                  Partida enviada
+          <!-- Tarjeta de inicio (propuesta B): quién juega contra quién… -->
+          <div inicio-arriba class="versus">
+            @for (j of d.jugadores; track j.participante.id; let primero = $first) {
+              @if (!primero) {
+                <span class="vs">VS</span>
+              }
+              <span class="contrincante" [class.yo]="j.participante.id === miParticipante()">
+                {{ j.participante.nick }}
+                @if (j.participante.id === miParticipante()) {
+                  <small>TÚ</small>
                 }
-              </p>
-              <p>
-                Tu puntuación: {{ r.puntos }} puntos · {{ r.perfect }} PERFECT · {{ r.great }} GREAT
-                · {{ r.miss }} MISS · combo máximo {{ r.combo_maximo }}
-              </p>
-              @if (!ganador()) {
-                <p class="ayuda">Falta que juegue tu rival.</p>
-              }
-              @if (ganador()) {
-                <a class="principal grande" [routerLink]="rutaPodio"
-                  ><span aria-hidden="true">🏆</span> Ver podio</a
-                >
-              } @else {
-                <a class="principal" [routerLink]="['/torneos', idTorneo]">Volver al torneo</a>
-              }
-            } @else {
-              @if (enviando()) {
-                <p class="mensaje-carga">Enviando tu partida…</p>
-              }
-              @if (errorEnvio()) {
-                <p class="mensaje-error">
-                  No se ha enviado: {{ errorEnvio() }}
-                  <button type="button" (click)="enviar()">Reintentar</button>
-                </p>
-              }
+              </span>
             }
           </div>
+          <!-- …y el aviso de que solo vale el primer intento completo -->
+          <p inicio-abajo class="aviso-intento">
+            <i aria-hidden="true"></i>Solo cuenta la primera vez que llegas al final
+          </p>
+
+          <!-- Tarjeta final (propuesta E) -->
+          <app-tarjeta-resultado
+            [cinta]="titulo()"
+            [titulo]="tituloFinal()"
+            [resultado]="ganador() ? null : misDatos()"
+          >
+            @if (ganador(); as g) {
+              <!-- E2: ya han jugado los dos y el backend ha decidido -->
+              <div class="marcas">
+                @for (j of d.jugadores; track j.participante.id; let primero = $first) {
+                  @if (!primero) {
+                    <span class="vs">VS</span>
+                  }
+                  <div class="marca" [class.gana]="j.participante.id === g.participante.id">
+                    @if (j.participante.id === g.participante.id) {
+                      <span class="sello">PASA DE RONDA</span>
+                    }
+                    <span class="nombre">{{ j.participante.nick }}</span>
+                    <strong>{{ j.resultado ? conEspacios(j.resultado.puntos) : '—' }}</strong>
+                    @if (j.resultado; as r) {
+                      <span class="detalle"
+                        >{{ r.perfect }} PERFECT · {{ r.great }} GREAT · {{ r.miss }} MISS</span
+                      >
+                    }
+                  </div>
+                }
+              </div>
+              @if (misDatos(); as m) {
+                <p class="nota-final">Tu combo máximo: ×{{ m.comboMaximo }}</p>
+              }
+            } @else if (misDatos()) {
+              <!-- E1: falta el rival -->
+              <p class="espera">
+                <i></i><i></i><i></i>Falta que juegue
+                {{ rival()?.participante?.nick ?? 'tu rival' }}
+              </p>
+            } @else if (errorEnvio()) {
+              <p class="error-envio">
+                {{ errorEnvio() }}
+                <button type="button" (click)="enviar()">Reintentar</button>
+              </p>
+            }
+            @if (ganador()) {
+              <div class="acciones">
+                <a class="boton-juego" [routerLink]="rutaPodio"
+                  ><span aria-hidden="true">🏆</span> Ver podio</a
+                >
+                <a class="boton-juego claro" [routerLink]="['/torneos', idTorneo]"
+                  >Volver al torneo</a
+                >
+              </div>
+            } @else if (misDatos()) {
+              <div class="acciones">
+                <a class="boton-juego" [routerLink]="['/torneos', idTorneo]">Volver al torneo</a>
+              </div>
+            }
+          </app-tarjeta-resultado>
         </app-reproductor-ritmo>
       }
     }

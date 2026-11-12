@@ -7,6 +7,9 @@
 .pantalla {
   position: relative;
   max-width: 960px;
+  /* Centrado en la página (petición de Eva, 12/11/2026) */
+  margin-inline: auto;
+  background: var(--fondo);
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 6px 0 var(--sombra-tarjeta);
@@ -33,6 +36,23 @@ canvas,
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+/* Al empezar, los tres paneles caen desde arriba uno detrás de otro; al acabar suben y se van */
+.panel {
+  transition: translate 0.38s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.progreso {
+  transition-delay: 0.06s;
+}
+.puntos {
+  transition-delay: 0.12s;
+}
+.fuera .panel {
+  translate: 0 -9cqw;
+  transition-timing-function: ease-in;
+}
+.fuera .combo {
+  display: none;
 }
 .panel {
   position: absolute;
@@ -342,6 +362,30 @@ canvas,
   }
 }
 
+/* Un punto por pulso de la cuenta: se encienden a la vez que el número */
+.compas {
+  position: absolute;
+  left: 50%;
+  top: calc(38% + 7.4cqw);
+  display: flex;
+  gap: 0.9cqw;
+  padding: 0.55cqw 1.1cqw;
+  border-radius: var(--redondo);
+  background: rgb(40 28 56 / 0.6);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.compas i {
+  width: 1.25cqw;
+  height: 1.25cqw;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.28);
+}
+.compas i.lleno {
+  background: var(--amarillo);
+  box-shadow: 0 0 0.9cqw #ffe58a;
+}
+
 /* ---------- Qué hace cada tecla ---------- */
 .teclas {
   position: absolute;
@@ -351,6 +395,15 @@ canvas,
   gap: 1.6cqw;
   transform: translateX(-50%);
   pointer-events: none;
+}
+/* Sube desde abajo mientras suena la cuenta */
+.teclas.entra {
+  animation: teclas-entra 0.38s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+@keyframes teclas-entra {
+  from {
+    translate: 0 9cqw;
+  }
 }
 .tecla {
   display: flex;
@@ -409,24 +462,73 @@ canvas,
   }
 }
 
-/* ---------- Capas de inicio y de final ---------- */
+/* ---------- Capas de inicio y de final (propuestas A, B, D y E) ---------- */
+/* La escena sigue viva detrás, solo algo oscurecida para que la tarjeta destaque.
+   La letra base es la centésima parte del ancho del escenario: las tarjetas miden en «em». */
 .capa {
   position: absolute;
   inset: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  text-align: center;
-  font-family: 'Nunito', system-ui, sans-serif;
-  background: rgb(255 246 224 / 0.88);
+  padding: 2em;
+  font-size: 1cqw;
+  background: radial-gradient(ellipse 75% 85% at 50% 48%, rgb(40 28 56 / 0.3), rgb(40 28 56 / 0.7));
 }
-.capa p {
-  max-width: 32rem;
-  margin: 0;
+.capa.final {
+  padding-top: 4.5em;
 }
+.contenido-final {
+  max-width: 100%;
+}
+/* ---------- Transiciones (propuesta G) ---------- */
+/* Inicio: el velo aparece y la tarjeta entra con un pequeño rebote */
+.capa.entra {
+  animation: velo-entra 0.35s ease-out;
+}
+.inicio.entra app-tarjeta-inicio {
+  animation: carta-entra 0.38s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+/* Al pulsar Jugar: el velo se va y la tarjeta sube */
+.inicio.sale {
+  animation: velo-entra 0.38s ease-in reverse forwards;
+}
+.inicio.sale app-tarjeta-inicio {
+  animation: carta-sale 0.38s ease-in forwards;
+}
+/* Final: la tarjeta de resultado sube desde abajo, un poco después del velo */
+.final.entra .contenido-final {
+  animation: final-entra 0.45s 0.25s cubic-bezier(0.3, 1.3, 0.5, 1) backwards;
+}
+/* La cortina de carga se desvanece cuando la escena ya está lista */
+app-pantalla-carga.sale {
+  animation: velo-entra 0.35s ease-in reverse forwards;
+}
+@keyframes velo-entra {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes carta-entra {
+  from {
+    opacity: 0;
+    scale: 0.8;
+  }
+}
+@keyframes carta-sale {
+  to {
+    opacity: 0;
+    translate: 0 -8cqw;
+    scale: 0.9;
+  }
+}
+@keyframes final-entra {
+  from {
+    opacity: 0;
+    translate: 0 12cqw;
+  }
+}
+
 kbd {
   padding: 0 0.45rem;
   border-radius: 6px;
@@ -436,8 +538,57 @@ kbd {
   font-weight: 700;
 }
 
-.ayuda {
+.ayuda,
+.explicacion-movil {
+  text-align: center;
   color: var(--tinta-suave);
+}
+/* Solo en pantallas estrechas (ver más abajo) */
+.explicacion-movil {
+  display: none;
+  margin: 0.75rem auto 0;
+  max-width: 32rem;
+  font-weight: 700;
+  color: var(--tinta);
+}
+
+/* ---------- Móvil (propuesta F2) ---------- */
+/* No cabe la tarjeta con letra legible: se queda lo esencial en grande sobre la escena y la
+   explicación pasa debajo. El resultado final se pone debajo del escenario. */
+@media (max-width: 640px) {
+  .capa.inicio {
+    font-size: 2.2cqw;
+    padding: 1em;
+  }
+  .capa.final {
+    position: static;
+    padding: 2.5rem 0.75rem 1rem;
+    font-size: 2.4cqw;
+    background: var(--fondo);
+  }
+  .contenido-final {
+    width: 100%;
+  }
+  .explicacion-movil {
+    display: block;
+  }
+}
+
+/* Quien pide menos movimiento en su sistema ve los cambios sin animación */
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    transition: none;
+  }
+  .capa.entra,
+  .inicio.entra app-tarjeta-inicio,
+  .inicio.sale,
+  .inicio.sale app-tarjeta-inicio,
+  .final.entra .contenido-final,
+  .teclas.entra,
+  app-pantalla-carga.sale {
+    animation-duration: 0.01s;
+    animation-delay: 0s;
+  }
 }
 
 /* Quien pide menos movimiento en su sistema se queda sin los saltos del marcador */

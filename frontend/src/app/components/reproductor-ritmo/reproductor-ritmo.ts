@@ -13,6 +13,8 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { PantallaCarga } from '../pantalla-carga/pantalla-carga';
+import { TarjetaInicio } from '../tarjeta-inicio/tarjeta-inicio';
 import { ESCENARIOS } from '../../juego/escenarios';
 import { preparar } from '../../juego/escenarios/dibujo';
 import { Escenario, VistaEscena } from '../../juego/escenarios/tipos';
@@ -72,10 +74,12 @@ function calidadGuardada(): Calidad | null {
  * versión plana de siempre, que se queda como respaldo.
  * Lo usan Práctica y el duelo del torneo. No llama a la API: al terminar
  * avisa con las pulsaciones (salida "terminada") y la pantalla las manda.
- * Lo que se ve al acabar lo pone la pantalla dentro de la etiqueta (ng-content).
+ * Antes de empezar enseña la tarjeta de inicio y, al acabar, lo que la pantalla ponga dentro
+ * de la etiqueta (ng-content), normalmente una tarjeta de resultado.
  */
 @Component({
   selector: 'app-reproductor-ritmo',
+  imports: [PantallaCarga, TarjetaInicio],
   templateUrl: './reproductor-ritmo.html',
   styleUrl: './reproductor-ritmo.css',
 })
@@ -83,6 +87,10 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
   readonly cancion = input.required<Cancion>();
   /** Texto del botón para empezar (en el duelo, "Jugar el duelo"). */
   readonly textoJugar = input('Jugar');
+  /** Ronda del torneo, para la tarjeta de inicio del duelo («Semifinal»). */
+  readonly ronda = input<string | null>(null);
+  /** Si la canción puede empezar también pulsando J (en la práctica sí; en el duelo no, que solo vale una vez). */
+  readonly conTeclaJ = input(true);
   readonly terminada = output<Pulsacion[]>();
 
   private readonly lienzo = viewChild<ElementRef<HTMLCanvasElement>>('lienzo');
@@ -94,6 +102,8 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
   protected readonly aviso = signal<string | null>(null);
   /** true cuando la escena 3D ya está cargada y dibujándose. */
   protected readonly en3d = signal(false);
+  /** true mientras se descarga y prepara la escena 3D: se ve la cortina de carga. */
+  protected readonly cargando3d = signal(false);
   /** Avance de la canción, de 0 a 100. */
   protected readonly progreso = signal(0);
   /** Número de la cuenta atrás, o null cuando no toca. */
@@ -106,6 +116,10 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
   /** Puntos con un espacio fino cada tres cifras: 12 400. */
   protected readonly puntos = computed(() =>
     String(this.marcador().puntos).replace(/\B(?=(\d{3})+$)/g, '\u202f'),
+  );
+  /** Pulsos de la cuenta de entrada (1, 2, 3, 4…), uno por cada punto bajo la cuenta. */
+  protected readonly pulsosCuenta = computed(() =>
+    Array.from({ length: this.cancion().cuenta_atras }, (_, i) => i + 1),
   );
   /** Escenario de la canción; si no se conoce, el puerto. */
   readonly escenario = computed<Escenario>(
@@ -123,6 +137,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
   /** Todas las pulsaciones de la partida: es lo único que se manda al backend. */
   private pulsaciones: Pulsacion[] = [];
   private animacion = 0;
+  private arrancando = false;
   private motor: Motor | null = null;
   private escena3d: Escena3d | null = null;
   /** Instante del fotograma anterior, en segundos, para saber cuánto ha pasado. */
@@ -158,6 +173,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
    */
   private async cargarEscena3d(id: string): Promise<void> {
     this.soltarEscena3d();
+    this.cargando3d.set(CON_3D.includes(id));
     if (!CON_3D.includes(id)) return;
     try {
       const { ESCENAS_3D, Motor } = await import('../../juego/escenas3d');
@@ -175,6 +191,10 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
       this.en3d.set(true);
     } catch {
       this.soltarEscena3d();
+    } finally {
+      // La cortina se retira tanto si ha salido bien como si se sigue con la versión plana,
+      // salvo si mientras tanto se ha empezado a cargar otra escena
+      if (this.cancion().escenario === id) this.cargando3d.set(false);
     }
   }
 
@@ -188,6 +208,17 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
 
   /** El audio solo puede arrancar después de un clic del usuario (norma de los navegadores). */
   async jugar(): Promise<void> {
+    // Mientras se preparan el audio y los sonidos no se puede volver a empezar (doble clic o J)
+    if (this.arrancando) return;
+    this.arrancando = true;
+    try {
+      await this.empezar();
+    } finally {
+      this.arrancando = false;
+    }
+  }
+
+  private async empezar(): Promise<void> {
     const c = this.cancion();
     this.audio ??= new AudioContext();
     await this.audio.resume();
@@ -222,7 +253,16 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
   @HostListener('window:keydown', ['$event'])
   protected alPulsarTecla(evento: KeyboardEvent): void {
     const tecla = TECLAS[evento.code];
-    if (!tecla || this.fase() !== 'jugando') return;
+    if (!tecla) return;
+    // En la tarjeta de inicio, J hace lo mismo que el botón de jugar
+    if (this.fase() === 'preparada' && tecla === 'accion' && this.conTeclaJ()) {
+      if (!this.cargando3d() && !evento.repeat) {
+        evento.preventDefault();
+        void this.jugar();
+      }
+      return;
+    }
+    if (this.fase() !== 'jugando') return;
     evento.preventDefault();
     if (!evento.repeat) this.pulsar(tecla);
   }

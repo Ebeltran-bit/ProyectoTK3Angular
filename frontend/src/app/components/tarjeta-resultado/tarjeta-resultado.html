@@ -1,0 +1,48 @@
+<div class="tarjeta-final" [class.con-estrellas]="estrellas() !== null">
+  @if (estrellas(); as n) {
+    <div class="estrellas" [attr.aria-label]="n + ' de 3 estrellas'" role="img">
+      @for (i of tres; track i) {
+        <span class="estrella" [class.vacia]="i > n" aria-hidden="true"><i>★</i></span>
+      }
+    </div>
+  } @else if (cinta()) {
+    <span class="cinta">{{ cinta() }}</span>
+  }
+
+  <p class="mensaje">{{ titulo() }}</p>
+
+  @if (resultado(); as r) {
+    <p class="puntos">
+      <strong>{{ puntosVistos() }}</strong
+      ><small>PUNTOS</small>
+    </p>
+    <div class="fichas">
+      <div class="ficha perfect">
+        <b>{{ r.perfect }}</b
+        ><span>PERFECT</span>
+      </div>
+      <div class="ficha great">
+        <b>{{ r.great }}</b
+        ><span>GREAT</span>
+      </div>
+      <div class="ficha miss">
+        <b>{{ r.miss }}</b
+        ><span>MISS</span>
+      </div>
+      <div class="ficha combo">
+        <b>×{{ r.comboMaximo }}</b
+        ><span>COMBO MÁX.</span>
+      </div>
+    </div>
+  }
+
+  @if (hype() !== null) {
+    <div class="hype">
+      <span>HYPE FINAL</span>
+      <div class="barra"><i [style.width.%]="hype()"></i></div>
+      <b>{{ hype() }}%</b>
+    </div>
+  }
+
+  <ng-content />
+</div>

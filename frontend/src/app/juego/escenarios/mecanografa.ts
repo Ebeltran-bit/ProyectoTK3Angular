@@ -157,7 +157,7 @@ const dibujar: DibujarEscena = (c, v) => {
 export const mecanografa: Escenario = {
   dibujar,
   instrucciones:
-    'Mira la pauta de abajo: cuando el cursor rojo llega a una casilla, pulsa su tecla. J para las letras (blancas) y K para la campanilla (amarilla), que siempre cierra la línea. La fila de debajo es la línea que viene.',
+    'Sigue la pauta: cuando el cursor rojo llega a una casilla, pulsa J para las letras y K para la campanilla que cierra la línea.',
   aviso: (m, t, tecla) => {
     // Clic suave antes de cada letra; un pulso antes de la K, la campanilla
     if (tecla === 'accion') m.tono('square', 2400, t, 0.015, 0.02);

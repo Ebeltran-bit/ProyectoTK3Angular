@@ -1,0 +1,218 @@
+/*
+ * Tarjeta de resultado (propuestas D y E, aprobadas por Eva el 12/11/2026).
+ * 1em es la centésima parte del ancho del escenario: la letra base la fija el reproductor.
+ * Los colores de las fichas son los del juicio durante la canción.
+ */
+:host {
+  display: block;
+}
+.tarjeta-final {
+  position: relative;
+  width: 58em;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2em;
+  padding: 3.3em 3em 2.4em;
+  border-radius: 3em;
+  text-align: center;
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-weight: 700;
+  color: var(--tinta);
+  background: linear-gradient(#ffffff, #fff1d6);
+  box-shadow:
+    0 0.7em 0 #e2c992,
+    0 2.2em 4em rgb(30 15 45 / 0.55),
+    inset 0 0.2em 0 #ffffff;
+}
+.tarjeta-final.con-estrellas {
+  padding-top: 5.5em;
+}
+p {
+  margin: 0;
+}
+
+/* ---------- Arriba: cinta de la ronda o estrellas ---------- */
+.cinta {
+  position: absolute;
+  top: -1.5em;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  padding: 0.35em 2em 0.4em;
+  border-radius: var(--redondo);
+  white-space: nowrap;
+  font-size: 1.3em;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: var(--coral);
+  box-shadow:
+    0 0.25em 0 var(--coral-oscuro),
+    0 0.6em 0.9em rgb(30 15 45 / 0.3);
+}
+.estrellas {
+  position: absolute;
+  top: -3.6em;
+  left: 50%;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.7em;
+  transform: translateX(-50%);
+}
+.estrella {
+  display: grid;
+  place-items: center;
+  width: 6em;
+  height: 6em;
+  border-radius: 50%;
+  font-size: 1em;
+  line-height: 1;
+  color: #ffffff;
+  background: radial-gradient(circle at 35% 30%, #ffe58a, #ffb72e 60%, #f08a1c);
+  box-shadow:
+    inset 0 -0.4em 0 rgb(160 70 0 / 0.35),
+    0 0.45em 0 #c98a12,
+    0 1em 1.4em rgb(30 15 45 / 0.35);
+}
+/* El símbolo va dentro, con su propio tamaño, para que no cambie la medida del círculo */
+.estrella i {
+  font-size: 3.6em;
+  font-style: normal;
+}
+.estrella:nth-child(2) i {
+  font-size: 4.6em;
+}
+.estrella:nth-child(2) {
+  width: 7.6em;
+  height: 7.6em;
+  margin-bottom: 0.8em;
+}
+.estrella.vacia {
+  color: #f4effa;
+  background: radial-gradient(circle at 35% 30%, #e9e2f2, #cfc4de);
+  box-shadow:
+    inset 0 -0.4em 0 rgb(80 60 110 / 0.25),
+    0 0.45em 0 #a99bbd,
+    0 1em 1.4em rgb(30 15 45 / 0.25);
+}
+/* Salen de una en una con un pequeño rebote */
+.estrella {
+  animation: estrella 0.3s cubic-bezier(0.3, 1.8, 0.5, 1) backwards;
+}
+.estrella:nth-child(1) {
+  animation-delay: 0.6s;
+}
+.estrella:nth-child(2) {
+  animation-delay: 0.85s;
+}
+.estrella:nth-child(3) {
+  animation-delay: 1.1s;
+}
+@keyframes estrella {
+  from {
+    scale: 0;
+  }
+}
+
+/* ---------- Mensaje, puntos y fichas ---------- */
+.mensaje {
+  font-size: 2.5em;
+  line-height: 1.15;
+}
+.puntos {
+  display: flex;
+  align-items: baseline;
+  gap: 1em;
+}
+.puntos strong {
+  font-size: 6em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.puntos small {
+  font-size: 1.2em;
+  letter-spacing: 0.14em;
+  color: var(--tinta-suave);
+}
+.fichas {
+  display: flex;
+  gap: 1em;
+  width: 45em;
+  max-width: 100%;
+}
+/* Las cuatro fichas, del mismo ancho */
+.ficha {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.55em 1.2em 0.65em;
+  border-radius: 1.6em;
+}
+.ficha b {
+  font-size: 2.6em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.ficha span {
+  font-size: 0.95em;
+  letter-spacing: 0.14em;
+}
+.ficha.perfect {
+  color: #a86a00;
+  background: #ffefb5;
+}
+.ficha.great {
+  color: #1f7f5a;
+  background: #d6f7e8;
+}
+.ficha.miss {
+  color: #6d5f85;
+  background: #ece6f3;
+}
+.ficha.combo {
+  color: #b93434;
+  background: #ffe1dc;
+}
+
+/* ---------- Hype final ---------- */
+.hype {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  width: 44em;
+  max-width: 100%;
+  white-space: nowrap;
+}
+.hype span,
+.hype b {
+  font-size: 1.05em;
+  letter-spacing: 0.14em;
+}
+.hype b {
+  color: var(--coral-oscuro);
+}
+.barra {
+  position: relative;
+  flex: 1;
+  height: 1.35em;
+  border-radius: var(--redondo);
+  background: #4a3a5c;
+  box-shadow: inset 0 0.18em 0.3em rgb(0 0 0 / 0.5);
+  overflow: hidden;
+}
+.barra i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: var(--redondo);
+  background: linear-gradient(90deg, var(--coral), var(--amarillo) 70%, #fff3a0);
+  box-shadow: inset 0 0.35em 0 rgb(255 255 255 / 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .estrella {
+    animation: none;
+  }
+}

@@ -55,3 +55,186 @@
   padding: 0.8rem 2rem;
   font-size: 1.3rem;
 }
+
+/* ---------- Sobre el escenario (propuestas B y E) ----------
+   Mide en «em»: la letra base la fija el reproductor y crece con el escenario. */
+.versus {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  font:
+    700 1.6em 'Fredoka',
+    sans-serif;
+}
+.contrincante {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.2em 0.95em 0.22em;
+  border-radius: var(--redondo);
+  background: #ffffff;
+  box-shadow: inset 0 0 0 0.13em #eadbb8;
+}
+.contrincante.yo {
+  background: #ffefb5;
+  box-shadow: inset 0 0 0 0.13em var(--amarillo);
+}
+.contrincante small {
+  padding: 0.05em 0.4em;
+  border-radius: var(--redondo);
+  font-size: 0.53em;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  background: var(--amarillo-oscuro);
+}
+.vs {
+  display: grid;
+  place-items: center;
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  font:
+    700 1.2em 'Fredoka',
+    sans-serif;
+  color: #ffffff;
+  background: var(--coral);
+  box-shadow: 0 0.2em 0 var(--coral-oscuro);
+}
+.aviso-intento {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  margin: 0;
+  padding: 0.35em 1.25em 0.4em;
+  border-radius: var(--redondo);
+  font:
+    700 1.2em/1.3 'Nunito',
+    sans-serif;
+  color: #b93434;
+  background: #ffe1dc;
+}
+.aviso-intento i {
+  width: 0.65em;
+  height: 0.65em;
+  border-radius: 50%;
+  background: var(--coral);
+}
+/* E1: tres puntos que se encienden por turnos mientras falta el rival */
+.espera {
+  display: flex;
+  align-items: center;
+  gap: 0.65em;
+  margin: 0;
+  padding: 0.35em 1.3em 0.4em;
+  border-radius: var(--redondo);
+  font:
+    700 1.25em/1.3 'Nunito',
+    sans-serif;
+  color: #6d5f85;
+  background: #ece6f3;
+}
+.espera i {
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: #9c8fb3;
+  animation: espera 1.2s infinite ease-in-out;
+}
+.espera i:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.espera i:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes espera {
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+/* E2: las dos puntuaciones, con la de quien gana en dorado */
+.marcas {
+  display: flex;
+  align-items: stretch;
+  gap: 1.2em;
+}
+.marcas .vs {
+  align-self: center;
+}
+/* En la tarjeta de inicio el círculo VS tiene la misma medida que en la final */
+.versus .vs {
+  font-size: 0.75em;
+}
+.marca {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 19em;
+  padding: 1.5em 1.6em 0.9em;
+  border-radius: 1.8em;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 0.22em #eadbb8;
+}
+.marca.gana {
+  background: #fff4c4;
+  box-shadow:
+    inset 0 0 0 0.3em var(--amarillo),
+    0 0.4em 0 var(--amarillo-oscuro);
+}
+.marca .nombre {
+  font-size: 1.7em;
+}
+.marca strong {
+  font-size: 3.8em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.marca .detalle {
+  font:
+    700 0.95em 'Nunito',
+    sans-serif;
+  color: var(--tinta-suave);
+}
+.sello {
+  position: absolute;
+  top: -1.1em;
+  padding: 0.15em 1.1em 0.2em;
+  border-radius: var(--redondo);
+  font-size: 0.9em;
+  letter-spacing: 0.14em;
+  color: #ffffff;
+  background: var(--amarillo-oscuro);
+  box-shadow: 0 0.2em 0 #b97f0c;
+}
+.nota-final,
+.error-envio {
+  margin: 0;
+  font:
+    700 1.15em 'Nunito',
+    sans-serif;
+  color: var(--tinta-suave);
+}
+.error-envio {
+  color: var(--error);
+}
+.error-envio button {
+  font-size: 1em;
+  padding: 0.2em 0.9em;
+}
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.2em;
+  margin-top: 0.4em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .espera i {
+    animation: none;
+  }
+}

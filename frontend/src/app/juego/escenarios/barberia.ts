@@ -535,7 +535,7 @@ const corte: SonidoAviso = (m, t, tecla) => {
 export const barberia: Escenario = {
   dibujar,
   instrucciones:
-    'Llamada y respuesta. El barbero rival corta un ritmo y tú lo repites justo en el compás siguiente. J es un tijeretazo y K una pasada de navaja. Los puntos de su espejo te recuerdan el patrón: blancos para J y amarillos para K.',
+    'El maestro corta un ritmo y tú lo repites en el compás siguiente. J es un tijeretazo y K una pasada de navaja.',
   aviso: corte,
   acierto: corte,
   grabados: {

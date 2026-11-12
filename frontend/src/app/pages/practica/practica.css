@@ -82,3 +82,28 @@
 .enlace {
   padding: 0.35rem 1rem;
 }
+/* Contenido de la tarjeta final (propuesta D). Mide en «em» para crecer con el escenario */
+.estado-partida {
+  margin: 0;
+  font:
+    700 1.15em/1.3 'Nunito',
+    sans-serif;
+  color: var(--tinta-suave);
+}
+.estado-partida.guardada {
+  color: #2f9c72;
+}
+.estado-partida.error {
+  color: var(--error);
+}
+.estado-partida button {
+  font-size: 1em;
+  padding: 0.2em 0.9em;
+}
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.2em;
+  margin-top: 0.4em;
+}

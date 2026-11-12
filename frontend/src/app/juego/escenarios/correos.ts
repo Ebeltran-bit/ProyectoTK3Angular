@@ -98,7 +98,7 @@ const dibujar: DibujarEscena = (c, v) => {
 export const correos: Escenario = {
   dibujar,
   instrucciones:
-    'Las cartas avanzan por la cinta. Pulsa J para sellar cada una justo cuando pasa bajo el sello. Las urgentes, en rojo, llegan a contratiempo.',
+    'Pulsa J para sellar cada carta justo cuando pasa bajo el sello. Las urgentes, en rojo, llegan a contratiempo.',
   aviso: (m, t) => {
     // Tic de la cinta
     m.tono('square', 2200, t, 0.02, 0.03);

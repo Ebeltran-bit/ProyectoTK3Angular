@@ -549,7 +549,7 @@ no puede dibujar en 3D.
 | --- | --- | --- |
 | 1. Base común y puerto | Motor 3D, personajes, materiales, luz, marcador nuevo y la escena del puerto animada | Hecha el 11/11/2026; Eva la probó en su portátil ese día y va fluida |
 | 2. Resto de escenas | Las otras ocho escenas en 3D | Hecha el 12/11/2026: las nueve escenas tienen versión 3D; falta que Eva las pruebe |
-| 3. Pantallas del juego | Inicio, final y transiciones (se enseñan propuestas antes) | Pendiente |
+| 3. Pantallas del juego | Inicio, final y transiciones (se enseñan propuestas antes) | Hecha el 12/11/2026; falta que Eva la pruebe |
 | 4. Sonido y mecánicas | Las mejoras aprobadas de la lista de arriba | Pendiente |
 | 5. Pruebas, rendimiento y pulido | Revisión de las nueve escenas en ordenadores reales | Pendiente |
 
@@ -605,6 +605,55 @@ Detalles que decidí yo (Claude) en esta etapa:
 - Sin comprobar todavía: el rendimiento en un portátil real (aquí solo se ha podido probar con un navegador
   sin tarjeta gráfica) y el diseño del marcador en pantallas de móvil.
 
+**Etapa 3: pantallas del juego**
+
+Aprobado por Eva el 12/11/2026, sobre las propuestas de la A a la H de
+[Pantallas del duelo de ritmo](https://claude.ai/artifact/9vRDpu3bPpdPvbvxHgnLia) (imágenes en
+`bocetos/renovacion-3d/etapa3-*.png`):
+- **A y B · Tarjeta de inicio.** La escena sigue viva detrás, algo oscurecida, y una tarjeta junta el
+  nivel, el título, el tempo, las notas, la explicación corta, qué hace cada tecla y el botón. En la
+  práctica la canción también empieza pulsando J. En el duelo se añaden quién juega contra quién (con
+  «TÚ»), la ronda y el aviso de que solo cuenta el primer intento completo.
+- **C · Cuenta de entrada.** Bajo el número que cuenta al pulso se enciende un punto por pulso.
+- **D · Final en la práctica.** Una a tres estrellas según el Hype final (70 % o más, tres; 40 % o más,
+  dos; menos, una; los mismos cortes que el mensaje de cada escena), el mensaje, los puntos, una ficha
+  de color por juicio, la barra del Hype y el estado del guardado. Solo se enseñan: no cambian reglas.
+- **E · Final en el duelo.** Mientras se envía, «Enviando tu partida…»; si falta el rival, tus fichas y
+  «Falta que juegue…»; si ya está resuelto, las dos puntuaciones oficiales con «Pasa de ronda».
+- **F · Cortina y móvil.** Mientras se descarga la parte 3D, una cortina con la nota que bota (la misma
+  pantalla de carga del duelo y del podio, ajustada al escenario) en lugar de ver un instante la escena
+  plana. En pantallas estrechas no hay tarjeta: lo esencial va en grande sobre la escena, la explicación
+  debajo y el resultado final bajo el escenario.
+- **G · Transiciones.** La cortina se desvanece, la tarjeta entra con un rebote y sube al pulsar Jugar,
+  los paneles del marcador caen uno detrás de otro mientras suena la cuenta y la tarjeta final sube con
+  las estrellas de una en una y los puntos contando. Todo con CSS y las animaciones de entrada y salida de
+  Angular (`animate.enter` y `animate.leave`), sin librerías. Con «reducir movimiento» no hay animación.
+- **H · Textos cortos.** La explicación de cada escena se queda en lo que hay que pulsar y cuándo, y se
+  corrigen las de la barbería y la mecanógrafa, que describían la versión plana.
+- Además, Eva pidió que **el escenario salga centrado** en la página (antes quedaba a la izquierda).
+
+| Pieza | Archivo |
+| --- | --- |
+| Tarjeta de inicio | `components/tarjeta-inicio/` |
+| Tarjeta de resultado (estrellas, puntos que cuentan, fichas y Hype) | `components/tarjeta-resultado/` |
+| Capas, cuenta con puntos, cortina, transiciones y móvil | `components/reproductor-ritmo/` |
+| Cortes de las estrellas y su función pura (con Vitest) | `juego/reglas.ts` (`ESTRELLAS`) y `juego/evaluacion.ts` (`estrellasPorHype`) |
+| Botones grandes del juego (`.boton-juego`) | `styles.css` |
+| Qué pone cada pantalla en las tarjetas | `pages/practica/` y `pages/duelo/` |
+
+Detalles que decidí yo (Claude) en esta etapa:
+- La tecla J para empezar solo vale en la práctica: en el duelo cuenta el primer intento y un toque sin
+  querer lo gastaría. Allí hay que pulsar el botón.
+- Con el duelo resuelto, la tarjeta final lleva «Ver podio» (de la mejora del torneo) además de «Volver
+  al torneo».
+- Las tarjetas miden en `em` y el reproductor fija la letra base a una centésima del ancho del escenario
+  (`1cqw`): así crecen y encogen con él igual que el marcador.
+- En `angular.json` suben los avisos de tamaño: el de la carga inicial de 500 a 550 kB (las pantallas
+  del juego suman unos 28 kB; comprimido, unos 6 kB) y el de los estilos de un componente de 8 a 10 kB.
+  Si se quisiera bajar, las pantallas de Práctica y Duelo podrían cargarse aparte, solo al abrirlas.
+- Sigue pendiente lo que anoté en la etapa 2: el rótulo PERFECT, GREAT o MISS sale siempre arriba en
+  el centro y en Correos tapa el moño de la cartera.
+
 ## Estado por fases
 
 - [x] Fase 1 · Participantes: crear, consultar, editar, activar/desactivar, persistencia.
@@ -612,4 +661,4 @@ Detalles que decidí yo (Claude) en esta etapa:
 - [x] Fase 3 · Combates, rondas y campeón: registrar ganadores, avance automático, campeón y torneo cerrado.
 - [ ] Fase 4 · Informes y entrega: estadísticas e historial hechos; quedan la revisión final y el vídeo.
 - [x] Ampliación · Duelo de ritmo: sesión, motor con 9 escenarios, récords de práctica, IA y duelos en el torneo.
-- [ ] Renovación 3D del juego: etapas 1 y 2 hechas (base común y las nueve escenas en 3D); faltan pantallas, sonido, mecánicas y pulido.
+- [ ] Renovación 3D del juego: etapas 1, 2 y 3 hechas (base común, las nueve escenas en 3D y las pantallas del juego); faltan sonido, mecánicas y pulido.

@@ -1,6 +1,8 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
 
 import { ReproductorRitmo } from '../../components/reproductor-ritmo/reproductor-ritmo';
+import { TarjetaResultado } from '../../components/tarjeta-resultado/tarjeta-resultado';
+import { estrellasPorHype } from '../../juego/evaluacion';
 import {
   Cancion,
   CancionResumen,
@@ -19,7 +21,7 @@ import { mensajeError } from '../../services/mensaje-error';
  */
 @Component({
   selector: 'app-practica',
-  imports: [ReproductorRitmo],
+  imports: [ReproductorRitmo, TarjetaResultado],
   templateUrl: './practica.html',
   styleUrl: './practica.css',
 })
@@ -36,6 +38,24 @@ export class Practica implements OnInit {
   protected readonly guardando = signal(false);
   protected readonly errorGuardar = signal<string | null>(null);
   private pulsaciones: Pulsacion[] = [];
+  private readonly reproductor = viewChild(ReproductorRitmo);
+
+  /**
+   * Lo que enseña la tarjeta final: la puntuación oficial del backend en cuanto llega y,
+   * mientras tanto, la que ha contado el navegador (suelen coincidir).
+   */
+  protected readonly final = computed(() => {
+    const reproductor = this.reproductor();
+    if (!reproductor) return null;
+    const r = this.oficial();
+    const datos = r ? { ...r, comboMaximo: r.combo_maximo } : reproductor.marcador();
+    return {
+      datos,
+      hype: datos.hype,
+      estrellas: estrellasPorHype(datos.hype),
+      mensaje: reproductor.escenario().mensajeFinal(datos.hype),
+    };
+  });
 
   /** Filtro por nivel y orden de la lista (solo afectan a lo que se ve). */
   protected readonly niveles: Nivel[] = ['facil', 'media', 'dificil'];
@@ -81,10 +101,10 @@ export class Practica implements OnInit {
   }
 
   /** Empieza otra vez la misma canción. */
-  protected otraVez(reproductor: ReproductorRitmo): void {
+  protected otraVez(): void {
     this.oficial.set(null);
     this.errorGuardar.set(null);
-    reproductor.jugar();
+    void this.reproductor()?.jugar();
   }
 
   /** Al acabar la canción se mandan las pulsaciones; el récord usa la puntuación del backend. */

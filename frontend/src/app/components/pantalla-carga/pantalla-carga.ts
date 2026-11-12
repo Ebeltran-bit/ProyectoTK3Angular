@@ -2,12 +2,14 @@ import { Component, input } from '@angular/core';
 
 /**
  * Pantalla de carga de las páginas del duelo y del podio: una nota musical que bota,
- * un título y un texto. Es la «cortina de carga» de las propuestas de la etapa 3
+ * un título y un texto. Con «enEscena» tapa el escenario del juego mientras se prepara la
+ * parte 3D (propuesta F1): ocupa todo el escenario y sus medidas crecen con él. Es la «cortina de carga» de las propuestas de la etapa 3
  * (bocetos/renovacion-3d), pero sobre el fondo de rayas de la web (decisión de Eva,
  * 12/11/2026).
  */
 @Component({
   selector: 'app-pantalla-carga',
+  host: { '[class.en-escena]': 'enEscena()' },
   template: `
     <div class="carga" role="status">
       <span class="nota" aria-hidden="true">♪</span>
@@ -58,6 +60,31 @@ import { Component, input } from '@angular/core';
       font-weight: 700;
       color: var(--tinta-suave);
     }
+    /* Dentro del escenario: lo tapa entero, con puntos dorados sobre crema, y todo se mide
+       en cqw (centésimas del ancho del escenario), como el marcador */
+    :host(.en-escena) {
+      position: absolute;
+      inset: 0;
+      background: #fff6e0 radial-gradient(circle, #ffe3a6 0.45cqw, transparent 0.5cqw) 0 0 / 4cqw
+        4cqw;
+    }
+    :host(.en-escena) .carga {
+      height: 100%;
+      min-height: 0;
+      gap: 1.4cqw;
+    }
+    :host(.en-escena) .nota {
+      width: 9cqw;
+      height: 9cqw;
+      margin-bottom: 0;
+      font-size: 5cqw;
+    }
+    :host(.en-escena) .titulo {
+      font-size: 3cqw;
+    }
+    :host(.en-escena) .texto {
+      font-size: 1.4cqw;
+    }
     @keyframes bote {
       to {
         transform: translateY(-1rem);
@@ -68,4 +95,5 @@ import { Component, input } from '@angular/core';
 export class PantallaCarga {
   readonly titulo = input.required<string>();
   readonly texto = input.required<string>();
+  readonly enEscena = input(false);
 }

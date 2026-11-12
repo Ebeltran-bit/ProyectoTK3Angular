@@ -320,7 +320,7 @@ const dibujar: DibujarEscena = (c, v) => {
 export const ramen: Escenario = {
   dibujar,
   instrucciones:
-    'La verdura avanza hacia el cuchillo. Pulsa J justo cuando cada línea de puntos pasa bajo el cuchillo: cuanto más juntas, más rápido. Tras el último corte la tapa de la olla se levanta: medio pulso después, pulsa K a contratiempo para echar los trozos.',
+    'Pulsa J cuando cada marca de puntos pasa bajo el cuchillo. Cuando se levante la tapa de la olla, pulsa K medio pulso después.',
   aviso: (m, t, tecla) => {
     // Los cortes no tienen aviso: ya se ven llegar las líneas y un clic encima de otro corte despistaba.
     // La olla sí: la tapa tintinea un pulso antes de la K

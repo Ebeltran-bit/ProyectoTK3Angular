@@ -160,7 +160,7 @@ const dibujar: DibujarEscena = (c, v) => {
 export const huerto: Escenario = {
   dibujar,
   instrucciones:
-    'La abeja vuela hasta la calabaza que tiene sed. Pulsa J cuando se pose para regarla: cada acierto la hace crecer un poco.',
+    'La abeja vuela hasta la calabaza que tiene sed. Pulsa J justo cuando se pose para regarla.',
   aviso: (m, t) => {
     // Zumbido de la abeja
     const o = m.tono('sawtooth', 220, t, 0.3, 0.03);

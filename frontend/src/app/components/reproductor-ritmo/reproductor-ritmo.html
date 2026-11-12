@@ -10,7 +10,8 @@
   <!-- Aquí dentro crea el motor 3D su propio lienzo -->
   <div #marco3d class="marco3d" [hidden]="!en3d()"></div>
 
-  <div class="marcador" aria-live="off">
+  <!-- El marcador solo se ve mientras suena la canción: cae desde arriba al empezar -->
+  <div class="marcador" [class.fuera]="fase() !== 'jugando'" aria-live="off">
     <div class="panel hype" title="Hype del público">
       <span class="medalla" aria-hidden="true">★</span>
       <div class="columna">
@@ -51,6 +52,12 @@
     @for (v of [n]; track v) {
       <div class="cuenta">{{ v }}</div>
     }
+    <!-- Un punto por pulso de la cuenta, para ver cuánto falta para la primera nota -->
+    <div class="compas" aria-hidden="true">
+      @for (p of pulsosCuenta(); track p) {
+        <i [class.lleno]="p <= n"></i>
+      }
+    </div>
   }
 
   @if (juicio(); as j) {
@@ -74,7 +81,7 @@
 
   <!-- En la versión plana no se enseña: sus escenas ya usan la parte de abajo -->
   @if (fase() === 'jugando' && en3d()) {
-    <div class="teclas">
+    <div class="teclas" animate.enter="entra">
       <div class="tecla">
         @for (v of [pulsada()?.tecla === 'accion' ? pulsada()!.vez : 0]; track v) {
           <kbd [class.pulsada]="v > 0">J</kbd>
@@ -102,23 +109,47 @@
     </div>
   }
 
-  @if (fase() === 'preparada') {
-    <div class="capa">
-      @if (aviso()) {
-        <p>{{ aviso() }}</p>
-      }
-      <p>{{ escenario().instrucciones }}</p>
-      <button type="button" class="principal" (click)="jugar()">{{ textoJugar() }}</button>
+  @if (fase() === 'preparada' && !cargando3d()) {
+    <!-- Tarjeta de inicio (propuestas A y B): la escena sigue viva detrás, solo algo oscurecida -->
+    <div class="capa inicio" animate.enter="entra" animate.leave="sale">
+      <app-tarjeta-inicio
+        [cancion]="cancion()"
+        [escenario]="escenario()"
+        [ronda]="ronda()"
+        [aviso]="aviso()"
+        [textoJugar]="textoJugar()"
+        [conTeclaJ]="conTeclaJ()"
+        (jugar)="jugar()"
+      >
+        <!-- Lo que pone la pantalla del duelo pasa tal cual a la tarjeta -->
+        <ng-container ngProjectAs="[arriba]"><ng-content select="[inicio-arriba]" /></ng-container>
+        <ng-container ngProjectAs="[abajo]"><ng-content select="[inicio-abajo]" /></ng-container>
+      </app-tarjeta-inicio>
     </div>
   }
 
   @if (fase() === 'terminada') {
     <!-- Lo que se ve al acabar lo decide la pantalla que usa el reproductor -->
-    <div class="capa">
-      <ng-content />
+    <div class="capa final" animate.enter="entra">
+      <div class="contenido-final"><ng-content /></div>
     </div>
   }
+
+  <!-- Cortina mientras se prepara la escena 3D (propuesta F1): evita ver un instante la plana -->
+  @if (cargando3d()) {
+    <app-pantalla-carga
+      [enEscena]="true"
+      [titulo]="cancion().titulo"
+      texto="Preparando el escenario…"
+      animate.leave="sale"
+    />
+  }
 </div>
+
+<!-- En el móvil la tarjeta de inicio no cabe entera: la explicación pasa aquí debajo (F2) -->
+@if (fase() === 'preparada') {
+  <p class="explicacion-movil">{{ escenario().instrucciones }}</p>
+}
 
 <p class="ayuda">
   <kbd>J</kbd> acción · <kbd>K</kbd> alternativa · en el móvil, toca la pantalla. PERFECT ±40 ms ·

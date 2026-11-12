@@ -151,7 +151,7 @@ const dibujar: DibujarEscena = (c, v) => {
 export const patitos: Escenario = {
   dibujar,
   instrucciones:
-    'Mamá pata hace cuac y sus patitos llegan al charco. Pulsa J justo cuando un patito pisa la piedra del borde para que salte el charco. Si vienen dos seguidos, el segundo (más clarito) salta con K.',
+    'Pulsa J cuando un patito pisa la piedra para que salte el charco. Si vienen dos seguidos, el segundo (más clarito) salta con K.',
   aviso: (m, t, tecla) => {
     // Cuac de mamá pata: grave si es un patito, más agudo si es el segundo de una pareja
     const o = m.tono('sawtooth', tecla === 'accion' ? 330 : 440, t, 0.14, 0.05);

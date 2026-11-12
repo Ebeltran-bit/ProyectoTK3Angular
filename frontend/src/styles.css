@@ -122,6 +122,56 @@ button[type='submit']:active:not(:disabled) {
   background: var(--amarillo);
   box-shadow: 0 5px 0 var(--amarillo-oscuro);
 }
+/* Botones grandes del juego, encima del escenario (etapa 3 de la renovación 3D, aprobada por
+   Eva el 12/11/2026). Miden en «em» para crecer y encoger con el escenario: la letra base la
+   fija el reproductor. Coral para la acción principal y crema («claro») para la otra. */
+.boton-juego {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+  padding: 0.75em 3em 0.9em;
+  border-radius: var(--redondo);
+  font:
+    700 1.9em 'Fredoka',
+    'Nunito',
+    sans-serif;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: #ffffff;
+  text-decoration: none;
+  background: linear-gradient(#ff8a7a, #ff5a5a);
+  box-shadow:
+    0 0.25em 0 #c93c3c,
+    0 0.55em 0.8em rgb(60 10 20 / 0.35),
+    inset 0 0.08em 0 rgb(255 255 255 / 0.5);
+  cursor: pointer;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+.boton-juego:hover:not(:disabled) {
+  transform: scale(1.04, 0.97) translateY(1px);
+}
+.boton-juego:active:not(:disabled) {
+  transform: translateY(0.18em);
+  box-shadow:
+    0 0.07em 0 #c93c3c,
+    inset 0 0.08em 0 rgb(255 255 255 / 0.5);
+}
+.boton-juego.claro {
+  color: var(--tinta);
+  background: linear-gradient(#ffffff, #ffe9b8);
+  box-shadow:
+    0 0.25em 0 #d9b56a,
+    0 0.55em 0.8em rgb(60 10 20 / 0.2),
+    inset 0 0.08em 0 #ffffff;
+}
+.boton-juego.claro:active:not(:disabled) {
+  box-shadow:
+    0 0.07em 0 #d9b56a,
+    inset 0 0.08em 0 #ffffff;
+}
 /* Enlace para volver atrás (al torneo, a la lista…): píldora blanca más pequeña,
    separada del título que tiene debajo */
 a.volver {

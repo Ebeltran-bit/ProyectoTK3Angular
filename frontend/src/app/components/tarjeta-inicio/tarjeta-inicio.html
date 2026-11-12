@@ -1,0 +1,30 @@
+<div class="carta">
+  <span class="cinta" [attr.data-nivel]="cancion().nivel">{{ nombreNivel[cancion().nivel] }}</span>
+  <!-- Aquí la pantalla del duelo pone quién juega contra quién -->
+  <ng-content select="[arriba]" />
+  <h3 class="c-titulo">{{ cancion().titulo }}</h3>
+  <p class="c-datos">
+    @if (ronda(); as r) {
+      {{ r }} ·
+    }
+    {{ cancion().bpm }} BPM · {{ cancion().notas.length }} notas
+  </p>
+  @if (aviso()) {
+    <p class="c-aviso">{{ aviso() }}</p>
+  }
+  <p class="c-texto">{{ escenario().instrucciones }}</p>
+  <div class="c-teclas">
+    <span class="c-tecla"><kbd>J</kbd>{{ escenario().teclas.accion.texto }}</span>
+    @if (escenario().teclas.alterna; as alterna) {
+      <span class="c-tecla"><kbd class="k">K</kbd>{{ alterna.texto }}</span>
+    }
+  </div>
+  <!-- Y aquí, el aviso de que solo cuenta el primer intento -->
+  <ng-content select="[abajo]" />
+  <button type="button" class="boton-juego" (click)="jugar.emit()">
+    <span class="triangulo" aria-hidden="true"></span>{{ textoJugar() }}
+  </button>
+  @if (conTeclaJ()) {
+    <p class="c-pista">o pulsa <kbd>J</kbd> para empezar</p>
+  }
+</div>

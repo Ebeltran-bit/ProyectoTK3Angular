@@ -17,3 +17,9 @@ export const HYPE_MAXIMO = 100;
 
 /** Teclas del juego: J para la acción principal y K para la alternativa. */
 export const TECLAS: Record<string, 'accion' | 'alterna'> = { KeyJ: 'accion', KeyK: 'alterna' };
+
+/**
+ * Estrellas de la tarjeta final según el Hype con que acaba la canción. Son los mismos cortes
+ * que usa el mensaje final de cada escena. Solo se enseñan: no cambian la puntuación.
+ */
+export const ESTRELLAS = { tres: 70, dos: 40 } as const;

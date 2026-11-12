@@ -1,0 +1,177 @@
+/*
+ * Tarjeta de inicio (propuestas A y B, aprobadas por Eva el 12/11/2026).
+ * 1em es la centésima parte del ancho del escenario: la letra base la fija el reproductor.
+ */
+:host {
+  display: block;
+}
+.carta {
+  position: relative;
+  width: 52em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.15em;
+  padding: 3.3em 3em 2.4em;
+  border-radius: 3em;
+  text-align: center;
+  background: linear-gradient(#ffffff, #fff1d6);
+  box-shadow:
+    0 0.7em 0 #e2c992,
+    0 2.2em 4em rgb(30 15 45 / 0.55),
+    inset 0 0.2em 0 #ffffff;
+}
+.carta p,
+.carta h3 {
+  margin: 0;
+}
+.cinta {
+  position: absolute;
+  top: -1.5em;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  padding: 0.35em 2em 0.4em;
+  border-radius: var(--redondo);
+  white-space: nowrap;
+  font-size: 1.3em;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: var(--menta-oscuro);
+  box-shadow:
+    0 0.25em 0 #2f9c72,
+    0 0.6em 0.9em rgb(30 15 45 / 0.3);
+}
+.cinta[data-nivel='media'] {
+  background: var(--azul);
+  box-shadow:
+    0 0.25em 0 var(--azul-oscuro),
+    0 0.6em 0.9em rgb(30 15 45 / 0.3);
+}
+.cinta[data-nivel='dificil'] {
+  background: var(--coral);
+  box-shadow:
+    0 0.25em 0 var(--coral-oscuro),
+    0 0.6em 0.9em rgb(30 15 45 / 0.3);
+}
+.c-titulo {
+  font-size: 4.2em;
+  line-height: 1.05;
+}
+.c-datos {
+  font-size: 1.15em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+.c-texto {
+  font:
+    700 1.5em/1.4 'Nunito',
+    system-ui,
+    sans-serif;
+  /* 46 centésimas del escenario (la letra de este texto es 1,5 veces la base) */
+  max-width: 30.7em;
+}
+.c-aviso {
+  padding: 0.4em 1.5em 0.45em;
+  border-radius: var(--redondo);
+  font:
+    700 1.2em/1.3 'Nunito',
+    sans-serif;
+  color: #6d5f85;
+  background: #ece6f3;
+}
+.c-teclas {
+  display: flex;
+  gap: 1.2em;
+}
+.c-tecla {
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.35em 1.1em 0.35em 0.4em;
+  border-radius: var(--redondo);
+  font-size: 1.5em;
+  font-weight: 500;
+  background: #f7e7c3;
+  box-shadow: inset 0 0.1em 0 #ecd6a4;
+}
+.c-tecla kbd,
+.c-pista kbd {
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-weight: 700;
+  color: var(--tinta);
+}
+.c-tecla kbd {
+  display: grid;
+  place-items: center;
+  width: 2em;
+  height: 2em;
+  padding: 0;
+  border-radius: 0.55em;
+  font-size: 1.15em;
+  background: linear-gradient(#ffffff, #ffe9b8);
+  box-shadow:
+    0 0.2em 0 #d9b56a,
+    inset 0 0.1em 0 #ffffff;
+}
+.c-tecla kbd.k {
+  background: linear-gradient(#fff6c8, var(--amarillo));
+  box-shadow:
+    0 0.2em 0 var(--amarillo-oscuro),
+    inset 0 0.1em 0 #ffffff;
+}
+.boton-juego {
+  font-size: 2.4em;
+  padding: 0.35em 1.75em 0.42em;
+}
+.triangulo {
+  width: 0;
+  height: 0;
+  border: 0.36em solid transparent;
+  border-left: 0.6em solid currentColor;
+  border-right: 0;
+}
+.c-pista {
+  font-size: 1.1em;
+  font-weight: 500;
+  color: var(--tinta-suave);
+}
+.c-pista kbd {
+  display: inline-grid;
+  place-items: center;
+  width: 1.7em;
+  height: 1.7em;
+  padding: 0;
+  border-radius: 0.45em;
+  background: #f7e7c3;
+  box-shadow: 0 0.18em 0 #d9b56a;
+}
+
+/* Móvil (propuesta F2): sin tarjeta, lo esencial en grande directamente sobre la escena */
+@media (max-width: 640px) {
+  .carta {
+    width: auto;
+    gap: 1em;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .cinta {
+    position: static;
+    transform: rotate(-2deg);
+  }
+  .c-titulo {
+    font-size: 3.6em;
+    color: #ffffff;
+    text-shadow: 0 0.07em 0 rgb(40 28 56 / 0.6);
+  }
+  .c-datos,
+  .c-texto,
+  .c-pista {
+    display: none;
+  }
+  .c-tecla {
+    color: var(--tinta);
+  }
+}

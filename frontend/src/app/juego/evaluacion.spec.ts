@@ -4,6 +4,7 @@ import {
   aplicarJuicio,
   cerrarNotasPasadas,
   crearPartida,
+  estrellasPorHype,
   juzgarDesfase,
   marcadorInicial,
   pulsar,
@@ -163,5 +164,18 @@ describe('una canción de ejemplo completa', () => {
       great: 1,
       miss: 1,
     });
+  });
+});
+
+describe('estrellasPorHype', () => {
+  it.each([
+    [100, 3],
+    [70, 3],
+    [69, 2],
+    [40, 2],
+    [39, 1],
+    [0, 1],
+  ])('con un Hype de %i da %i estrellas', (hype, estrellas) => {
+    expect(estrellasPorHype(hype)).toBe(estrellas);
   });
 });

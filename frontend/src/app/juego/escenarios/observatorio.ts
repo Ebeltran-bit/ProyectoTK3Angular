@@ -127,7 +127,7 @@ const dibujar: DibujarEscena = (c, v) => {
 export const observatorio: Escenario = {
   dibujar,
   instrucciones:
-    'Las estrellas llegan por la izquierda y por la derecha, todas a la misma velocidad: cuanto más juntas vienen, más seguido tendrás que pulsar. Al principio cada compás viene de un lado; después se alternan una a una. Pulsa J cuando cada una llega a la mira del centro. Los cometas grandes y naranjas se fotografían con K.',
+    'Pulsa J cuando cada estrella llega a la mira del centro. Los cometas, grandes y naranjas, se fotografían con K.',
   aviso: (m, t, tecla) => {
     // Destello que sube: más grave y largo si es un cometa
     const o = m.tono(

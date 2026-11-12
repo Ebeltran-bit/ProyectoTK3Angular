@@ -4,6 +4,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IconoUsuario } from '../../components/icono-usuario/icono-usuario';
 import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
 import { ReproductorRitmo } from '../../components/reproductor-ritmo/reproductor-ritmo';
+import {
+  conEspacios,
+  DatosResultado,
+  TarjetaResultado,
+} from '../../components/tarjeta-resultado/tarjeta-resultado';
 import { Cancion, NOMBRE_NIVEL, Pulsacion } from '../../models/cancion';
 import { Duelo as DatosDuelo } from '../../models/duelo';
 import { nombreRonda } from '../../models/torneo';
@@ -20,7 +25,7 @@ import { mensajeError } from '../../services/mensaje-error';
  */
 @Component({
   selector: 'app-duelo',
-  imports: [RouterLink, ReproductorRitmo, IconoUsuario, PantallaCarga],
+  imports: [RouterLink, ReproductorRitmo, TarjetaResultado, IconoUsuario, PantallaCarga],
   templateUrl: './duelo.html',
   styleUrl: './duelo.css',
 })
@@ -45,6 +50,7 @@ export class Duelo implements OnInit {
   /** true cuando el usuario ya ha mandado su partida (para enseñar su resultado sobre el escenario). */
   protected readonly enviado = signal(false);
   protected readonly nombreNivel = NOMBRE_NIVEL;
+  protected readonly conEspacios = conEspacios;
   private pulsaciones: Pulsacion[] = [];
 
   protected readonly titulo = computed(() => {
@@ -115,10 +121,29 @@ export class Duelo implements OnInit {
     });
   }
 
+  /** Participante con el que juega el usuario de la sesión. */
+  protected readonly miParticipante = computed(() => this.auth.usuario()?.id_participante ?? null);
+
+  /** El otro jugador del duelo. */
+  protected readonly rival = computed(
+    () => this.duelo()?.jugadores.find((j) => j.participante.id !== this.miParticipante()) ?? null,
+  );
+
   /** Mi resultado, cuando acabo de mandarlo: el backend me lo enseña aunque el rival no haya jugado. */
-  protected readonly miResultado = computed(() => {
+  protected readonly misDatos = computed<DatosResultado | null>(() => {
     if (!this.enviado()) return null;
-    const miParticipante = this.auth.usuario()?.id_participante;
-    return this.duelo()?.jugadores.find((j) => j.participante.id === miParticipante)?.resultado;
+    const r = this.duelo()?.jugadores.find(
+      (j) => j.participante.id === this.miParticipante(),
+    )?.resultado;
+    return r ? { ...r, comboMaximo: r.combo_maximo } : null;
+  });
+
+  /** Título de la tarjeta final: cambia según se envía la partida y juega el rival. */
+  protected readonly tituloFinal = computed(() => {
+    const g = this.ganador();
+    if (g) return `${g.participante.nick} gana el duelo`;
+    if (this.misDatos()) return 'Partida enviada';
+    if (this.errorEnvio()) return 'No se ha enviado tu partida';
+    return 'Enviando tu partida…';
   });
 }
