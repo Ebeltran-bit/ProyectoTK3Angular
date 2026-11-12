@@ -143,7 +143,8 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | GET | `/api/canciones` | Canciones del duelo de ritmo, sin notas: título, nivel, BPM y escenario (etapa 3) |
 | GET | `/api/canciones/{id}` | Beatmap completo: notas que hay que pulsar y pistas de la música (etapa 3) |
 | POST | `/api/canciones/{id}/partidas` | Guarda una partida de práctica (`{"pulsaciones": [{"ms": 2730, "tecla": "accion"}]}`). El backend calcula y devuelve la puntuación |
-| GET | `/api/estadisticas/canciones` | Récords: top 5 de cada canción, con la mejor partida de cada usuario |
+| GET | `/api/estadisticas/canciones` | Récords: top 3 de cada canción, con la mejor partida de cada usuario, de la más fácil a la más difícil |
+| GET | `/api/estadisticas/canciones/{id}` | Top 10 de una canción, una marca por usuario (404 si la canción no existe) |
 | GET | `/api/estadisticas/participantes` | Combates, victorias, derrotas y torneos ganados de cada participante (fase 4). Los BYE no cuentan |
 
 No hay DELETE a propósito: el enunciado dice que desactivar no es borrar.
@@ -212,6 +213,14 @@ antes de programarlas.
   Claude).
 - El historial de combates está en la pantalla de cada torneo, debajo del cuadro, agrupado por rondas.
   Usa los combates que ya devuelve `GET /api/torneos/{id}`, así que no necesita endpoint propio.
+- **Mejoras de las estadísticas (pedidas por Eva el 12/11/2026):** la pestaña *Canciones* sale primero y
+  las canciones van de más fácil a más difícil; cada usuario lleva su icono al lado del nombre (en
+  participantes y en canciones); la lista enseña el top 3 de cada canción, y al pulsar una canción se abre
+  `/estadisticas/canciones/:id` con su top 10 y un podio de los tres primeros. Eva eligió que el top 10
+  sea de puntuaciones, una por usuario, con el endpoint nuevo `GET /api/estadisticas/canciones/{id}`.
+  *Detalles míos (Claude):* dentro del mismo nivel, primero la canción más lenta (menos BPM); quien no
+  eligió icono sale con el animal de su participante (`iconoDeMarca`), el mismo que en el torneo; el podio
+  reutiliza los estilos de `pages/podio/podio.css` para que se vea igual que el del duelo.
 
 **Interfaz**
 - Icono de usuario (aprobado por Eva el 05/11/2026): pulsando en el nombre de la cabecera se abre un panel
@@ -437,8 +446,8 @@ Detalles que decidí yo (Claude) en esta etapa:
 en la tabla nueva `tk3_partidas`. El navegador solo manda las pulsaciones y el backend calcula la
 puntuación con `servicios/ritmo.py`, que repite las reglas de `juego/evaluacion.ts` con los mismos casos de
 prueba (`tests/test_ritmo.py`), así nadie puede inventarse un récord y la misma lógica servirá para validar
-los duelos en la etapa 6. En *Estadísticas › Canciones* sale el top 5 de cada canción, una marca por
-usuario. Empates: más PERFECT, luego menos MISS y luego quien lo consiguió antes. Detalles míos: se
+los duelos en la etapa 6. En *Estadísticas › Canciones* sale el top 3 de cada canción (antes top 5), una marca por
+usuario, y el top 10 en la pantalla de cada canción. Empates: más PERFECT, luego menos MISS y luego quien lo consiguió antes. Detalles míos: se
 rechazan las partidas con pulsaciones fuera de la canción o con más de tres por nota (más 20), y el
 nombre que se muestra es el nombre de usuario.
 
@@ -469,6 +478,7 @@ nombre que se muestra es el nombre de usuario.
 | Endpoints | `backend/app/routers/torneos.py` |
 | Pantalla del duelo | `frontend/src/app/pages/duelo/` |
 | Podio del duelo y del torneo | `frontend/src/app/pages/podio/` |
+| Top 10 de una canción con podio | `frontend/src/app/pages/top-cancion/` |
 | Reproductor | `frontend/src/app/components/reproductor-ritmo/` |
 
 Detalles que decidí yo (Claude):
