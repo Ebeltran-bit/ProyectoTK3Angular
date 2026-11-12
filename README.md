@@ -183,7 +183,7 @@ antes de programarlas.
 - FastAPI con SQL directo (PyMySQL), sin ORM. Angular 21. Contraseña de la base de datos en `backend/.env`.
 - Todas las tablas en `2DAM_alumno03` con prefijo `tk3_`.
 - El nick es único (lo garantiza la base de datos con `UNIQUE`).
-- El logo es una URL de imagen opcional. Si no hay logo o no carga, se muestra la inicial del nick.
+- El logo es una URL de imagen opcional. Si no hay logo o no carga, se muestra un animal fijo según su id.
 - Un torneo tiene nombre (máximo 60 caracteres) y fecha de creación automática.
 
 **Reglas del torneo**
