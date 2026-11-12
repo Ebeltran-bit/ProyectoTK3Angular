@@ -262,6 +262,12 @@ antes de programarlas.
   llega a jugar nunca, el combate se puede seguir cerrando pulsando el ganador en el cuadro.
   *Detalle de implementación (Claude):* la IA juega dentro del `GET` del duelo porque es el momento en que
   alguien lo mira, igual que la canción se elige la primera vez que se abre.
+- Cuando un duelo tiene ganador, sale el botón *Ver podio* (en la lista de jugadores y sobre el escenario
+  al acabar), que abre `/torneos/:id/combates/:idCombate/podio` (opción elegida por Eva). En un duelo
+  cualquiera, el ganador en el escalón alto y el perdedor en el segundo, con sus puntos. Si el duelo era
+  la final, el podio del torneo: campeón, subcampeón y, en el tercer escalón, quienes perdieron las
+  semifinales (uno o dos, según los BYE). El podio no calcula ganadores: solo coloca lo que ya decidió el
+  backend.
 
 ## Duelo de ritmo (ampliación)
 
@@ -456,6 +462,7 @@ nombre que se muestra es el nombre de usuario.
 | SQL de los duelos | `backend/app/repositorios/duelos_repo.py` |
 | Endpoints | `backend/app/routers/torneos.py` |
 | Pantalla del duelo | `frontend/src/app/pages/duelo/` |
+| Podio del duelo y del torneo | `frontend/src/app/pages/podio/` |
 | Reproductor | `frontend/src/app/components/reproductor-ritmo/` |
 
 Detalles que decidí yo (Claude):

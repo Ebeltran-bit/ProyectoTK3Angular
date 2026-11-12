@@ -31,6 +31,8 @@ export class Duelo implements OnInit {
 
   protected readonly idTorneo = Number(this.ruta.snapshot.paramMap.get('id'));
   private readonly idCombate = Number(this.ruta.snapshot.paramMap.get('idCombate'));
+  /** Cuando el duelo tiene ganador, se puede ver su podio (o el del torneo, si era la final). */
+  protected readonly rutaPodio = ['/torneos', this.idTorneo, 'combates', this.idCombate, 'podio'];
 
   protected readonly duelo = signal<DatosDuelo | null>(null);
   /** Beatmap completo; solo se pide si al usuario le toca jugar. */

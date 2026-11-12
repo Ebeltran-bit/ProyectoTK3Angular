@@ -1,0 +1,65 @@
+<section>
+  <a [routerLink]="['/torneos', idTorneo]" class="volver">← Volver al torneo</a>
+
+  @if (error()) {
+    <p class="mensaje-error">
+      {{ error() }} <button type="button" (click)="cargar()">Reintentar</button>
+    </p>
+  } @else if (cargando()) {
+    <p class="mensaje-carga">Preparando el podio…</p>
+  } @else if (duelo(); as d) {
+    @if (d.id_ganador === null) {
+      <p class="aviso">Este duelo todavía no tiene ganador: el podio sale cuando termina.</p>
+      <a class="principal" [routerLink]="['/torneos', idTorneo, 'combates', idCombate, 'duelo']"
+        >Ir al duelo</a
+      >
+    } @else {
+      <h2 class="titulo">{{ titulo() }}</h2>
+      @if (torneo(); as t) {
+        <p class="subtitulo">{{ t.nombre }}</p>
+      }
+      <ol class="podio" role="list">
+        @for (e of escalones(); track e.puesto; let i = $index) {
+          <li
+            class="escalon"
+            [attr.data-puesto]="e.puesto"
+            [style.--orden]="i"
+            [attr.aria-label]="descripcion(e)"
+          >
+            <div class="quienes">
+              @for (p of e.participantes; track p.id) {
+                <div class="persona">
+                  @if (e.puesto === 1) {
+                    <span class="corona" aria-hidden="true">👑</span>
+                  }
+                  <app-icono-usuario
+                    [icono]="p.icono"
+                    [nombre]="p.nick"
+                    [tam]="e.puesto === 1 ? 88 : e.puesto === 2 ? 64 : 48"
+                  />
+                  <span class="nick">{{ p.nick }}</span>
+                </div>
+              }
+            </div>
+            @if (e.resultado; as r) {
+              <p class="puntos">
+                <strong>{{ r.puntos }}</strong> puntos
+                <span>{{ r.perfect }} PERFECT · {{ r.great }} GREAT · {{ r.miss }} MISS</span>
+              </p>
+            }
+            <div class="bloque">
+              <span class="numero">{{ e.puesto }}</span>
+              @if (nombrePuesto(e.puesto); as n) {
+                <span class="etiqueta">{{ n }}</span>
+              }
+            </div>
+          </li>
+        }
+      </ol>
+
+      <div class="acciones">
+        <a class="principal" [routerLink]="['/torneos', idTorneo]">Ver el cuadro</a>
+      </div>
+    }
+  }
+</section>

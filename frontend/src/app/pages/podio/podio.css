@@ -1,0 +1,156 @@
+.titulo {
+  margin-bottom: 0.2rem;
+  text-align: center;
+  font-size: 2.4rem;
+}
+.subtitulo {
+  margin: 0;
+  text-align: center;
+  color: var(--tinta-suave);
+  font-weight: 700;
+}
+.aviso {
+  padding: 0.7rem 1.2rem;
+  border-radius: 24px;
+  background: #fff1c4;
+  box-shadow: 0 4px 0 var(--amarillo);
+}
+
+/* El podio: tres columnas que salen del suelo una tras otra, como al ritmo de un compás.
+   El 1.º en medio y más alto, el 2.º a la izquierda y el 3.º a la derecha. */
+.podio {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin: 3rem auto 1.5rem;
+  padding: 0;
+  max-width: 44rem;
+}
+.escalon {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 14rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  animation: entrar 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: calc(var(--orden) * 0.18s);
+}
+.quienes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+.persona {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+.corona {
+  position: absolute;
+  top: -1.6rem;
+  font-size: 1.8rem;
+  line-height: 1;
+  animation: botar 1.2s ease-in-out infinite;
+}
+.nick {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 0.2rem 0.9rem;
+  border-radius: 24px;
+  background: var(--tarjeta);
+  box-shadow: 0 3px 0 var(--sombra-tarjeta);
+  font:
+    700 1.05rem 'Fredoka',
+    sans-serif;
+  text-align: center;
+}
+.puntos {
+  margin: 0;
+  text-align: center;
+  line-height: 1.3;
+}
+.puntos strong {
+  font:
+    700 1.5rem 'Fredoka',
+    sans-serif;
+}
+.puntos span {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--tinta-suave);
+}
+
+/* En el HTML van 1.º, 2.º, 3.º; aquí se pintan 2.º, 1.º, 3.º */
+[data-puesto='2'] {
+  order: 0;
+}
+[data-puesto='1'] {
+  order: 1;
+}
+[data-puesto='3'] {
+  order: 2;
+}
+
+/* El bloque del escalón: color de su puesto, número grande y una sombra sólida debajo */
+.bloque {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.2rem;
+  padding-top: 0.6rem;
+  border-radius: 24px 24px 8px 8px;
+  /* Texto oscuro en los tres colores: el blanco no se lee bien sobre azul y coral */
+  color: var(--tinta);
+}
+.numero {
+  font:
+    700 2.6rem 'Fredoka',
+    sans-serif;
+  line-height: 1;
+}
+.etiqueta {
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+[data-puesto='1'] .bloque {
+  height: 10rem;
+  background: var(--amarillo);
+  box-shadow: 0 8px 0 var(--amarillo-oscuro);
+}
+[data-puesto='2'] .bloque {
+  height: 7rem;
+  background: var(--azul);
+  box-shadow: 0 8px 0 var(--azul-oscuro);
+}
+[data-puesto='3'] .bloque {
+  height: 5rem;
+  background: var(--coral);
+  box-shadow: 0 8px 0 var(--coral-oscuro);
+}
+.acciones {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+@keyframes botar {
+  50% {
+    transform: translateY(-5px) rotate(-6deg);
+  }
+}
+@media (max-width: 520px) {
+  .podio {
+    gap: 0.4rem;
+  }
+  .numero {
+    font-size: 2rem;
+  }
+}

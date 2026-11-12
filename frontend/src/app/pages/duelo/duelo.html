@@ -51,6 +51,14 @@
       }
     </ul>
 
+    @if (ganador()) {
+      <div class="ver-podio">
+        <a class="principal grande" [routerLink]="rutaPodio"
+          ><span aria-hidden="true">🏆</span> Ver podio</a
+        >
+      </div>
+    }
+
     @if (d.estado === 'pendiente' && !d.puedo_jugar && !enviado()) {
       <p class="ayuda">
         Solo pueden tocar este duelo los usuarios de estos dos participantes. Por los que no tienen
@@ -86,7 +94,13 @@
               @if (!ganador()) {
                 <p class="ayuda">Falta que juegue tu rival.</p>
               }
-              <a class="principal" [routerLink]="['/torneos', idTorneo]">Volver al torneo</a>
+              @if (ganador()) {
+                <a class="principal grande" [routerLink]="rutaPodio"
+                  ><span aria-hidden="true">🏆</span> Ver podio</a
+                >
+              } @else {
+                <a class="principal" [routerLink]="['/torneos', idTorneo]">Volver al torneo</a>
+              }
             } @else {
               @if (enviando()) {
                 <p class="mensaje-carga">Enviando tu partida…</p>

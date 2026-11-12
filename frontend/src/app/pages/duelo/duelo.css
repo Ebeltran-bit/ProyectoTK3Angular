@@ -45,3 +45,13 @@
   background: #fff1c4;
   box-shadow: 0 4px 0 var(--amarillo);
 }
+/* Botón grande para ir al podio cuando el duelo ya tiene ganador */
+.ver-podio {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+.principal.grande {
+  padding: 0.8rem 2rem;
+  font-size: 1.3rem;
+}
