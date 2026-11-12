@@ -44,9 +44,11 @@ def participantes_inscritos(id_torneo: int) -> list[dict]:
     with obtener_conexion() as conexion, conexion.cursor() as cursor:
         cursor.execute(
             """
-            SELECT p.id, p.nick, p.logo, p.activo, p.creado_en
+            SELECT p.id, p.nick, p.logo, p.activo, p.creado_en,
+                   u.icono, u.id IS NOT NULL AS tiene_usuario
             FROM tk3_inscripciones i
             JOIN tk3_participantes p ON p.id = i.id_participante
+            LEFT JOIN tk3_usuarios u ON u.id_participante = p.id
             WHERE i.id_torneo = %s
             ORDER BY p.nick
             """,
@@ -55,6 +57,7 @@ def participantes_inscritos(id_torneo: int) -> list[dict]:
         filas = cursor.fetchall()
     for fila in filas:
         fila["activo"] = bool(fila["activo"])
+        fila["tiene_usuario"] = bool(fila["tiene_usuario"])
     return filas
 
 

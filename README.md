@@ -126,7 +126,7 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | POST | `/api/auth/logout` | Cierra la sesión (el token deja de valer) |
 | GET | `/api/auth/yo` | Usuario de la sesión actual |
 | PATCH | `/api/auth/yo/icono` | Cambia el icono del usuario de la sesión (`{"icono": "rana"}`; `null` vuelve a la inicial) |
-| GET | `/api/participantes` | Lista todos (`?activo=true` o `?activo=false` para filtrar) |
+| GET | `/api/participantes` | Lista todos (`?activo=true` o `?activo=false` para filtrar). Cada uno lleva `icono` y `tiene_usuario` de su usuario vinculado, si lo tiene |
 | GET | `/api/participantes/{id}` | Un participante |
 | POST | `/api/participantes` | Crea uno (`{"nick": "...", "logo": "..."}`) → 409 si el nick ya existe |
 | PUT | `/api/participantes/{id}` | Edita nick y logo |
@@ -138,9 +138,8 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | PUT | `/api/torneos/{id}` | Cambia nombre y participantes (solo en preparación) |
 | POST | `/api/torneos/{id}/cuadro` | Sortea la primera ronda con BYE y cierra las inscripciones |
 | POST | `/api/torneos/{id}/combates/{idCombate}/ganador` | Guarda el ganador (`{"id_ganador": 3}`). Si la ronda queda completa, genera la siguiente o cierra el torneo con su campeón |
-| GET | `/api/torneos/{id}/combates/{idCombate}/duelo` | Duelo de ritmo del combate: canción, quién ha jugado y si le toca al usuario. La primera vez elige la canción según la ronda |
+| GET | `/api/torneos/{id}/combates/{idCombate}/duelo` | Duelo de ritmo del combate: canción, quién ha jugado y si le toca al usuario. La primera vez elige la canción según la ronda. Si un participante no tiene cuenta (un bot), la IA toca por él aquí mismo |
 | POST | `/api/torneos/{id}/combates/{idCombate}/duelo` | El usuario de la sesión manda sus pulsaciones (`{"pulsaciones": [...]}`). Con los dos resultados, el backend decide el ganador y el cuadro avanza. 403 si no es uno de los dos participantes; 409 si ya ha jugado |
-| POST | `/api/torneos/{id}/combates/{idCombate}/duelo/ia` | La IA toca la canción por un participante que no ha jugado (`{"id_participante": 3}`) |
 | GET | `/api/canciones` | Canciones del duelo de ritmo, sin notas: título, nivel, BPM y escenario (etapa 3) |
 | GET | `/api/canciones/{id}` | Beatmap completo: notas que hay que pulsar y pistas de la música (etapa 3) |
 | POST | `/api/canciones/{id}/partidas` | Guarda una partida de práctica (`{"pulsaciones": [{"ms": 2730, "tecla": "accion"}]}`). El backend calcula y devuelve la puntuación |
@@ -159,8 +158,9 @@ registro y sesión, y las estadísticas de la fase 4 (los BYE y los combates pen
 los inactivos y los participantes sin combates), el cálculo de la puntuación del duelo en el backend y los
 récords por canción, y los duelos del torneo (nivel según la ronda con 2 a 32 participantes, canción al
 azar del nivel, nadie juega dos veces, solo juega el usuario de ese participante, la IA respeta sus
-porcentajes, desempates de R5, empate total que repite y torneos de 2 a 8 participantes jugados enteros a
-base de duelos hasta el campeón). Las pruebas de sesión, estadísticas, partidas y duelos usan repositorios en memoria: no necesitan MariaDB ni dejan
+porcentajes, la IA toca sola por los bots y nunca por las personas, desempates de R5, empate total que
+repite (también contra un bot) y torneos de 2 a 8 participantes jugados enteros a base de duelos hasta el
+campeón). Las pruebas de sesión, estadísticas, partidas y duelos usan repositorios en memoria: no necesitan MariaDB ni dejan
 usuarios de prueba en la base de datos.
 
 Desde `frontend/`: `npm test`. Ejecuta con Vitest los tests de la lógica del duelo de ritmo
@@ -246,6 +246,22 @@ antes de programarlas.
   animación. Con «reducir movimiento» activado en el sistema, no hay animaciones.
 - Los escenarios del juego tienen su propio estilo plano (ver «Duelo de ritmo»): este tema solo cambia las
   pantallas de gestión, aunque comparten la paleta y las píldoras de color.
+
+**Mejoras del torneo (pedidas por Eva el 12/11/2026)**
+- Al crear o editar un torneo, el participante del usuario con sesión sale el primero (con la etiqueta
+  «tú») y cada participante lleva el icono de su usuario; los que no tienen cuenta, su inicial. El icono
+  vive en `tk3_usuarios`, así que la API de participantes lo trae con un `LEFT JOIN` (sin cambiar el
+  esquema).
+- Los enlaces de volver (`a.volver`) y los secundarios como «Editar torneo» o «Cancelar» (`a.secundario`)
+  son píldoras blancas como el resto de botones.
+- Las confirmaciones de generar el cuadro y de elegir ganador a mano usan una ventana propia
+  (`components/confirmacion`) en vez del `confirm()` del navegador, que no se puede decorar.
+- En el duelo nunca se pregunta si juega la IA. Un participante con cuenta siempre toca él mismo; uno sin
+  cuenta (un «bot») no puede jugar, así que la IA toca por él al abrir el duelo. Si dos bots se enfrentan,
+  el duelo se resuelve en cuanto alguien lo abre. Se retira `POST .../duelo/ia`. Si un rival con cuenta no
+  llega a jugar nunca, el combate se puede seguir cerrando pulsando el ganador en el cuadro.
+  *Detalle de implementación (Claude):* la IA juega dentro del `GET` del duelo porque es el momento en que
+  alguien lo mira, igual que la canción se elige la primera vez que se abre.
 
 ## Duelo de ritmo (ampliación)
 
@@ -420,8 +436,8 @@ nombre que se muestra es el nombre de usuario.
   El botón de elegir ganador a mano se mantiene.
 - La primera vez que se abre, el backend elige la canción: nivel según la ronda (R4) y escenario al azar
   dentro del nivel. Se guarda en `tk3_duelos`, así los dos participantes tocan la misma.
-- *Jugar el duelo* solo le sale al usuario cuyo participante está en el combate y no ha jugado. *Que juegue
-  la IA* sale para cada participante que no ha jugado, y lo puede pulsar cualquier usuario con sesión.
+- *Jugar el duelo* solo le sale al usuario cuyo participante está en el combate y no ha jugado. ~~*Que juegue
+  la IA* sale para cada participante que no ha jugado~~: cambiado el 12/11/2026, ver «Mejoras del torneo».
 - La puntuación del rival no se ve hasta que el combate termina; la propia sí.
 - Con los dos resultados (`tk3_duelo_resultados`), el backend aplica R5 y llama a la misma regla que el
   botón manual (`torneos_servicio.registrar_ganador`), que genera la ronda siguiente o cierra el torneo.

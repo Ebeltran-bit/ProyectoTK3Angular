@@ -23,6 +23,8 @@ export interface ParticipanteResumen {
   id: number;
   nick: string;
   logo: string | null;
+  /** Solo llega en el duelo; en el cuadro no hace falta. */
+  icono?: string | null;
 }
 
 export interface Combate {

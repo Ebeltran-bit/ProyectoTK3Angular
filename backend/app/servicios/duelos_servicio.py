@@ -1,9 +1,13 @@
 """Duelos de ritmo dentro del torneo.
 
 Cada combate pendiente se decide con un duelo: los dos participantes tocan la
-misma canción, cada uno cuando puede (o la IA por él), y cuando están los dos
+misma canción, cada uno cuando puede, y cuando están los dos
 resultados el backend decide el ganador y llama a la regla de siempre,
 torneos_servicio.registrar_ganador, que hace avanzar el cuadro.
+
+Un participante con cuenta de usuario siempre toca él mismo. Uno sin cuenta
+(un «bot») no puede jugar, así que la IA toca por él en cuanto se abre el
+duelo, sin preguntar a nadie (decisión de Eva, 12/11/2026).
 """
 import random
 
@@ -110,7 +114,7 @@ def _vista(torneo: dict, combate: dict, duelo: dict, usuario: dict, mensaje: str
         r = resultados.get(id_p)
         visible = r is not None and (terminado or id_p == usuario["id_participante"])
         jugadores.append({
-            "participante": {"id": id_p, "nick": nombres[id_p]["nick"], "logo": nombres[id_p]["logo"]},
+            "participante": {k: nombres[id_p].get(k) for k in ("id", "nick", "logo", "icono")},
             "ha_jugado": r is not None,
             "es_ia": bool(r["es_ia"]) if r else False,
             "resultado": {k: r[k] for k in ("puntos", "perfect", "great", "miss", "combo_maximo")} if visible else None,
@@ -133,7 +137,37 @@ def _vista(torneo: dict, combate: dict, duelo: dict, usuario: dict, mensaje: str
 
 def obtener(id_torneo: int, id_combate: int, usuario: dict) -> dict:
     torneo, combate = _combate(id_torneo, id_combate)
-    return _vista(torneo, combate, _duelo(torneo, combate), usuario)
+    _duelo(torneo, combate)
+    _jugar_por_los_bots(torneo, combate, usuario)
+    # Se vuelven a leer: la IA (o otra petición a la vez) puede haber cerrado el combate
+    combate = torneos_repo.obtener_combate(combate["id"])
+    return _vista(torneo, combate, duelos_repo.obtener(combate["id"]), usuario)
+
+
+# Si dos bots empatan en todo, el duelo se repite; con este tope nunca se queda en bucle
+MAX_PASADAS_BOTS = 3
+
+
+def _jugar_por_los_bots(torneo: dict, combate: dict, usuario: dict) -> None:
+    """La IA toca por los participantes sin cuenta que aún no han jugado.
+
+    Si los dos son bots y empatan, el duelo se repite con otra canción y vuelven a tocar.
+    """
+    ids = [combate["id_participante1"], combate["id_participante2"]]
+    bots = [p["id"] for p in participantes_repo.listar_por_ids(ids) if not p["tiene_usuario"]]
+    for _ in range(MAX_PASADAS_BOTS):
+        combate = torneos_repo.obtener_combate(combate["id"])
+        if combate["estado"] == "resuelto":
+            return
+        han_jugado = {r["id_participante"] for r in duelos_repo.resultados(combate["id"])}
+        pendientes = [b for b in bots if b not in han_jugado]
+        if not pendientes:
+            return
+        for id_bot in pendientes:
+            try:
+                _guardar(torneo, combate, usuario, id_bot, es_ia=True)
+            except Conflicto:
+                return  # Otra petición jugó por él a la vez: se enseña lo que haya guardado
 
 
 def jugar(id_torneo: int, id_combate: int, usuario: dict, pulsaciones: list[dict]) -> dict:
@@ -142,15 +176,13 @@ def jugar(id_torneo: int, id_combate: int, usuario: dict, pulsaciones: list[dict
     torneo, combate = _combate(id_torneo, id_combate)
     if id_participante not in (combate["id_participante1"], combate["id_participante2"]):
         raise SinPermiso("Solo pueden jugar este duelo los dos participantes del combate")
-    return _guardar(torneo, combate, usuario, id_participante, es_ia=False, pulsaciones=pulsaciones)
-
-
-def jugar_ia(id_torneo: int, id_combate: int, usuario: dict, id_participante: int) -> dict:
-    """La IA toca la canción por un participante que todavía no ha jugado."""
-    torneo, combate = _combate(id_torneo, id_combate)
-    if id_participante not in (combate["id_participante1"], combate["id_participante2"]):
-        raise ErrorDeNegocio("Ese participante no está en este combate")
-    return _guardar(torneo, combate, usuario, id_participante, es_ia=True)
+    vista = _guardar(torneo, combate, usuario, id_participante, es_ia=False, pulsaciones=pulsaciones)
+    if vista["mensaje"]:
+        # Empate total: el duelo se repite y el bot rival vuelve a tocar la canción nueva
+        _jugar_por_los_bots(torneo, combate, usuario)
+        combate = torneos_repo.obtener_combate(combate["id"])
+        return _vista(torneo, combate, duelos_repo.obtener(combate["id"]), usuario, vista["mensaje"])
+    return vista
 
 
 def _guardar(torneo: dict, combate: dict, usuario: dict, id_participante: int, es_ia: bool,

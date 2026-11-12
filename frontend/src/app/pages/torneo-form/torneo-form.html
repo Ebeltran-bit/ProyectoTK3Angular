@@ -33,7 +33,11 @@
               [checked]="seleccionados().has(p.id)"
               (change)="alternar(p.id)"
             />
-            {{ p.nick }}
+            <app-icono-usuario [icono]="p.icono" [nombre]="p.nick" [tam]="36" />
+            <span class="nick">{{ p.nick }}</span>
+            @if (esMio(p)) {
+              <span class="tu">tú</span>
+            }
             @if (!p.activo) {
               <span>(inactivo: quítalo del torneo)</span>
             }
@@ -54,7 +58,9 @@
         <button type="submit" [disabled]="guardando()">
           {{ guardando() ? 'Guardando…' : 'Guardar' }}
         </button>
-        <a [routerLink]="idEditando() === null ? '/torneos' : ['/torneos', idEditando()]"
+        <a
+          class="secundario"
+          [routerLink]="idEditando() === null ? '/torneos' : ['/torneos', idEditando()]"
           >Cancelar</a
         >
       </div>

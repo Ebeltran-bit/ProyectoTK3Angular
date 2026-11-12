@@ -1,9 +1,10 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
+import { IconoUsuario } from '../../components/icono-usuario/icono-usuario';
 import { ReproductorRitmo } from '../../components/reproductor-ritmo/reproductor-ritmo';
 import { Cancion, NOMBRE_NIVEL, Pulsacion } from '../../models/cancion';
-import { Duelo as DatosDuelo, JugadorDuelo } from '../../models/duelo';
+import { Duelo as DatosDuelo } from '../../models/duelo';
 import { nombreRonda } from '../../models/torneo';
 import { AuthService } from '../../services/auth.service';
 import { CancionesService } from '../../services/canciones.service';
@@ -12,12 +13,13 @@ import { mensajeError } from '../../services/mensaje-error';
 
 /**
  * Duelo de ritmo de un combate del torneo.
- * Cada participante toca la canción cuando puede (o la IA por él). Cuando
+ * Cada participante toca la canción cuando puede; por los que no tienen cuenta
+ * toca la IA sin preguntar (lo hace el backend al abrir el duelo). Cuando
  * están los dos resultados, el backend decide el ganador y el cuadro avanza.
  */
 @Component({
   selector: 'app-duelo',
-  imports: [RouterLink, ReproductorRitmo],
+  imports: [RouterLink, ReproductorRitmo, IconoUsuario],
   templateUrl: './duelo.html',
   styleUrl: './duelo.css',
 })
@@ -105,21 +107,6 @@ export class Duelo implements OnInit {
       },
       error: (e) => {
         this.errorEnvio.set(mensajeError(e));
-        this.enviando.set(false);
-      },
-    });
-  }
-
-  protected jugarIa(j: JugadorDuelo): void {
-    this.enviando.set(true);
-    this.error.set(null);
-    this.servicio.jugarIa(this.idTorneo, this.idCombate, j.participante.id).subscribe({
-      next: (d) => {
-        this.enviando.set(false);
-        this.mostrar(d);
-      },
-      error: (e) => {
-        this.error.set(mensajeError(e));
         this.enviando.set(false);
       },
     });

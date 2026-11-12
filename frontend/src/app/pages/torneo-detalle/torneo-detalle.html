@@ -29,7 +29,9 @@
 
     @if (t.estado === 'preparacion') {
       <div class="acciones">
-        <a [routerLink]="['/torneos', t.id, 'editar']">Editar torneo</a>
+        <a class="secundario" [routerLink]="['/torneos', t.id, 'editar']"
+          ><span aria-hidden="true">✎</span> Editar torneo</a
+        >
         <button type="button" (click)="generarCuadro()" [disabled]="generando()">
           {{ generando() ? 'Sorteando…' : 'Generar cuadro' }}
         </button>
@@ -65,3 +67,13 @@
     }
   }
 </section>
+
+@if (pregunta(); as p) {
+  <app-confirmacion
+    [titulo]="p.titulo"
+    [texto]="p.texto"
+    [textoAceptar]="p.textoAceptar"
+    (aceptar)="confirmar()"
+    (cancelar)="pregunta.set(null)"
+  />
+}

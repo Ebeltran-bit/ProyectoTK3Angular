@@ -30,6 +30,16 @@ fieldset {
 .opcion:has(input:checked) {
   background: #ffe1e1;
 }
+.opcion .nick {
+  font-weight: 700;
+}
+/* Etiqueta pequeña para reconocer de un vistazo mi propio participante */
+.tu {
+  padding: 0.05rem 0.6rem;
+  border-radius: var(--redondo);
+  background: var(--amarillo);
+  font-size: 0.8rem;
+}
 .opcion.inactivo {
   opacity: 0.6;
 }

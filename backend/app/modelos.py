@@ -42,6 +42,10 @@ class Participante(BaseModel):
     logo: str | None
     activo: bool
     creado_en: datetime
+    # Del usuario vinculado: su icono (null = se ve la inicial) y si tiene cuenta.
+    # Sin cuenta es un «bot» y en los duelos juega la IA por él.
+    icono: str | None = None
+    tiene_usuario: bool = False
 
 
 # ---------------------------------------------------------------------
@@ -76,6 +80,7 @@ class ParticipanteResumen(BaseModel):
     id: int
     nick: str
     logo: str | None
+    icono: str | None = None
 
 
 class Combate(BaseModel):
@@ -298,9 +303,3 @@ class Duelo(BaseModel):
     jugadores: list[JugadorDuelo]
     puedo_jugar: bool
     mensaje: str | None = None
-
-
-class IaEntrada(BaseModel):
-    """Participante por el que juega la IA."""
-
-    id_participante: int

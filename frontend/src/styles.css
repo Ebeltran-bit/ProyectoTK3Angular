@@ -53,10 +53,13 @@ a {
 }
 
 /* ---------- Botones ----------
-   Todos los botones (y los enlaces con clase .boton) son píldoras con una sombra sólida
-   debajo. Al pasar el ratón se estiran como una gominola; al pulsar se hunden. */
+   Todos los botones (y los enlaces con clase .boton, .secundario o .volver) son píldoras
+   con una sombra sólida debajo. Al pasar el ratón se estiran como una gominola; al pulsar
+   se hunden. */
 button,
 a.boton,
+a.secundario,
+a.volver,
 .principal {
   display: inline-flex;
   align-items: center;
@@ -80,11 +83,15 @@ a.boton,
 }
 button:hover:not(:disabled),
 a.boton:hover,
+a.secundario:hover,
+a.volver:hover,
 .principal:hover {
   transform: scale(1.05, 0.96) translateY(1px);
 }
 button:active:not(:disabled),
 a.boton:active,
+a.secundario:active,
+a.volver:active,
 .principal:active {
   transform: translateY(4px);
   box-shadow: 0 1px 0 var(--sombra-tarjeta);
@@ -114,6 +121,13 @@ button[type='submit']:active:not(:disabled) {
 .principal {
   background: var(--amarillo);
   box-shadow: 0 5px 0 var(--amarillo-oscuro);
+}
+/* Enlace para volver atrás (al torneo, a la lista…): píldora blanca más pequeña,
+   separada del título que tiene debajo */
+a.volver {
+  padding: 0.35rem 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
 }
 
 /* ---------- Formularios ---------- */

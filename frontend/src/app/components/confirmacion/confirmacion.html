@@ -1,0 +1,20 @@
+<!-- (cancel) llega al pulsar Escape: se evita que el navegador la cierre solo y decide la pantalla -->
+<dialog
+  #ventana
+  aria-labelledby="titulo-confirmacion"
+  aria-describedby="texto-confirmacion"
+  (cancel)="$event.preventDefault(); cancelar.emit()"
+  (click)="alPulsar($event)"
+>
+  <div class="tarjeta-ventana">
+    <span class="icono" aria-hidden="true">!</span>
+    <h3 id="titulo-confirmacion">{{ titulo() }}</h3>
+    <p id="texto-confirmacion">{{ texto() }}</p>
+    <div class="acciones">
+      <button #botonCancelar type="button" (click)="cancelar.emit()">Cancelar</button>
+      <button type="button" class="aceptar" (click)="aceptar.emit()">
+        {{ textoAceptar() }}
+      </button>
+    </div>
+  </div>
+</dialog>

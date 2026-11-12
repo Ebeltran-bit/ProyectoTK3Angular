@@ -15,7 +15,10 @@ export class DuelosService {
     return `${API_URL}/torneos/${idTorneo}/combates/${idCombate}/duelo`;
   }
 
-  /** La primera vez, el backend elige la canción según la ronda. */
+  /**
+   * La primera vez, el backend elige la canción según la ronda. Si el rival no tiene
+   * cuenta (un bot), la IA toca por él en esta misma petición.
+   */
   obtener(idTorneo: number, idCombate: number): Observable<Duelo> {
     return this.http.get<Duelo>(this.url(idTorneo, idCombate));
   }
@@ -23,12 +26,5 @@ export class DuelosService {
   /** Manda las pulsaciones del usuario de la sesión. */
   jugar(idTorneo: number, idCombate: number, pulsaciones: Pulsacion[]): Observable<Duelo> {
     return this.http.post<Duelo>(this.url(idTorneo, idCombate), { pulsaciones });
-  }
-
-  /** La IA toca la canción por ese participante. */
-  jugarIa(idTorneo: number, idCombate: number, idParticipante: number): Observable<Duelo> {
-    return this.http.post<Duelo>(`${this.url(idTorneo, idCombate)}/ia`, {
-      id_participante: idParticipante,
-    });
   }
 }

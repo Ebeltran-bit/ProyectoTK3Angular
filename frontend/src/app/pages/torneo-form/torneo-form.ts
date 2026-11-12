@@ -3,7 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 
+import { IconoUsuario } from '../../components/icono-usuario/icono-usuario';
 import { Participante } from '../../models/participante';
+import { AuthService } from '../../services/auth.service';
 import { mensajeError } from '../../services/mensaje-error';
 import { ParticipantesService } from '../../services/participantes.service';
 import { TorneosService } from '../../services/torneos.service';
@@ -11,7 +13,7 @@ import { TorneosService } from '../../services/torneos.service';
 /** Crear (/torneos/nuevo) o editar (/torneos/:id/editar) un torneo en preparación. */
 @Component({
   selector: 'app-torneo-form',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, IconoUsuario],
   templateUrl: './torneo-form.html',
   styleUrl: './torneo-form.css',
 })
@@ -20,6 +22,7 @@ export class TorneoForm implements OnInit {
   private readonly participantes = inject(ParticipantesService);
   private readonly ruta = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
 
   protected readonly idEditando = signal<number | null>(null);
   protected readonly nombre = signal('');
@@ -51,7 +54,7 @@ export class TorneoForm implements OnInit {
           const extra = torneo.participantes.filter((p) => !activos.some((a) => a.id === p.id));
           lista = [...activos, ...extra];
         }
-        this.disponibles.set(lista);
+        this.disponibles.set(this.conmigoPrimero(lista));
         this.cargando.set(false);
       },
       error: (e) => {
@@ -59,6 +62,17 @@ export class TorneoForm implements OnInit {
         this.cargando.set(false);
       },
     });
+  }
+
+  /** Mi participante va el primero, para apuntarme enseguida; el resto sigue por nick. */
+  private conmigoPrimero(lista: Participante[]): Participante[] {
+    const mio = this.auth.usuario()?.id_participante;
+    return [...lista.filter((p) => p.id === mio), ...lista.filter((p) => p.id !== mio)];
+  }
+
+  /** Para marcar «(tú)» junto a mi participante. */
+  protected esMio(p: Participante): boolean {
+    return p.id === this.auth.usuario()?.id_participante;
   }
 
   alternar(id: number): void {

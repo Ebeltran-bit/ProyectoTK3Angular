@@ -6,8 +6,7 @@ el servicio lanza un ErrorDeNegocio y main.py lo convierte en respuesta HTTP.
 from fastapi import APIRouter, Depends, status
 
 from app.dependencias import usuario_actual
-from app.modelos import (Duelo, GanadorEntrada, IaEntrada, PartidaEntrada, TorneoDetalle, TorneoEntrada,
-                         TorneoResumen)
+from app.modelos import Duelo, GanadorEntrada, PartidaEntrada, TorneoDetalle, TorneoEntrada, TorneoResumen
 from app.servicios import duelos_servicio, torneos_servicio
 
 router = APIRouter(prefix="/api/torneos", tags=["Torneos"])
@@ -54,7 +53,8 @@ def registrar_ganador(id_torneo: int, id_combate: int, datos: GanadorEntrada):
 
 @router.get("/{id_torneo}/combates/{id_combate}/duelo", response_model=Duelo)
 def obtener_duelo(id_torneo: int, id_combate: int, usuario: dict = Depends(usuario_actual)):
-    """Canción del duelo y quién ha jugado. La primera vez se elige la canción según la ronda."""
+    """Canción del duelo y quién ha jugado. La primera vez se elige la canción según la ronda.
+    Si en el combate hay un participante sin cuenta (un bot), la IA toca por él aquí mismo."""
     return duelos_servicio.obtener(id_torneo, id_combate, usuario)
 
 
@@ -63,10 +63,3 @@ def jugar_duelo(id_torneo: int, id_combate: int, datos: PartidaEntrada, usuario:
     """El usuario de la sesión manda sus pulsaciones. Con los dos resultados, el backend decide el ganador."""
     pulsaciones = [p.model_dump() for p in datos.pulsaciones]
     return duelos_servicio.jugar(id_torneo, id_combate, usuario, pulsaciones)
-
-
-@router.post("/{id_torneo}/combates/{id_combate}/duelo/ia", response_model=Duelo,
-             status_code=status.HTTP_201_CREATED)
-def jugar_duelo_ia(id_torneo: int, id_combate: int, datos: IaEntrada, usuario: dict = Depends(usuario_actual)):
-    """La IA toca la canción por un participante que todavía no ha jugado."""
-    return duelos_servicio.jugar_ia(id_torneo, id_combate, usuario, datos.id_participante)

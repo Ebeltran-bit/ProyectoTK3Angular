@@ -5,23 +5,27 @@ Los valores siempre van como parámetros (%s) para evitar inyección SQL.
 """
 from app.database import obtener_conexion
 
-COLUMNAS = "id, nick, logo, activo, creado_en"
+# El icono y si tiene cuenta vienen del usuario vinculado (si lo hay). Un participante
+# sin usuario es un «bot»: en los duelos juega siempre la IA por él.
+COLUMNAS = "p.id, p.nick, p.logo, p.activo, p.creado_en, u.icono, u.id IS NOT NULL AS tiene_usuario"
+DESDE = "tk3_participantes p LEFT JOIN tk3_usuarios u ON u.id_participante = p.id"
 
 
 def _a_participante(fila: dict | None) -> dict | None:
     # MariaDB guarda BOOLEAN como 0/1; lo convertimos a True/False
     if fila is not None:
         fila["activo"] = bool(fila["activo"])
+        fila["tiene_usuario"] = bool(fila["tiene_usuario"])
     return fila
 
 
 def listar(activo: bool | None = None) -> list[dict]:
-    sql = f"SELECT {COLUMNAS} FROM tk3_participantes"
+    sql = f"SELECT {COLUMNAS} FROM {DESDE}"
     parametros: tuple = ()
     if activo is not None:
-        sql += " WHERE activo = %s"
+        sql += " WHERE p.activo = %s"
         parametros = (activo,)
-    sql += " ORDER BY nick"
+    sql += " ORDER BY p.nick"
     with obtener_conexion() as conexion, conexion.cursor() as cursor:
         cursor.execute(sql, parametros)
         return [_a_participante(fila) for fila in cursor.fetchall()]
@@ -30,7 +34,7 @@ def listar(activo: bool | None = None) -> list[dict]:
 def obtener(id_participante: int) -> dict | None:
     with obtener_conexion() as conexion, conexion.cursor() as cursor:
         cursor.execute(
-            f"SELECT {COLUMNAS} FROM tk3_participantes WHERE id = %s",
+            f"SELECT {COLUMNAS} FROM {DESDE} WHERE p.id = %s",
             (id_participante,),
         )
         return _a_participante(cursor.fetchone())
@@ -69,7 +73,7 @@ def listar_por_ids(ids: list[int]) -> list[dict]:
     marcadores = ", ".join(["%s"] * len(ids))
     with obtener_conexion() as conexion, conexion.cursor() as cursor:
         cursor.execute(
-            f"SELECT {COLUMNAS} FROM tk3_participantes WHERE id IN ({marcadores})",
+            f"SELECT {COLUMNAS} FROM {DESDE} WHERE p.id IN ({marcadores})",
             tuple(ids),
         )
         return [_a_participante(fila) for fila in cursor.fetchall()]

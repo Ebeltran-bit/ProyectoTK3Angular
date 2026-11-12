@@ -94,21 +94,27 @@ class DuelosEnMemoria:
 
 
 class ParticipantesEnMemoria:
+    """Los ids de bots son participantes sin cuenta de usuario: por ellos juega la IA."""
+
+    def __init__(self, bots=()):
+        self.bots = set(bots)
+
     def listar_por_ids(self, ids):
-        return [{"id": i, "nick": f"P{i}", "logo": None} for i in ids]
+        return [{"id": i, "nick": f"P{i}", "logo": None, "icono": None, "tiene_usuario": i not in self.bots}
+                for i in ids]
 
 
 @pytest.fixture
 def entorno(monkeypatch):
     """Torneo de 5 participantes (con BYE) ya sorteado, y repositorios en memoria."""
 
-    def crear(ids=(1, 2, 3, 4, 5)):
+    def crear(ids=(1, 2, 3, 4, 5), bots=()):
         torneos = TorneosEnMemoria(list(ids))
         duelos = DuelosEnMemoria()
         monkeypatch.setattr(duelos_servicio, "torneos_repo", torneos)
         monkeypatch.setattr(torneos_servicio, "torneos_repo", torneos)
         monkeypatch.setattr(duelos_servicio, "duelos_repo", duelos)
-        monkeypatch.setattr(duelos_servicio, "participantes_repo", ParticipantesEnMemoria())
+        monkeypatch.setattr(duelos_servicio, "participantes_repo", ParticipantesEnMemoria(bots))
         # registrar_ganador devuelve el detalle del torneo; aquí no hace falta
         monkeypatch.setattr(torneos_servicio, "obtener_detalle", lambda id_torneo: {})
         # La IA con semilla fija, para que las pruebas den siempre lo mismo
@@ -294,29 +300,56 @@ def test_nadie_juega_dos_veces_y_la_puntuacion_del_otro_se_oculta(entorno):
 
     with pytest.raises(Conflicto):
         duelos_servicio.jugar(1, combate["id"], usuario(p1), [])
-    with pytest.raises(Conflicto):
-        duelos_servicio.jugar_ia(1, combate["id"], usuario(p2), p1)
 
 
-def test_la_ia_juega_y_el_combate_se_resuelve(entorno):
+def test_contra_un_bot_la_ia_juega_sola_al_abrir_el_duelo(entorno):
+    """Nadie pregunta por la IA: el participante sin cuenta toca en cuanto se abre el duelo."""
     torneos, _ = entorno()
     combate = primer_pendiente(torneos)
     p1, p2 = combate["id_participante1"], combate["id_participante2"]
-    cancion = duelos_servicio.obtener(1, combate["id"], usuario(p1))["cancion"]["id"]
+    duelos_servicio.participantes_repo.bots.add(p2)  # el rival no tiene cuenta
+    vista = duelos_servicio.obtener(1, combate["id"], usuario(p1))
+    yo, bot = vista["jugadores"]
+    assert bot["ha_jugado"] and bot["es_ia"] and bot["resultado"] is None  # su puntuación, oculta
+    assert not yo["ha_jugado"] and vista["puedo_jugar"] and vista["estado"] == "pendiente"
 
-    duelos_servicio.jugar(1, combate["id"], usuario(p1), pulsaciones_perfectas(cancion))
-    vista = duelos_servicio.jugar_ia(1, combate["id"], usuario(p1), p2)
-
+    vista = duelos_servicio.jugar(1, combate["id"], usuario(p1), pulsaciones_perfectas(vista["cancion"]["id"]))
     assert vista["estado"] == "resuelto" and vista["id_ganador"] == p1
-    assert vista["jugadores"][1]["es_ia"] and vista["jugadores"][1]["resultado"] is not None
+    assert vista["jugadores"][1]["resultado"] is not None
     assert torneos.combates[combate["id"]]["estado"] == "resuelto"
 
 
-def test_la_ia_solo_juega_por_participantes_del_combate(entorno):
+def test_entre_dos_personas_la_ia_no_juega_nunca(entorno):
+    torneos, duelos = entorno()
+    combate = primer_pendiente(torneos)
+    vista = duelos_servicio.obtener(1, combate["id"], usuario(99))
+    assert not any(j["ha_jugado"] for j in vista["jugadores"])
+    assert duelos.resultados(combate["id"]) == []
+
+
+def test_entre_dos_bots_el_duelo_se_resuelve_al_abrirlo(entorno):
+    torneos, _ = entorno(bots=range(1, 6))
+    combate = primer_pendiente(torneos)
+    vista = duelos_servicio.obtener(1, combate["id"], usuario(99))
+    assert vista["estado"] == "resuelto" and vista["id_ganador"] in (combate["id_participante1"],
+                                                                     combate["id_participante2"])
+    assert all(j["es_ia"] and j["resultado"] for j in vista["jugadores"])
+
+
+def test_si_empatas_con_un_bot_el_bot_vuelve_a_tocar_la_cancion_nueva(entorno, monkeypatch):
     torneos, _ = entorno()
     combate = primer_pendiente(torneos)
-    with pytest.raises(ErrorDeNegocio):
-        duelos_servicio.jugar_ia(1, combate["id"], usuario(1), 999)
+    p1, p2 = combate["id_participante1"], combate["id_participante2"]
+    duelos_servicio.participantes_repo.bots.add(p2)  # el rival no tiene cuenta
+    # La IA toca perfecta con 10 ms de retraso; la persona, con 10 ms de adelanto: empate total
+    monkeypatch.setattr(ia, "pulsaciones", lambda notas, nivel: [{"ms": n["ms"] + 10, "tecla": n["tecla"]}
+                                                                for n in notas])
+    cancion = duelos_servicio.obtener(1, combate["id"], usuario(p1))["cancion"]["id"]
+    vista = duelos_servicio.jugar(1, combate["id"], usuario(p1), pulsaciones_perfectas(cancion, -10))
+
+    assert vista["mensaje"] and vista["estado"] == "pendiente" and vista["cancion"]["id"] != cancion
+    yo, bot = vista["jugadores"]
+    assert bot["ha_jugado"] and not yo["ha_jugado"] and vista["puedo_jugar"]
 
 
 def test_empate_total_repite_el_duelo_con_otra_cancion(entorno):
@@ -342,21 +375,91 @@ def test_un_combate_resuelto_a_mano_no_crea_duelo(entorno):
         duelos_servicio.obtener(1, combate["id"], usuario(1))
 
 
+def test_dos_bots_que_empatan_repiten_hasta_que_gana_uno(entorno, monkeypatch):
+    torneos, _ = entorno(bots=range(1, 6))
+    combate = primer_pendiente(torneos)
+    # Las dos primeras pasadas, la IA toca perfecta los dos turnos: empate total y se repite
+    llamadas = []
+    original = ia.pulsaciones
+
+    def ia_que_empata(notas, nivel):
+        llamadas.append(1)
+        if len(llamadas) <= 4:
+            return [{"ms": n["ms"], "tecla": n["tecla"]} for n in notas]
+        return original(notas, nivel)
+
+    monkeypatch.setattr(ia, "pulsaciones", ia_que_empata)
+    vista = duelos_servicio.obtener(1, combate["id"], usuario(99))
+    assert vista["estado"] == "resuelto" and len(llamadas) == 6
+
+
+def test_si_otra_peticion_ya_jugo_por_el_bot_se_ensena_lo_guardado(entorno, monkeypatch):
+    torneos, duelos = entorno(bots=range(1, 6))
+    combate = primer_pendiente(torneos)
+    duelos_servicio.obtener(1, combate["id"], usuario(99))  # resuelto por los dos bots
+    # Simula la carrera: el combate se leyó pendiente, pero el resultado ya estaba guardado
+    torneos.combates[combate["id"]].update(estado="pendiente", id_ganador=None)
+    monkeypatch.setattr(duelos, "guardar_resultado", lambda *a: False)
+    duelos.res[combate["id"]].popitem()
+    vista = duelos_servicio.obtener(1, combate["id"], usuario(99))
+    assert vista["estado"] == "pendiente" and sum(j["ha_jugado"] for j in vista["jugadores"]) == 1
+
+
+def test_si_la_persona_ya_jugo_el_bot_toca_al_abrir_y_se_resuelve(entorno):
+    """Duelos de antes del cambio: la persona jugó y nadie pulsó la IA por el bot."""
+    torneos, _ = entorno()
+    combate = primer_pendiente(torneos)
+    p1, p2 = combate["id_participante1"], combate["id_participante2"]
+    cancion = duelos_servicio.obtener(1, combate["id"], usuario(p1))["cancion"]["id"]
+    duelos_servicio.jugar(1, combate["id"], usuario(p1), pulsaciones_perfectas(cancion))
+    duelos_servicio.participantes_repo.bots.add(p2)
+    vista = duelos_servicio.obtener(1, combate["id"], usuario(p1))
+    assert vista["estado"] == "resuelto" and vista["id_ganador"] == p1
+
+
+def test_abrir_dos_veces_contra_un_bot_no_lo_hace_jugar_otra_vez(entorno):
+    torneos, duelos = entorno()
+    combate = primer_pendiente(torneos)
+    duelos_servicio.participantes_repo.bots.add(combate["id_participante2"])
+    duelos_servicio.obtener(1, combate["id"], usuario(99))
+    duelos_servicio.obtener(1, combate["id"], usuario(99))
+    assert len(duelos.resultados(combate["id"])) == 1
+
+
+def test_un_combate_resuelto_a_mano_no_hace_jugar_al_bot(entorno):
+    torneos, duelos = entorno()
+    combate = primer_pendiente(torneos)
+    duelos_servicio.obtener(1, combate["id"], usuario(99))  # crea el duelo, entre personas
+    torneos_servicio.registrar_ganador(1, combate["id"], combate["id_participante1"])
+    duelos_servicio.participantes_repo.bots.add(combate["id_participante2"])
+    vista = duelos_servicio.obtener(1, combate["id"], usuario(99))
+    assert vista["estado"] == "resuelto" and duelos.resultados(combate["id"]) == []
+
+
+def test_empate_entre_personas_no_hace_jugar_a_la_ia(entorno):
+    torneos, duelos = entorno()
+    combate = primer_pendiente(torneos)
+    p1, p2 = combate["id_participante1"], combate["id_participante2"]
+    cancion = duelos_servicio.obtener(1, combate["id"], usuario(p1))["cancion"]["id"]
+    duelos_servicio.jugar(1, combate["id"], usuario(p1), pulsaciones_perfectas(cancion, 10))
+    vista = duelos_servicio.jugar(1, combate["id"], usuario(p2), pulsaciones_perfectas(cancion, -10))
+    assert vista["mensaje"] and duelos.resultados(combate["id"]) == []
+
+
 @pytest.mark.parametrize("participantes", [2, 3, 5, 6, 7, 8])
 def test_torneo_entero_a_base_de_duelos_hasta_el_campeon(entorno, participantes):
-    """Cada combate lo juega una persona (perfecta) contra la IA, y el cuadro avanza solo."""
-    torneos, duelos = entorno(range(1, participantes + 1))
+    """La persona 1 toca perfecta; el resto son bots. El cuadro avanza solo hasta el campeón."""
+    torneos, duelos = entorno(range(1, participantes + 1), bots=range(2, participantes + 1))
     total = cuadro.total_rondas(participantes)
     while torneos.pendientes():
         combate = primer_pendiente(torneos)
-        p1, p2 = combate["id_participante1"], combate["id_participante2"]
-        vista = duelos_servicio.obtener(1, combate["id"], usuario(p1))
+        vista = duelos_servicio.obtener(1, combate["id"], usuario(1))
         assert vista["cancion"]["nivel"] == duelos_servicio.nivel_de_ronda(combate["ronda"], total)
-        duelos_servicio.jugar(1, combate["id"], usuario(p1), pulsaciones_perfectas(vista["cancion"]["id"]))
-        duelos_servicio.jugar_ia(1, combate["id"], usuario(p1), p2)
-        assert torneos.combates[combate["id"]]["id_ganador"] == p1
+        if vista["puedo_jugar"]:
+            duelos_servicio.jugar(1, combate["id"], usuario(1), pulsaciones_perfectas(vista["cancion"]["id"]))
+            assert torneos.combates[combate["id"]]["id_ganador"] == 1
 
     assert torneos.torneo["estado"] == "finalizado"
     final = max(torneos.combates.values(), key=lambda c: c["ronda"])
-    assert torneos.torneo["id_campeon"] == final["id_ganador"]
+    assert torneos.torneo["id_campeon"] == final["id_ganador"] == 1
     assert final["ronda"] == total

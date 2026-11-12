@@ -27,6 +27,11 @@
     <ul class="jugadores">
       @for (j of d.jugadores; track j.participante.id) {
         <li [class.gana]="d.id_ganador === j.participante.id">
+          <app-icono-usuario
+            [icono]="j.participante.icono"
+            [nombre]="j.participante.nick"
+            [tam]="40"
+          />
           <span class="nick">{{ j.participante.nick }}</span>
           @if (j.resultado; as r) {
             <span>
@@ -38,10 +43,9 @@
               Ya ha jugado{{ j.es_ia ? ' (la IA)' : '' }}. Su puntuación se verá al terminar.
             </span>
           } @else if (d.estado === 'pendiente') {
-            <span class="ayuda">Todavía no ha jugado.</span>
-            <button type="button" (click)="jugarIa(j)" [disabled]="enviando()">
-              Que juegue la IA
-            </button>
+            <span class="ayuda">
+              Todavía no ha jugado. Si no llega a jugar, se puede elegir el ganador en el cuadro.
+            </span>
           }
         </li>
       }
@@ -49,8 +53,8 @@
 
     @if (d.estado === 'pendiente' && !d.puedo_jugar && !enviado()) {
       <p class="ayuda">
-        Solo pueden tocar este duelo los usuarios de estos dos participantes. Si alguno no va a
-        jugar, la IA puede hacerlo por él.
+        Solo pueden tocar este duelo los usuarios de estos dos participantes. Por los que no tienen
+        cuenta juega la IA.
       </p>
     }
 
@@ -80,7 +84,7 @@
                 · {{ r.miss }} MISS · combo máximo {{ r.combo_maximo }}
               </p>
               @if (!ganador()) {
-                <p class="ayuda">Falta que juegue tu rival (o la IA por él).</p>
+                <p class="ayuda">Falta que juegue tu rival.</p>
               }
               <a class="principal" [routerLink]="['/torneos', idTorneo]">Volver al torneo</a>
             } @else {
