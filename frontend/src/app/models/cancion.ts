@@ -32,7 +32,14 @@ export interface Pista {
     | 'flauta'
     | 'pulsado'
     | 'campana'
-    | 'acordes';
+    | 'acordes'
+    // Instrumentos de los arreglos de la etapa 4
+    | 'marimba'
+    | 'palmas'
+    | 'maraca'
+    | 'fondo'
+    | 'bajo_redondo'
+    | 'flauta_suave';
   volumen: number;
   /** Cada nota es [altura MIDI, pulso, duración en pulsos], contando desde el inicio del patrón. */
   notas: [number, number, number][];
