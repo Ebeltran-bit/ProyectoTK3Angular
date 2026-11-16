@@ -165,6 +165,7 @@ export const patitos: Escenario = {
     accion: { texto: 'Saltar' },
     alterna: { texto: 'El segundo', nota: 'Cuando vienen dos' },
   },
+  premios: { plata: 'El charco entero aplaude', oro: '¡Mamá pata está orgullosa!' },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Todos los patitos secos y felices!'

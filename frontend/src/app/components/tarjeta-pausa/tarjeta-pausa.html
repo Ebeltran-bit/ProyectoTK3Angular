@@ -1,0 +1,17 @@
+<div class="tarjeta" role="dialog" aria-labelledby="titulo-pausa">
+  <span class="cinta">PAUSA</span>
+  <h3 id="titulo-pausa">En pausa</h3>
+  <div class="botones">
+    <button type="button" class="boton-juego" #seguir (click)="continuar.emit()">
+      <span aria-hidden="true">▶</span> Continuar
+    </button>
+    <button type="button" class="boton-juego claro" (click)="empezarDeNuevo.emit()">
+      Empezar de nuevo
+    </button>
+    <button type="button" class="boton-juego claro" (click)="elegirOtra.emit()">
+      Elegir otra canción
+    </button>
+  </div>
+  <app-controles-sonido class="sonido" />
+  <p class="nota">Esc o P para seguir · Una partida con pausa no cuenta para el récord</p>
+</div>

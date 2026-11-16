@@ -48,6 +48,8 @@ export interface Escenario {
    * La «nota» es una aclaración corta (por ejemplo, «A contratiempo»).
    */
   teclas: { accion: RotuloTecla; alterna?: RotuloTecla };
+  /** Frase del cartel de los premios de combo de plata y oro (el de bronce no lleva). */
+  premios: { plata: string; oro: string };
   /** Frase del final según el Hype del público (0 a 100). */
   mensajeFinal: (hype: number) => string;
 }

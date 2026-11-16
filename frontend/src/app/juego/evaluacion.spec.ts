@@ -7,8 +7,12 @@ import {
   estrellasPorHype,
   juzgarDesfase,
   marcadorInicial,
+  NotaEnJuego,
+  oroPorTodas,
+  premioPorCombo,
   pulsar,
   pulsoAMs,
+  resumirRitmo,
 } from './evaluacion';
 
 describe('juzgarDesfase', () => {
@@ -110,6 +114,21 @@ describe('pulsar', () => {
     expect(r.partida.notas[2].juicio).toBe('miss');
   });
 
+  it('devuelve y guarda cuánto se adelantó o se retrasó la pulsación', () => {
+    const r1 = pulsar(crearPartida(notas), 950, 'accion');
+    expect(r1.desfase).toBe(-50);
+    expect(r1.partida.notas[0].desfase).toBe(-50);
+    const r2 = pulsar(r1.partida, 2030, 'accion');
+    expect(r2.desfase).toBe(30);
+  });
+
+  it('un fallo no tiene desfase', () => {
+    expect(pulsar(crearPartida(notas), 1500, 'accion').desfase).toBeNull();
+    const r = pulsar(crearPartida(notas), 3000, 'accion');
+    expect(r.desfase).toBeNull();
+    expect(r.partida.notas[2].desfase).toBeNull();
+  });
+
   it('K en una nota alterna es correcto', () => {
     expect(pulsar(crearPartida(notas), 3020, 'alterna').juicio).toBe('perfect');
   });
@@ -177,5 +196,59 @@ describe('estrellasPorHype', () => {
     [0, 1],
   ])('con un Hype de %i da %i estrellas', (hype, estrellas) => {
     expect(estrellasPorHype(hype)).toBe(estrellas);
+  });
+});
+
+describe('premioPorCombo', () => {
+  it.each([
+    [9, null],
+    [10, 'bronce'],
+    [11, null],
+    [25, 'plata'],
+    [50, 'oro'],
+    [75, null],
+  ])('con un combo de %i da %s', (combo, premio) => {
+    expect(premioPorCombo(combo)).toBe(premio);
+  });
+});
+
+describe('oroPorTodas', () => {
+  it('en una canción corta, tocar todas seguidas da el oro', () => {
+    expect(oroPorTodas(31, 31)).toBe(true);
+    expect(oroPorTodas(30, 31)).toBe(false);
+  });
+  it('en una canción de 50 notas o más el oro es el combo 50, no este', () => {
+    expect(oroPorTodas(53, 53)).toBe(false);
+  });
+  it('sin notas no hay oro', () => {
+    expect(oroPorTodas(0, 0)).toBe(false);
+  });
+});
+
+describe('resumirRitmo', () => {
+  const nota = (juicio: NotaEnJuego['juicio'], desfase: number | null): NotaEnJuego => ({
+    ms: 0,
+    tecla: 'accion',
+    juicio,
+    desfase,
+  });
+
+  it('sin aciertos no hay resumen', () => {
+    expect(resumirRitmo([nota('miss', null), nota(null, null)])).toBeNull();
+  });
+  it('solo cuenta las notas acertadas y redondea la media', () => {
+    const r = resumirRitmo([nota('perfect', -20), nota('great', -53), nota('miss', null)]);
+    expect(r).toEqual({ desfases: [-20, -53], media: -36, tendencia: 'pronto' });
+  });
+  it('media positiva es tarde', () => {
+    expect(resumirRitmo([nota('perfect', 15), nota('perfect', 25)])?.tendencia).toBe('tarde');
+  });
+  it('media cerca de 0 con casi todo PERFECT es clavado', () => {
+    const notas = [...Array(8)].map(() => nota('perfect', 5)).concat(nota('great', -60));
+    expect(resumirRitmo(notas)?.tendencia).toBe('clavado');
+  });
+  it('media cerca de 0 con muchas notas dispersas es centrado', () => {
+    const notas = [nota('great', -70), nota('great', 70), nota('perfect', 0)];
+    expect(resumirRitmo(notas)?.tendencia).toBe('centrado');
   });
 });

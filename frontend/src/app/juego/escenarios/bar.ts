@@ -160,6 +160,7 @@ export const bar: Escenario = {
     acierto: () => 'bar-acierto',
   },
   teclas: { accion: { texto: 'Jarra rubia' }, alterna: { texto: 'Jarras tostadas' } },
+  premios: { plata: 'El bar entero brinda', oro: '¡Ronda de aplausos en la barra!' },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Ronda gratis para todo el bar!'

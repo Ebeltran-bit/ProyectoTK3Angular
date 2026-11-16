@@ -168,6 +168,7 @@ export const mecanografa: Escenario = {
     acierto: (tecla) => (tecla === 'alterna' ? 'mecanografa-campanilla' : 'mecanografa-acierto'),
   },
   teclas: { accion: { texto: 'Letra' }, alterna: { texto: 'Campanilla', nota: 'Fin de línea' } },
+  premios: { plata: 'La jefa asiente', oro: '¡Ni una tecla fuera de sitio!' },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Ni una errata en toda la página!'

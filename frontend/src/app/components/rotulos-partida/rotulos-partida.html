@@ -1,0 +1,47 @@
+@if (notasDemo().length) {
+  <!-- C: antes de la cuenta, la escena toca sola las primeras notas -->
+  <div class="mira" animate.enter="entra">
+    ¡Mira y escucha!
+    <small>{{ demoSaltable() ? 'J o toca para saltar' : 'así empieza la canción' }}</small>
+  </div>
+  <div class="notas-demo" aria-hidden="true">
+    @for (n of notasDemo(); track $index) {
+      <i [class.k]="n.tecla === 'alterna'" [class.sonada]="n.sonada">{{
+        n.tecla === 'alterna' ? 'K' : 'J'
+      }}</i>
+    }
+  </div>
+}
+
+@if (premio(); as p) {
+  <!-- D: ocupa el sitio de la píldora del combo durante un segundo y medio -->
+  <div class="premio" role="status">
+    <span class="medalla" [attr.data-premio]="p.tipo">{{ cifra[p.tipo] }}</span>
+    <span class="texto"
+      ><b>{{ p.titulo }}</b
+      ><span>{{ p.frase }}</span></span
+    >
+  </div>
+}
+
+@if (desfase(); as d) {
+  <!-- B: tras un GREAT, abajo, encima de las teclas. El «track» lo hace aparecer cada vez -->
+  @for (v of [d.vez]; track v) {
+    <div class="desfase">
+      {{ d.texto }}
+      <span class="regla" aria-hidden="true"><u [style.left.%]="d.x"></u></span>
+    </div>
+  }
+}
+
+@if (conBotonPausa()) {
+  <!-- E: el toque no debe contar como J, por eso se para aquí el pointerdown -->
+  <button
+    type="button"
+    class="pausa"
+    (pointerdown)="$event.stopPropagation()"
+    (click)="pausar.emit()"
+  >
+    <kbd>Esc</kbd><span class="o">o</span><kbd>P</kbd> Pausa
+  </button>
+}

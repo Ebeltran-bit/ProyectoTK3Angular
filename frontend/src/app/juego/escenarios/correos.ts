@@ -108,6 +108,7 @@ export const correos: Escenario = {
     acierto: () => 'correos-acierto',
   },
   teclas: { accion: { texto: 'Sellar', nota: 'Urgentes: a contratiempo' } },
+  premios: { plata: 'Las cartas vuelan', oro: '¡Ni un sobre sin sello!' },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Todo el correo ha salido a tiempo!'

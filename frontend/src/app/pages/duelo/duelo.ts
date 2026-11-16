@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { IconoUsuario } from '../../components/icono-usuario/icono-usuario';
@@ -54,6 +54,8 @@ export class Duelo implements OnInit {
   protected readonly nombreNivel = NOMBRE_NIVEL;
   protected readonly conEspacios = conEspacios;
   private pulsaciones: Pulsacion[] = [];
+  /** Para leer «Tu ritmo» y el oro de la partida que se acaba de tocar. */
+  protected readonly reproductor = viewChild(ReproductorRitmo);
 
   protected readonly titulo = computed(() => {
     const d = this.duelo();

@@ -481,6 +481,15 @@ canvas,
 .contenido-final {
   max-width: 100%;
 }
+/* En pausa se paran también las animaciones de los rótulos (etapa 4, propuesta E) */
+/* (la cuenta para volver no: sus números tienen que latir) */
+.en-pausa :is(.juicio, .palabra, .combo) {
+  animation-play-state: paused;
+}
+/* Los rótulos de la etapa 4 están en otro componente: les llega como variable */
+.en-pausa {
+  --pausa: paused;
+}
 /* ---------- Transiciones (propuesta G) ---------- */
 /* Inicio: el velo aparece y la tarjeta entra con un pequeño rebote */
 .capa.entra {
@@ -562,7 +571,8 @@ kbd {
     font-size: 2.2cqw;
     padding: 1em;
   }
-  .capa.final {
+  .capa.final,
+  .capa.pausa {
     position: static;
     padding: 2.5rem 0.75rem 1rem;
     font-size: 2.4cqw;

@@ -1,0 +1,266 @@
+/* Rótulos de la etapa 4 sobre la escena (propuestas B, C, D y E). Medidas en «cqw». */
+:host {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-weight: 700;
+}
+
+/* ---------- C: demostración ---------- */
+.mira {
+  position: absolute;
+  left: 50%;
+  top: 9cqw;
+  display: flex;
+  align-items: center;
+  gap: 1cqw;
+  padding: 0.7cqw 2.4cqw 0.8cqw;
+  border-radius: var(--redondo);
+  white-space: nowrap;
+  font-size: 2.4cqw;
+  color: #ffffff;
+  background: var(--azul);
+  box-shadow:
+    0 0.35cqw 0 var(--azul-oscuro),
+    0 1cqw 1.6cqw rgb(30 15 45 / 0.35);
+  transform: translateX(-50%) rotate(-2deg);
+}
+.mira small {
+  font-family: 'Nunito', sans-serif;
+  font-size: max(1.3cqw, 10px);
+  opacity: 0.9;
+}
+.mira.entra {
+  animation: cae 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+@keyframes cae {
+  from {
+    opacity: 0;
+    translate: 0 -4cqw;
+  }
+}
+.notas-demo {
+  position: absolute;
+  left: 50%;
+  top: 15.5cqw;
+  display: flex;
+  gap: 1cqw;
+  padding: 0.6cqw 1.2cqw;
+  border-radius: var(--redondo);
+  background: rgb(40 28 56 / 0.6);
+  transform: translateX(-50%);
+}
+.notas-demo i {
+  display: grid;
+  place-items: center;
+  width: 2.6cqw;
+  height: 2.6cqw;
+  border-radius: 50%;
+  font-size: 1.2cqw;
+  font-style: normal;
+  color: rgb(255 255 255 / 0.55);
+  background: rgb(255 255 255 / 0.15);
+  transition:
+    background 0.1s,
+    color 0.1s;
+}
+.notas-demo i.k {
+  box-shadow: inset 0 0 0 0.25cqw var(--amarillo);
+}
+.notas-demo i.sonada {
+  color: var(--tinta);
+  background: var(--amarillo);
+  box-shadow: 0 0 1cqw #ffe58a;
+}
+
+/* ---------- D: premio de combo, donde va la píldora del combo ---------- */
+.premio {
+  position: absolute;
+  right: 2cqw;
+  top: 7cqw;
+  display: flex;
+  align-items: center;
+  gap: 1cqw;
+  padding: 0.8cqw 2.2cqw 0.8cqw 0.9cqw;
+  border-radius: var(--redondo);
+  color: var(--tinta);
+  background: linear-gradient(#ffffff, #fff1d6);
+  box-shadow:
+    0 0.5cqw 0 #e2c992,
+    0 1.4cqw 2.4cqw rgb(30 15 45 / 0.45);
+  transform: rotate(-3deg);
+  animation: premio 1.5s ease-out forwards;
+}
+.medalla {
+  display: grid;
+  place-items: center;
+  width: 5cqw;
+  height: 5cqw;
+  border-radius: 50%;
+  font-size: 1.9cqw;
+  color: #ffffff;
+}
+.medalla[data-premio='bronce'] {
+  background: radial-gradient(circle at 35% 30%, #f7c79a, #d9894a 60%, #a8602b);
+}
+.medalla[data-premio='plata'] {
+  color: #5b6274;
+  background: radial-gradient(circle at 35% 30%, #ffffff, #c7cbd6 60%, #9097a8);
+}
+.medalla[data-premio='oro'] {
+  background: radial-gradient(circle at 35% 30%, #ffe58a, #ffb72e 60%, #f08a1c);
+}
+.texto b {
+  display: block;
+  font-size: 2.3cqw;
+  line-height: 1.05;
+}
+.texto span {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.2cqw;
+  color: var(--tinta-suave);
+}
+@keyframes premio {
+  0% {
+    opacity: 0;
+    scale: 1.4;
+  }
+  12% {
+    opacity: 1;
+    scale: 0.95;
+  }
+  22%,
+  80% {
+    opacity: 1;
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ---------- B: un poco pronto o un poco tarde ---------- */
+.desfase {
+  position: absolute;
+  left: 50%;
+  bottom: 8.4cqw;
+  display: flex;
+  align-items: center;
+  gap: 0.8cqw;
+  padding: 0.4cqw 1.4cqw 0.5cqw;
+  border-radius: var(--redondo);
+  white-space: nowrap;
+  font-family: 'Nunito', sans-serif;
+  font-size: max(1.5cqw, 11px);
+  color: #ffffff;
+  background: rgb(40 28 56 / 0.78);
+  transform: translateX(-50%);
+  animation: desfase 0.9s ease-out forwards;
+}
+/* El palito del centro es el momento justo; el punto, la pulsación (−90 a +90 ms) */
+.regla {
+  position: relative;
+  width: 9cqw;
+  height: 0.6cqw;
+  border-radius: var(--redondo);
+  background: rgb(255 255 255 / 0.25);
+}
+.regla::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -0.4cqw;
+  width: 0.25cqw;
+  height: 1.4cqw;
+  margin-left: -0.12cqw;
+  background: #ffffff;
+}
+.regla u {
+  position: absolute;
+  top: 50%;
+  width: 1.4cqw;
+  height: 1.4cqw;
+  margin: -0.7cqw 0 0 -0.7cqw;
+  border-radius: 50%;
+  background: var(--menta);
+}
+@keyframes desfase {
+  0% {
+    opacity: 0;
+    translate: 0 0.8cqw;
+  }
+  15%,
+  70% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ---------- E: botón de pausa, abajo a la izquierda ---------- */
+.pausa {
+  position: absolute;
+  left: 2cqw;
+  bottom: 2.2cqw;
+  display: flex;
+  align-items: center;
+  gap: 0.6cqw;
+  padding: 0.6cqw 1.4cqw 0.6cqw 0.6cqw;
+  border: 0;
+  border-radius: var(--redondo);
+  font:
+    500 max(1.2cqw, 11px) 'Fredoka',
+    'Nunito',
+    sans-serif;
+  color: #ffffff;
+  background: rgb(40 28 56 / 0.72);
+  pointer-events: auto;
+  cursor: pointer;
+}
+.pausa kbd {
+  padding: 0.2cqw 0.6cqw;
+  border-radius: 0.6cqw;
+  font:
+    700 max(1.1cqw, 10px) 'Fredoka',
+    'Nunito',
+    sans-serif;
+  color: var(--tinta);
+  background: linear-gradient(#ffffff, #ffe9b8);
+}
+.o {
+  opacity: 0.7;
+}
+/* En pantallas táctiles no hay teclas: queda el botón con su nombre, más grande */
+@media (hover: none) {
+  .pausa kbd,
+  .o {
+    display: none;
+  }
+  /* Un toque fallado contaría como J: el botón tiene que ser fácil de acertar */
+  .pausa {
+    min-height: 40px;
+    padding: max(1cqw, 10px) max(2.4cqw, 16px);
+    font-size: max(2cqw, 13px);
+  }
+}
+
+/* En pausa, el reproductor pone --pausa: paused y los rótulos se quedan quietos */
+.mira,
+.premio,
+.desfase {
+  animation-play-state: var(--pausa, running);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mira.entra {
+    animation: none;
+  }
+  .premio,
+  .desfase {
+    animation-duration: 0.01s;
+    animation-delay: 1.4s;
+  }
+}

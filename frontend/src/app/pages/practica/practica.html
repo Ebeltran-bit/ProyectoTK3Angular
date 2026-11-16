@@ -15,7 +15,12 @@
       </span>
     </div>
 
-    <app-reproductor-ritmo [cancion]="c" (terminada)="alTerminar($event)">
+    <app-reproductor-ritmo
+      [cancion]="c"
+      [conPausa]="true"
+      (terminada)="alTerminar($event)"
+      (elegirOtra)="volverALaLista()"
+    >
       <!-- Mientras se guarda se ve lo que ha contado el navegador; después, lo del backend -->
       @if (final(); as f) {
         <app-tarjeta-resultado
@@ -23,15 +28,19 @@
           [titulo]="f.mensaje"
           [resultado]="f.datos"
           [hype]="f.hype"
+          [ritmo]="f.ritmo"
+          [oro]="f.oro"
         >
-          @if (oficial()) {
+          @if (sinRecord()) {
+            <p class="estado-partida">Con pausa no cuenta para el récord.</p>
+          } @else if (oficial()) {
             <p class="estado-partida guardada">
               ✓ Partida guardada. Mira los récords en Estadísticas › Canciones.
             </p>
           } @else if (guardando()) {
             <p class="estado-partida">Guardando la partida…</p>
           }
-          @if (errorGuardar()) {
+          @if (errorGuardar() && !sinRecord()) {
             <p class="estado-partida error">
               No se ha guardado: {{ errorGuardar() }}
               <button type="button" (click)="guardarPartida()">Reintentar</button>

@@ -37,6 +37,26 @@
     </div>
   }
 
+  @if (oro()) {
+    <p class="oro"><span aria-hidden="true">★</span> ¡Medalla de oro! Todas las notas seguidas</p>
+  }
+
+  @if (ritmo(); as r) {
+    <!-- Cada punto gris es una nota acertada; el coral, la media -->
+    <div class="ritmo" role="img" [attr.aria-label]="'Tu ritmo. ' + frase(r)">
+      <span class="titulo-ritmo">TU RITMO</span>
+      <span class="lado">PRONTO</span>
+      <div class="linea">
+        @for (d of r.desfases; track $index) {
+          <i [style.left.%]="posicion(d)"></i>
+        }
+        <u [style.left.%]="posicion(r.media)"></u>
+      </div>
+      <span class="lado">TARDE</span>
+      <span class="frase">{{ frase(r) }}</span>
+    </div>
+  }
+
   @if (hype() !== null) {
     <div class="hype">
       <span>HYPE FINAL</span>

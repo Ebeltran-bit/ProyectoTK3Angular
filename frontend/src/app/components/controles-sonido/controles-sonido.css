@@ -1,0 +1,114 @@
+/* Controles de sonido (propuesta A). Colores del juego: menta para lo que está activo. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em;
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-weight: 700;
+  color: var(--tinta);
+  text-align: left;
+}
+.fila {
+  display: grid;
+  grid-template-columns: 7em 1fr 3.6em;
+  align-items: center;
+  gap: 1em;
+}
+.nombre {
+  font-size: max(1.1em, 10px);
+  letter-spacing: 0.12em;
+}
+.fila b {
+  font-size: max(1.1em, 10px);
+  text-align: right;
+  color: var(--tinta-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Barra deslizante: la parte llena en menta, con una variable que pone la plantilla */
+input[type='range'] {
+  appearance: none;
+  width: 100%;
+  height: 1em;
+  margin: 0;
+  border-radius: var(--redondo);
+  background:
+    linear-gradient(90deg, #5fd9a8, #2fb889) 0 / var(--lleno, 0%) 100% no-repeat,
+    #eadbb8;
+  cursor: pointer;
+}
+input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 2.2em;
+  height: 2.2em;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow:
+    0 0.2em 0.4em rgb(0 0 0 / 0.3),
+    inset 0 0 0 0.3em #2fb889;
+}
+input[type='range']::-moz-range-thumb {
+  width: 2.2em;
+  height: 2.2em;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow:
+    0 0.2em 0.4em rgb(0 0 0 / 0.3),
+    inset 0 0 0 0.3em #2fb889;
+}
+input:focus-visible {
+  outline: 0.25em solid var(--azul, #4a90c2);
+  outline-offset: 0.3em;
+}
+
+/* Interruptor: la casilla de verdad queda invisible encima, así se puede usar con el teclado */
+.interruptor {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1em;
+  border-top: 0.15em solid #eadbb8;
+  font-size: max(1.2em, 11px);
+  cursor: pointer;
+}
+.interruptor input {
+  position: absolute;
+  right: 0;
+  width: 4.4em;
+  height: 2.4em;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.interruptor i {
+  position: relative;
+  width: 3.7em;
+  height: 2em;
+  border-radius: var(--redondo);
+  background: #d8cbe6;
+  transition: background 0.15s;
+  pointer-events: none;
+}
+.interruptor i::after {
+  content: '';
+  position: absolute;
+  top: 0.25em;
+  left: 0.25em;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.15s;
+}
+.interruptor input:checked + i {
+  background: var(--coral);
+}
+.interruptor input:checked + i::after {
+  transform: translateX(1.7em);
+}
+.interruptor input:focus-visible + i {
+  outline: 0.25em solid var(--azul, #4a90c2);
+  outline-offset: 0.2em;
+}

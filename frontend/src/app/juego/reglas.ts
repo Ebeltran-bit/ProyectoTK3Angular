@@ -23,3 +23,17 @@ export const TECLAS: Record<string, 'accion' | 'alterna'> = { KeyJ: 'accion', Ke
  * que usa el mensaje final de cada escena. Solo se enseñan: no cambian la puntuación.
  */
 export const ESTRELLAS = { tres: 70, dos: 40 } as const;
+
+/**
+ * Premios de combo (etapa 4): un cartel y un sonido al llegar a estos aciertos seguidos.
+ * Solo se enseñan: no suman puntos ni Hype. En las canciones con menos notas que el oro,
+ * el oro es tocarlas todas seguidas (decisión de Eva del 16/11/2026).
+ */
+export const PREMIOS_COMBO = { bronce: 10, plata: 25, oro: 50 } as const;
+
+/**
+ * «Tu ritmo» de la tarjeta final: se dice «¡Clavas el ritmo!» si la media de los aciertos
+ * queda a menos de estos milisegundos y al menos esta parte de ellos son PERFECT.
+ */
+export const RITMO_CLAVADO_MS = 10;
+export const RITMO_CLAVADO_PERFECT = 0.8;

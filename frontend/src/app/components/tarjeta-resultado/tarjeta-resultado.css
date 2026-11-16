@@ -215,6 +215,93 @@ p {
   box-shadow: inset 0 0.35em 0 rgb(255 255 255 / 0.45);
 }
 
+/* ---------- Oro de las canciones cortas y «Tu ritmo» (etapa 4, propuestas D y F) ---------- */
+.oro {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.4em 1.6em 0.45em 0.5em;
+  border-radius: var(--redondo);
+  font-size: max(1.4em, 11px);
+  color: #9a5a00;
+  background: #fff1c2;
+}
+.oro span {
+  display: grid;
+  place-items: center;
+  width: 1.8em;
+  height: 1.8em;
+  border-radius: 50%;
+  color: #ffffff;
+  background: radial-gradient(circle at 35% 30%, #ffe58a, #ffb72e 60%, #f08a1c);
+}
+.ritmo {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.4em 1.2em;
+  width: 44em;
+  max-width: 100%;
+}
+.titulo-ritmo,
+.lado {
+  font-size: max(1em, 9px);
+  letter-spacing: 0.14em;
+  color: var(--tinta-suave);
+}
+.titulo-ritmo {
+  grid-column: 1 / -1;
+}
+.linea {
+  position: relative;
+  height: 2.4em;
+}
+/* Fondo de la línea: amarillo cerca del centro (PERFECT) y menta hacia fuera (GREAT) */
+.linea::before {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 0.5em;
+  margin-top: -0.25em;
+  border-radius: var(--redondo);
+  background: linear-gradient(90deg, #d6f7e8, #ffefb5 28%, #ffefb5 72%, #d6f7e8);
+}
+.linea::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 0.25em;
+  margin-left: -0.12em;
+  background: var(--tinta-suave);
+}
+.linea i,
+.linea u {
+  position: absolute;
+  top: 50%;
+  border-radius: 50%;
+}
+.linea i {
+  width: 0.9em;
+  height: 0.9em;
+  margin: -0.45em 0 0 -0.45em;
+  background: rgb(40 28 56 / 0.3);
+}
+.linea u {
+  z-index: 1;
+  width: 2em;
+  height: 2em;
+  margin: -1em 0 0 -1em;
+  background: var(--coral);
+  box-shadow: 0 0 0 0.3em #ffffff;
+}
+.frase {
+  grid-column: 1 / -1;
+  font-family: 'Nunito', sans-serif;
+  font-size: max(1.25em, 11px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .estrella {
     animation: none;

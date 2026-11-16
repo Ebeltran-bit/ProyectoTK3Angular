@@ -99,6 +99,8 @@
             [cinta]="titulo()"
             [titulo]="tituloFinal()"
             [resultado]="ganador() ? null : misDatos()"
+            [ritmo]="misDatos() ? (reproductor()?.ritmo() ?? null) : null"
+            [oro]="!!misDatos() && !!reproductor()?.oroFinal()"
           >
             @if (ganador(); as g) {
               <!-- E2: ya han jugado los dos y el backend ha decidido -->

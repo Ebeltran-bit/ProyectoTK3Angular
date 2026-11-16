@@ -10,7 +10,10 @@ import {
   HYPE,
   HYPE_INICIAL,
   HYPE_MAXIMO,
+  PREMIOS_COMBO,
   PUNTOS,
+  RITMO_CLAVADO_MS,
+  RITMO_CLAVADO_PERFECT,
   VENTANA_GREAT_MS,
   VENTANA_PERFECT_MS,
 } from './reglas';
@@ -23,6 +26,11 @@ export interface NotaEnJuego {
   tecla: Tecla;
   /** null mientras no se ha juzgado. Cada nota se juzga una sola vez. */
   juicio: Juicio | null;
+  /**
+   * Cuánto se adelantó (negativo) o se retrasó (positivo) la pulsación que acertó la nota,
+   * en ms. null si la nota no se acertó. Solo sirve para enseñarlo: no cambia la puntuación.
+   */
+  desfase: number | null;
 }
 
 export interface Marcador {
@@ -50,7 +58,10 @@ export function marcadorInicial(): Marcador {
 }
 
 export function crearPartida(notas: { ms: number; tecla: Tecla }[]): Partida {
-  return { notas: notas.map((n) => ({ ...n, juicio: null })), marcador: marcadorInicial() };
+  return {
+    notas: notas.map((n) => ({ ...n, juicio: null, desfase: null })),
+    marcador: marcadorInicial(),
+  };
 }
 
 /** Juicio según lo lejos que quede la pulsación de la nota, antes o después. */
@@ -88,7 +99,11 @@ export function aplicarJuicio(m: Marcador, juicio: Juicio): Marcador {
  * - Si no hay ninguna, la pulsación es un fallo (MISS) y no gasta ninguna nota.
  * - Si la tecla no es la de la nota, esa nota queda como MISS.
  */
-export function pulsar(p: Partida, ms: number, tecla: Tecla): { partida: Partida; juicio: Juicio } {
+export function pulsar(
+  p: Partida,
+  ms: number,
+  tecla: Tecla,
+): { partida: Partida; juicio: Juicio; desfase: number | null } {
   let indice = -1;
   for (let i = 0; i < p.notas.length; i++) {
     const n = p.notas[i];
@@ -96,12 +111,17 @@ export function pulsar(p: Partida, ms: number, tecla: Tecla): { partida: Partida
     if (indice === -1 || Math.abs(n.ms - ms) < Math.abs(p.notas[indice].ms - ms)) indice = i;
   }
   if (indice === -1) {
-    return { partida: { ...p, marcador: aplicarJuicio(p.marcador, 'miss') }, juicio: 'miss' };
+    return {
+      partida: { ...p, marcador: aplicarJuicio(p.marcador, 'miss') },
+      juicio: 'miss',
+      desfase: null,
+    };
   }
   const nota = p.notas[indice];
   const juicio = nota.tecla === tecla ? juzgarDesfase(ms - nota.ms) : 'miss';
-  const notas = p.notas.map((n, i) => (i === indice ? { ...n, juicio } : n));
-  return { partida: { notas, marcador: aplicarJuicio(p.marcador, juicio) }, juicio };
+  const desfase = juicio === 'miss' ? null : ms - nota.ms;
+  const notas = p.notas.map((n, i) => (i === indice ? { ...n, juicio, desfase } : n));
+  return { partida: { notas, marcador: aplicarJuicio(p.marcador, juicio) }, juicio, desfase };
 }
 
 /** Marca como MISS las notas que ya pasaron su ventana sin que nadie las pulsara. */
@@ -115,4 +135,50 @@ export function cerrarNotasPasadas(p: Partida, ms: number): { partida: Partida; 
     return { ...n, juicio: 'miss' as const };
   });
   return fallos === 0 ? { partida: p, fallos } : { partida: { notas, marcador }, fallos };
+}
+
+export type Premio = 'bronce' | 'plata' | 'oro';
+
+/** Premio que toca justo al llegar a este combo (10, 25 o 50), o null. */
+export function premioPorCombo(combo: number): Premio | null {
+  if (combo === PREMIOS_COMBO.oro) return 'oro';
+  if (combo === PREMIOS_COMBO.plata) return 'plata';
+  if (combo === PREMIOS_COMBO.bronce) return 'bronce';
+  return null;
+}
+
+/**
+ * En una canción con menos notas que el combo de oro, el oro es tocarlas todas seguidas.
+ * Solo se sabe al acabar, así que se enseña en la tarjeta final.
+ */
+export function oroPorTodas(comboMaximo: number, totalNotas: number): boolean {
+  return totalNotas > 0 && totalNotas < PREMIOS_COMBO.oro && comboMaximo === totalNotas;
+}
+
+/**
+ * Cómo se pulsa de media: «pronto», «tarde», «clavado» (media muy cerca de 0 y casi todo
+ * PERFECT) o «centrado» (la media sale cerca de 0, pero las notas caen dispersas).
+ */
+export type Tendencia = 'pronto' | 'tarde' | 'clavado' | 'centrado';
+
+export interface ResumenRitmo {
+  /** Desfase de cada nota acertada, en ms (negativo = pronto). */
+  desfases: number[];
+  /** Media redondeada, en ms. */
+  media: number;
+  tendencia: Tendencia;
+}
+
+/** Resumen de la fila «Tu ritmo» de la tarjeta final. null si no se acertó ninguna nota. */
+export function resumirRitmo(notas: NotaEnJuego[]): ResumenRitmo | null {
+  const aciertos = notas.filter((n) => n.desfase !== null);
+  if (aciertos.length === 0) return null;
+  const desfases = aciertos.map((n) => n.desfase!);
+  const media = Math.round(desfases.reduce((a, b) => a + b, 0) / desfases.length);
+  const perfect = aciertos.filter((n) => n.juicio === 'perfect').length / aciertos.length;
+  let tendencia: Tendencia;
+  if (Math.abs(media) < RITMO_CLAVADO_MS)
+    tendencia = perfect >= RITMO_CLAVADO_PERFECT ? 'clavado' : 'centrado';
+  else tendencia = media < 0 ? 'pronto' : 'tarde';
+  return { desfases, media, tendencia };
 }

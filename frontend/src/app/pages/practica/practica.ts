@@ -38,6 +38,8 @@ export class Practica implements OnInit {
   protected readonly oficial = signal<Resultado | null>(null);
   protected readonly guardando = signal(false);
   protected readonly errorGuardar = signal<string | null>(null);
+  /** La partida tuvo pausa: se juega igual, pero no se manda al backend ni cuenta para el récord. */
+  protected readonly sinRecord = signal(false);
   private pulsaciones: Pulsacion[] = [];
   private readonly reproductor = viewChild(ReproductorRitmo);
 
@@ -54,6 +56,8 @@ export class Practica implements OnInit {
     const datos = r ? { ...r, comboMaximo: r.combo_maximo } : reproductor.marcador();
     return {
       datos,
+      ritmo: reproductor.ritmo(),
+      oro: reproductor.oroFinal(),
       hype: datos.hype,
       estrellas: estrellasPorHype(datos.hype),
       mensaje: reproductor.escenario().mensajeFinal(datos.hype),
@@ -101,18 +105,32 @@ export class Practica implements OnInit {
 
   volverALaLista(): void {
     this.cancion.set(null);
+    this.oficial.set(null);
+    this.errorGuardar.set(null);
+    this.sinRecord.set(false);
   }
 
   /** Empieza otra vez la misma canción. */
   protected otraVez(): void {
     this.oficial.set(null);
     this.errorGuardar.set(null);
+    this.sinRecord.set(false);
     void this.reproductor()?.jugar();
   }
 
   /** Al acabar la canción se mandan las pulsaciones; el récord usa la puntuación del backend. */
   protected alTerminar(pulsaciones: Pulsacion[]): void {
     this.pulsaciones = pulsaciones;
+    // Con pausa se puede tocar a trozos: no se guarda para que el ranking sea justo
+    // (decisión de Eva del 16/11/2026). Así el backend no necesita saber nada de la pausa.
+    if (this.reproductor()?.huboPausa()) {
+      // Sin restos de una partida anterior: la tarjeta enseña lo que ha contado el navegador
+      this.oficial.set(null);
+      this.errorGuardar.set(null);
+      this.sinRecord.set(true);
+      return;
+    }
+    this.sinRecord.set(false);
     this.guardarPartida();
   }
 

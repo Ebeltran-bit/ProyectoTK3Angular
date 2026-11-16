@@ -1,0 +1,59 @@
+/* Tarjeta de pausa (propuesta E). Mismo estilo que las de inicio y final; mide en «em». */
+.tarjeta {
+  position: relative;
+  width: 46em;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4em;
+  padding: 3.4em 3em 2.2em;
+  border-radius: 3em;
+  text-align: center;
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-weight: 700;
+  color: var(--tinta);
+  background: linear-gradient(#ffffff, #fff1d6);
+  box-shadow:
+    0 0.7em 0 #e2c992,
+    0 2.2em 4em rgb(30 15 45 / 0.55);
+}
+.cinta {
+  position: absolute;
+  top: -1.5em;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  padding: 0.35em 2em 0.4em;
+  border-radius: var(--redondo);
+  font-size: max(1.3em, 11px);
+  letter-spacing: 0.16em;
+  color: #ffffff;
+  background: var(--azul);
+  box-shadow: 0 0.25em 0 var(--azul-oscuro);
+}
+h3 {
+  margin: 0;
+  font-size: 3.6em;
+  line-height: 1.1;
+}
+.botones {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1em;
+  width: 30em;
+  max-width: 100%;
+}
+.sonido {
+  width: 30em;
+  max-width: 100%;
+  padding-top: 1.2em;
+  border-top: 0.15em solid #eadbb8;
+}
+.nota {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  font-size: max(1.1em, 10px);
+  color: var(--tinta-suave);
+}

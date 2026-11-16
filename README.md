@@ -566,7 +566,7 @@ no puede dibujar en 3D.
 | 1. Base común y puerto | Motor 3D, personajes, materiales, luz, marcador nuevo y la escena del puerto animada | Hecha el 11/11/2026; Eva la probó en su portátil ese día y va fluida |
 | 2. Resto de escenas | Las otras ocho escenas en 3D | Hecha el 12/11/2026: las nueve escenas tienen versión 3D; falta que Eva las pruebe |
 | 3. Pantallas del juego | Inicio, final y transiciones (se enseñan propuestas antes) | Hecha el 12/11/2026; falta que Eva la pruebe |
-| 4. Sonido y mecánicas | Las mejoras aprobadas de la lista de arriba | Pendiente |
+| 4. Sonido y mecánicas | Las mejoras aprobadas de la lista de arriba | Hecha el 16/11/2026; falta que Eva la pruebe y escuche los arreglos |
 | 5. Pruebas, rendimiento y pulido | Revisión de las nueve escenas en ordenadores reales | Pendiente |
 
 **Cómo funciona (etapa 1)**
@@ -617,7 +617,7 @@ Detalles que decidí yo (Claude) en esta etapa:
 - En `angular.json` sube el aviso de tamaño de la hoja de estilos de un componente (de 4 a 8 kB): el
   marcador nuevo ocupa unos 7 kB.
 - La calidad se puede fijar a mano guardando `tk3_calidad` (`alta`, `media` o `baja`) en el almacenamiento
-  local del navegador; lo usan las pruebas. Un selector en pantalla sería una propuesta para la etapa 4.
+  local del navegador; lo usan las pruebas. Un selector en pantalla queda como posible propuesta.
 - Sin comprobar todavía: el rendimiento en un portátil real (aquí solo se ha podido probar con un navegador
   sin tarjeta gráfica) y el diseño del marcador en pantallas de móvil.
 
@@ -677,6 +677,84 @@ Detalles que decidí yo (Claude) en esta etapa:
 - Sigue pendiente lo que anoté en la etapa 2: el rótulo PERFECT, GREAT o MISS sale siempre arriba en
   el centro y en Correos tapa el moño de la cartera.
 
+**Etapa 4: sonido y mecánicas**
+
+Aprobado por Eva el 16/11/2026, sobre las propuestas de la A a la H de
+[Sonido y mecánicas del duelo](https://claude.ai/artifact/J71mdbCsoTDr1zhT2LELEj) (con muestras de audio),
+incluidas las cuatro dudas que dejé con mi propuesta:
+- **A · Volumen.** Un botón con un altavoz en la esquina del escenario (antes y después de tocar) abre dos
+  barras, **Música** (la canción, el acorde y la melodía final) y **Efectos** (la cuenta, los avisos, los
+  aciertos, los fallos, los premios y la pausa), y un interruptor para silenciarlo todo. Las mismas barras
+  están en la tarjeta de pausa. La cuenta y los avisos van en Efectos porque son parte del juego. Con la
+  canción sonando, M silencia. Se guarda en el navegador (`localStorage`), no en la base de datos.
+- **B · Un poco pronto o un poco tarde.** Tras un GREAT, abajo y encima de las teclas, una píldora lo dice
+  con una regla pequeña (de −90 a +90 ms). En PERFECT y MISS no sale.
+- **C · Compás de demostración.** Antes de la cuenta la escena toca sola las notas del primer compás que
+  tiene notas, con su aviso y su acierto, y la tecla se ilumina abajo. Sale **solo la primera vez** que se
+  juega cada canción en ese navegador. En la práctica se salta con J o tocando; en el duelo no. Va aparte
+  de la canción: al acabar, la canción empieza igual que antes, así que los tiempos que llegan al backend
+  no cambian, y lo que se pulsa durante la demostración no se guarda.
+- **D · Premios de combo.** A los 10, 25 y 50 aciertos seguidos la píldora del combo se convierte durante
+  un segundo y medio en un cartel con medalla (bronce, plata u oro), con una frase de la escena y su
+  sonido. En las canciones de menos de 50 notas el oro es **tocarlas todas seguidas** y sale en la tarjeta
+  final. No suman puntos ni Hype.
+- **E · Pausa, solo en la práctica.** Esc, P o el botón de abajo a la izquierda. Al continuar suena una
+  cuenta de un compás que cae en el ritmo de la canción y esta sigue justo donde se paró. Cambiar de
+  pestaña en la práctica pausa; en el duelo sigue cancelando. Una partida con pausa **no se envía y no
+  cuenta para el récord** (la tarjeta final lo dice), así el backend no necesita saber nada de la pausa.
+- **F · Tu ritmo.** La tarjeta final añade una fila con un punto por nota acertada según lo pronto o lo
+  tarde que se pulsó, la media y una frase («Sueles pulsar un poco pronto: 14 ms de media», «¡Clavas el
+  ritmo!»…). Se calcula en el navegador y solo informa.
+- **G · Efectos nuevos.** Cuenta con bloque de madera, premios de combo, pausa y continuar, y una melodía
+  final según las estrellas. Todo generado por código.
+- **H · Arreglos nuevos.** Las nueve canciones tienen partes (entrada con marimba, parte A con la melodía
+  de siempre en su instrumento nuevo, parte B con arpegios o color propio y palmas, y final), con el bombo
+  en todos los pulsos donde hay nota. Mismo BPM, mismas notas, mismos avisos. Seis instrumentos nuevos:
+  `marimba`, `palmas`, `maraca`, `fondo`, `bajo_redondo` y `flauta_suave`, también en la lista que valida
+  el backend (`modelos.py`), así que `GET /api/canciones/{id}` puede devolverlos.
+
+Cómo funciona por dentro:
+- **Pausa.** El juicio usa el reloj del audio de la canción. Al pausar se suspende ese audio
+  (`AudioContext.suspend`): se paran a la vez la música y el reloj, y las notas no se escapan. Como en un
+  audio suspendido no suena nada, los sonidos de la pausa y la cuenta para volver van por un segundo audio
+  pequeño. Al acabar la cuenta se reanuda el de la canción. Mientras, la escena no se dibuja y su reloj no
+  cuenta ese tiempo, para que el ambiente no dé un salto, y las teclas no cuentan.
+- **Dos barras de volumen.** `Musica` tiene dos salidas (Música y Efectos) que acaban en una general (el
+  silencio). Las pistas de la canción y el final salen por Música; todo lo demás, por Efectos.
+- **La cuenta al volver** sale de una función pura con Vitest (`pulsosCuentaAlVolver` en `musica.ts`):
+  los golpes caen en los pulsos enteros justo anteriores al punto de la pausa.
+
+| Pieza | Archivo |
+| --- | --- |
+| Números nuevos (premios, «¡Clavas el ritmo!») | `juego/reglas.ts` |
+| Desfase de cada nota, premios y «Tu ritmo» (funciones puras con Vitest) | `juego/evaluacion.ts` |
+| Notas de la demostración y si ya se vio (con Vitest) | `juego/demostracion.ts` |
+| Volumen guardado y compartido (con Vitest) | `juego/volumen.ts` |
+| Dos salidas, instrumentos y efectos nuevos, cuenta al volver | `juego/musica.ts` |
+| Frases de los premios de cada escena | `juego/escenarios/*.ts` (`premios`) |
+| Barras y silencio; botón del altavoz | `components/controles-sonido/`, `components/boton-sonido/` |
+| Tarjeta de pausa | `components/tarjeta-pausa/` |
+| Pronto o tarde, demostración, premio y botón de pausa sobre la escena | `components/rotulos-partida/` |
+| Fila «Tu ritmo» y oro de las canciones cortas | `components/tarjeta-resultado/` |
+| Fases de demostración y pausa, teclas M, Esc y P | `components/reproductor-ritmo/` |
+| Arreglos (solo cambia la parte `musica`) | `backend/app/beatmaps/*.json` |
+
+Detalles que decidí yo (Claude) en esta etapa:
+- Los arreglos de ocho canciones salen de un pequeño programa (`herramientas-3d/etapa4/arreglos.py`, en la
+  carpeta del proyecto, fuera del repositorio) que saca los acordes de cada compás de la música de siempre
+  y monta las partes encima; el del huerto es el que se oyó en la propuesta. Medidos al grabarlos, ninguno
+  satura (pico máximo −0,6 dB) y suenan con un volumen parecido al de antes (±1 dB). Las grabaciones de
+  antes y después están en `herramientas-3d/etapa4/audio/` para escucharlas.
+- El bronce no lleva frase propia de la escena: dice «¡Buen ritmo!».
+- La frase de «Tu ritmo» tiene una cuarta opción para cuando la media sale cerca de cero pero muchas notas
+  son GREAT: «De media vas a tiempo, aunque algunas notas se te escapan».
+- La ayuda bajo el escenario avisa de que unos auriculares inalámbricos pueden hacer que todo salga «tarde».
+- En `angular.json` sube el aviso de tamaño de la carga inicial de 550 a 600 kB (las piezas nuevas suman
+  unos 2 kB comprimidos).
+- Aparte (no es de esta etapa): en el duelo, si alguien va mal, puede cambiar de pestaña o recargar y
+  repetirlo, porque no se guarda nada hasta el final. Cerrarlo sería una regla nueva del backend y queda
+  como propuesta para Eva.
+
 ## Estado por fases
 
 - [x] Fase 1 · Participantes: crear, consultar, editar, activar/desactivar, persistencia.
@@ -684,4 +762,4 @@ Detalles que decidí yo (Claude) en esta etapa:
 - [x] Fase 3 · Combates, rondas y campeón: registrar ganadores, avance automático, campeón y torneo cerrado.
 - [ ] Fase 4 · Informes y entrega: estadísticas e historial hechos; quedan la revisión final y el vídeo.
 - [x] Ampliación · Duelo de ritmo: sesión, motor con 9 escenarios, récords de práctica, IA y duelos en el torneo.
-- [ ] Renovación 3D del juego: etapas 1, 2 y 3 hechas (base común, las nueve escenas en 3D y las pantallas del juego); faltan sonido, mecánicas y pulido.
+- [ ] Renovación 3D del juego: etapas 1 a 4 hechas (base común, las nueve escenas en 3D, las pantallas del juego, y sonido y mecánicas); falta el pulido.

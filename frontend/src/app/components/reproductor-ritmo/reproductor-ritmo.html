@@ -1,4 +1,4 @@
-<div class="pantalla" (pointerdown)="alTocar($event)">
+<div class="pantalla" [class.en-pausa]="pausa() !== 'no'" (pointerdown)="alTocar($event)">
   <!-- Versión plana: se ve mientras carga la 3D, o siempre si el escenario no la tiene -->
   <canvas
     #lienzo
@@ -43,7 +43,8 @@
       <small>PUNTOS</small><strong>{{ puntos() }}</strong>
     </div>
 
-    @if (marcador().combo >= 2) {
+    <!-- Mientras sale el cartel de un premio de combo, la píldora deja su sitio -->
+    @if (marcador().combo >= 2 && !premio()) {
       <!-- El «track» por el número hace que la píldora dé un salto cada vez que sube -->
       @for (c of [marcador().combo]; track c) {
         <div class="combo">
@@ -58,11 +59,13 @@
       <div class="cuenta">{{ v }}</div>
     }
     <!-- Un punto por pulso de la cuenta, para ver cuánto falta para la primera nota -->
-    <div class="compas" aria-hidden="true">
-      @for (p of pulsosCuenta(); track p) {
-        <i [class.lleno]="p <= n"></i>
-      }
-    </div>
+    @if (pausa() === 'no') {
+      <div class="compas" aria-hidden="true">
+        @for (p of pulsosCuenta(); track p) {
+          <i [class.lleno]="p <= n"></i>
+        }
+      </div>
+    }
   }
 
   @if (juicio(); as j) {
@@ -84,8 +87,17 @@
     }
   }
 
+  <app-rotulos-partida
+    [desfase]="desfase()"
+    [premio]="premio()"
+    [notasDemo]="notasDemo()"
+    [demoSaltable]="conTeclaJ()"
+    [conBotonPausa]="conPausa() && fase() === 'jugando' && pausa() === 'no'"
+    (pausar)="pausar()"
+  />
+
   <!-- En la versión plana no se enseña: sus escenas ya usan la parte de abajo -->
-  @if (fase() === 'jugando' && en3d()) {
+  @if ((fase() === 'jugando' || fase() === 'demostracion') && en3d()) {
     <div class="teclas" animate.enter="entra">
       <div class="tecla">
         @for (v of [pulsada()?.tecla === 'accion' ? pulsada()!.vez : 0]; track v) {
@@ -114,7 +126,7 @@
     </div>
   }
 
-  @if (fase() === 'preparada' && !cargando3d()) {
+  @if (fase() === 'preparada' && !cargando3d() && !reiniciando()) {
     <!-- Tarjeta de inicio (propuestas A y B): la escena sigue viva detrás, solo algo oscurecida -->
     <div class="capa inicio" animate.enter="entra" animate.leave="sale">
       <app-tarjeta-inicio
@@ -133,11 +145,26 @@
     </div>
   }
 
+  @if (pausa() === 'pausada') {
+    <div class="capa pausa" animate.enter="entra">
+      <app-tarjeta-pausa
+        (continuar)="continuar()"
+        (empezarDeNuevo)="empezarDeNuevo()"
+        (elegirOtra)="salir()"
+      />
+    </div>
+  }
+
   @if (fase() === 'terminada') {
     <!-- Lo que se ve al acabar lo decide la pantalla que usa el reproductor -->
     <div class="capa final" animate.enter="entra">
       <div class="contenido-final"><ng-content /></div>
     </div>
+  }
+
+  <!-- Sonido (propuesta A): antes y después de tocar; durante la canción, en la pausa -->
+  @if ((fase() === 'preparada' || fase() === 'terminada') && !cargando3d() && !reiniciando()) {
+    <app-boton-sonido [(abierto)]="panelSonido" />
   }
 
   <!-- Cortina mientras se prepara la escena 3D (propuesta F1): evita ver un instante la plana -->
@@ -157,6 +184,11 @@
 }
 
 <p class="ayuda">
-  <kbd>J</kbd> acción · <kbd>K</kbd> alternativa · en el móvil, toca la pantalla. PERFECT ±40 ms ·
-  GREAT ±90 ms.
+  <kbd>J</kbd> acción · <kbd>K</kbd> alternativa · en el móvil, toca la pantalla ·
+  <kbd>M</kbd> silencio
+  @if (conPausa()) {
+    · <kbd>Esc</kbd> o <kbd>P</kbd> pausa
+  }
+  <br />PERFECT ±40 ms · GREAT ±90 ms. Si todo te sale «tarde», puede que tus auriculares
+  inalámbricos retrasen el sonido.
 </p>

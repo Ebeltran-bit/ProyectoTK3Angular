@@ -171,6 +171,7 @@ export const huerto: Escenario = {
     acierto: () => 'huerto-acierto',
   },
   teclas: { accion: { texto: 'Regar' } },
+  premios: { plata: 'Las calabazas crecen a ojos vista', oro: '¡Cosecha de concurso!' },
   mensajeFinal: (hype) =>
     hype >= 70
       ? '¡Las calabazas más grandes del pueblo!'

@@ -1,0 +1,90 @@
+/* Botón del altavoz y su panel (propuesta A). 1em es la centésima parte del ancho del escenario. */
+:host {
+  position: absolute;
+  right: 2em;
+  /* Abajo del escenario (16:9, alto = 56,25 % del ancho), aunque en el móvil la tarjeta
+     final vaya debajo y alargue la pantalla */
+  top: calc(56.25cqw - 2em - max(4.4em, 34px));
+  font-size: 1cqw;
+}
+.boton {
+  display: grid;
+  place-items: center;
+  width: max(4.4em, 34px);
+  height: max(4.4em, 34px);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  /* Los botones no heredan la letra: sin esto, 1em no sería la del escenario */
+  font-size: inherit;
+  color: var(--tinta);
+  background: linear-gradient(#ffffff, #fff1d6);
+  box-shadow:
+    0 0.3em 0 #e2c992,
+    0 0.8em 1.4em rgb(30 15 45 / 0.35);
+  cursor: pointer;
+}
+.boton:hover {
+  translate: 0 -0.1em;
+}
+.boton:focus-visible {
+  outline: 0.3em solid var(--azul);
+  outline-offset: 0.3em;
+}
+.boton svg {
+  width: 55%;
+  height: 55%;
+}
+.panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 1.4em);
+  width: max(27em, 240px);
+  padding: 1.8em 2em;
+  border-radius: 2em;
+  box-sizing: border-box;
+  background: linear-gradient(#ffffff, #fff1d6);
+  box-shadow:
+    0 0.5em 0 #e2c992,
+    0 1.6em 3em rgb(30 15 45 / 0.45);
+  animation: abre 0.2s ease-out;
+}
+.panel small {
+  display: block;
+  margin-top: 1em;
+  font-family: 'Nunito', sans-serif;
+  font-size: max(1em, 10px);
+  color: var(--tinta-suave);
+}
+.titulo {
+  margin: 0 0 1.2em;
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-size: max(1.5em, 13px);
+  font-weight: 700;
+  color: var(--tinta);
+}
+@keyframes abre {
+  from {
+    opacity: 0;
+    translate: 0 1em;
+  }
+}
+/* En el móvil el escenario es pequeño: el botón y el panel van algo más grandes */
+@media (max-width: 640px) {
+  :host {
+    font-size: 2cqw;
+  }
+  /* El escenario es bajito: el panel deja el título y la nota para caber */
+  .titulo,
+  .panel small {
+    display: none;
+  }
+  .panel {
+    padding: 1.4em 1.6em;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}

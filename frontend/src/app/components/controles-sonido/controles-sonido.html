@@ -1,0 +1,31 @@
+<label class="fila">
+  <span class="nombre">MÚSICA</span>
+  <input
+    type="range"
+    min="0"
+    max="100"
+    step="5"
+    [value]="musica()"
+    [style.--lleno.%]="musica()"
+    (input)="cambiar('musica', $event)"
+  />
+  <b>{{ musica() }}%</b>
+</label>
+<label class="fila">
+  <span class="nombre">EFECTOS</span>
+  <input
+    type="range"
+    min="0"
+    max="100"
+    step="5"
+    [value]="efectos()"
+    [style.--lleno.%]="efectos()"
+    (input)="cambiar('efectos', $event)"
+  />
+  <b>{{ efectos() }}%</b>
+</label>
+<label class="interruptor">
+  Silenciar todo
+  <input type="checkbox" role="switch" [checked]="silencio()" (change)="silenciar($event)" />
+  <i aria-hidden="true"></i>
+</label>

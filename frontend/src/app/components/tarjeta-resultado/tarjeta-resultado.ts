@@ -1,6 +1,8 @@
 import { Component, computed, effect, input, OnDestroy, signal, untracked } from '@angular/core';
 
+import { ResumenRitmo, Tendencia } from '../../juego/evaluacion';
 import { conEspacios } from '../../juego/formato';
+import { VENTANA_GREAT_MS } from '../../juego/reglas';
 
 /** Datos que enseña la tarjeta: sirven el marcador del navegador y el resultado del backend. */
 export interface DatosResultado {
@@ -31,6 +33,27 @@ export class TarjetaResultado implements OnDestroy {
   readonly titulo = input.required<string>();
   readonly resultado = input<DatosResultado | null>(null);
   readonly hype = input<number | null>(null);
+  /** «Tu ritmo» (etapa 4, propuesta F): solo justo después de tocar. */
+  readonly ritmo = input<ResumenRitmo | null>(null);
+  /** Oro por tocar todas las notas seguidas de una canción corta (propuesta D). */
+  readonly oro = input(false);
+
+  /** Posición en % de la línea de «Tu ritmo», que va de −90 ms (izquierda) a +90 ms. */
+  protected posicion(ms: number): number {
+    return (
+      50 + (Math.max(-VENTANA_GREAT_MS, Math.min(VENTANA_GREAT_MS, ms)) / VENTANA_GREAT_MS) * 50
+    );
+  }
+
+  protected frase(r: ResumenRitmo): string {
+    const frases: Record<Tendencia, string> = {
+      pronto: `Sueles pulsar un poco pronto: ${-r.media} ms de media.`,
+      tarde: `Sueles pulsar un poco tarde: ${r.media} ms de media.`,
+      clavado: '¡Clavas el ritmo!',
+      centrado: 'De media vas a tiempo, aunque algunas notas se te escapan.',
+    };
+    return frases[r.tendencia];
+  }
 
   protected readonly tres = [1, 2, 3];
   /** Puntos que se ven: suben contando hasta el total. */
