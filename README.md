@@ -149,6 +149,14 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 
 No hay DELETE a propósito: el enunciado dice que desactivar no es borrar.
 
+Errores de la base de datos (decidido por mí, Claude, el 17/11/2026, al investigar un duelo que no
+abría): si MariaDB no está, rechaza el usuario, el equipo o la contraseña, no tiene la base de datos o
+tiene demasiadas conexiones, la API responde **503** «No se puede conectar con la base de datos».
+Cualquier otro fallo de SQL que no se haya atrapado antes (una tabla o una columna que no existe, una
+espera de bloqueo demasiado larga porque otra conexión, como Workbench, tiene cambios sin confirmar…)
+responde **500** con su código de MariaDB, y en la terminal del backend sale el error con su traza.
+Antes todos los de PyMySQL salían como 503 y el mensaje engañaba.
+
 ## Pruebas automáticas
 
 Desde `backend/`, con el entorno virtual activado: `python -m pytest`. Comprueban el sorteo del cuadro
