@@ -1,44 +1,92 @@
 <div class="cuadro">
   @for (ronda of rondas(); track ronda.numero) {
-    <div class="ronda">
-      <h3>{{ ronda.nombre }}</h3>
-      <div class="combates">
-        @for (c of ronda.combates; track c.id) {
-          <div class="combate" [class.bye]="c.es_bye" [class.resuelto]="c.estado === 'resuelto'">
-            @if (editable() && c.estado === 'pendiente' && c.participante2) {
-              <button type="button" class="jugador elegible" (click)="elegir(c, c.participante1)">
-                {{ c.participante1.nick }}
-              </button>
-              <button type="button" class="jugador elegible" (click)="elegir(c, c.participante2)">
-                {{ c.participante2.nick }}
-              </button>
-              <a class="duelo" [routerLink]="['combates', c.id, 'duelo']">Duelo</a>
-            } @else {
-              <div
-                class="jugador"
-                [class.ganador]="c.id_ganador === c.participante1.id"
-                [class.perdedor]="c.id_ganador !== null && c.id_ganador !== c.participante1.id"
-              >
-                {{ c.participante1.nick }}
-              </div>
-              @if (c.participante2) {
-                <div
-                  class="jugador"
-                  [class.ganador]="c.id_ganador === c.participante2.id"
-                  [class.perdedor]="c.id_ganador !== null && c.id_ganador !== c.participante2.id"
-                >
-                  {{ c.participante2.nick }}
+    <div class="ronda" [class.final]="ronda.esFinal">
+      <h4 [style.background]="color(ronda)">{{ ronda.nombre }}</h4>
+      <div class="parejas">
+        @for (pareja of ronda.parejas; track $index) {
+          <!-- La línea de la derecha une la pareja con su combate de la ronda siguiente -->
+          <div class="pareja" [class.con-linea]="!ronda.esFinal">
+            @for (c of pareja; track $index) {
+              <!-- La casilla reparte la altura a partes iguales, así las líneas caen en el centro -->
+              <div class="casilla">
+                <!-- «centro» mide lo que la tarjeta: el trofeo se cuelga justo debajo -->
+                <div class="centro">
+                  @if (c) {
+                    <div
+                      [attr.data-combate]="c.id"
+                      class="combate"
+                      [class.entrada]="ronda.numero > 1"
+                      [class.pendiente]="editable() && pendiente(c)"
+                    >
+                      @for (p of [c.participante1, c.participante2]; track $index) {
+                        @if (p) {
+                          @if (editable() && pendiente(c) && eligiendo() === c.id) {
+                            <button
+                              type="button"
+                              class="fila elegible"
+                              [attr.aria-label]="'Gana ' + p.nick"
+                              (click)="elegir(c, p)"
+                            >
+                              <app-icono-usuario [icono]="icono(p)" [nombre]="p.nick" [tam]="34" />
+                              <span class="nick">{{ p.nick }}</span>
+                              <span class="gana">Gana</span>
+                            </button>
+                          } @else {
+                            <div
+                              class="fila"
+                              [class.ganador]="c.id_ganador === p.id"
+                              [class.perdedor]="c.id_ganador !== null && c.id_ganador !== p.id"
+                            >
+                              <app-icono-usuario [icono]="icono(p)" [nombre]="p.nick" [tam]="34" />
+                              <span class="nick">{{ p.nick }}</span>
+                              @if (c.id_ganador === p.id) {
+                                <span class="corona" role="img" aria-label="ganador">👑</span>
+                              }
+                            </div>
+                          }
+                        } @else {
+                          <div class="fila bye">BYE · pasa directo</div>
+                        }
+                      }
+                      @if (editable() && pendiente(c)) {
+                        <span class="vs" aria-hidden="true">VS</span>
+                        <div class="acciones">
+                          @if (eligiendo() === c.id) {
+                            <button
+                              type="button"
+                              class="mano"
+                              (click)="cambiarEligiendo(null, c.id)"
+                            >
+                              Cancelar
+                            </button>
+                          } @else {
+                            <a class="boton duelo" [routerLink]="['combates', c.id, 'duelo']"
+                              ><span aria-hidden="true">⚔</span> Duelo</a
+                            >
+                            <button
+                              type="button"
+                              class="mano elegir"
+                              aria-haspopup="true"
+                              (click)="cambiarEligiendo(c.id, c.id)"
+                            >
+                              Elegir ganador
+                            </button>
+                          }
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <div class="combate vacio" [class.entrada]="ronda.numero > 1">
+                      <div class="fila hueco"><span class="sin-icono"></span>Por decidir</div>
+                      <div class="fila hueco"><span class="sin-icono"></span>Por decidir</div>
+                    </div>
+                  }
+                  @if (ronda.esFinal && !c?.id_ganador) {
+                    <div class="trofeo" aria-hidden="true">🏆</div>
+                  }
                 </div>
-              } @else {
-                <div class="jugador marca-bye">BYE · pasa directo</div>
-              }
+              </div>
             }
-          </div>
-        }
-        @for (h of huecos(ronda.pendientes); track h) {
-          <div class="combate vacio">
-            <div class="jugador">Por decidir</div>
-            <div class="jugador">Por decidir</div>
           </div>
         }
       </div>

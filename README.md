@@ -792,6 +792,14 @@ Aprobados por Eva sobre las propuestas [Cambios del 17 de noviembre](https://cla
   final). En el duelo, si al abrirlo ya tiene ganador (por ejemplo, porque la IA acaba de jugar por dos
   bots) se va al podio, y tras tocar tu partida, si con ella se decide el ganador, se va a los 4 segundos,
   después de ver la tarjeta del resultado.
+- **Pantalla del torneo nueva** (Eva eligió la opción A de
+  [Pantalla del torneo](https://claude.ai/artifact/P9pcA9aycXLZ7DmufQPC8E)): arriba, una tarjeta con el
+  nombre, el estado y los datos, y debajo la barra de avance («X de Y combates») o, si ya terminó, el
+  campeón con su icono y un enlace a «Ver podio». El cuadro dibuja cada combate como una tarjeta con el
+  icono de los dos participantes, la corona del ganador y el perdedor apagado, unidas por líneas a la
+  ronda siguiente; la final va con borde dorado. Los combates pendientes se marcan con «VS» y llevan los
+  botones «⚔ Duelo» y «Elegir ganador» (este convierte cada fila en un botón «Gana»). Al lado, la lista
+  de participantes con los eliminados apagados, y el historial queda plegado al final.
 
 | Pieza | Archivo |
 | --- | --- |
@@ -802,6 +810,8 @@ Aprobados por Eva sobre las propuestas [Cambios del 17 de noviembre](https://cla
 | Canción de fondo (las notas) | `sonido/cancion-fondo.ts` |
 | Burbuja, canción de fondo y cuándo calla | `sonido/interfaz.ts` |
 | Botón del altavoz y sonidos al pasar por los botones | `app.ts`, `app.html` |
+| Cuadro del torneo (tarjetas, líneas, elegir ganador) | `components/cuadro/` |
+| Cabecera, avance, campeón y lista del torneo | `pages/torneo-detalle/` |
 
 Detalles que decidí yo (Claude):
 - La regla del modo principiante se mueve cambiando una variable CSS en cada fotograma, sin pasar por

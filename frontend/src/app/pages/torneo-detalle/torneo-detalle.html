@@ -10,31 +10,67 @@
   @if (cargando()) {
     <app-pantalla-carga titulo="Torneo" texto="Preparando el torneo…" />
   } @else if (torneo(); as t) {
-    <div class="cabecera">
-      <h2>{{ t.nombre }}</h2>
-      <span class="estado" [attr.data-estado]="t.estado">{{ nombreEstado[t.estado] }}</span>
+    <!-- Cabecera en una tarjeta (rediseño aprobado por Eva el 17/11/2026) -->
+    <div class="hero">
+      <div class="titulo">
+        <h2>{{ t.nombre }}</h2>
+        <div class="datos">
+          <span class="estado" [attr.data-estado]="t.estado">{{ nombreEstado[t.estado] }}</span>
+          <span class="dato">{{ t.num_participantes }} participantes</span>
+          <span class="dato"
+            >{{ t.total_rondas }} {{ t.total_rondas === 1 ? 'ronda' : 'rondas' }}</span
+          >
+        </div>
+      </div>
+      @if (t.campeon; as campeon) {
+        <div class="campeon">
+          <app-icono-usuario
+            [icono]="iconoDeCampeon(campeon.id)"
+            [nombre]="campeon.nick"
+            [tam]="64"
+          />
+          <div class="quien">
+            <small>Campeón</small>
+            <b><span aria-hidden="true">👑</span> {{ campeon.nick }}</b>
+          </div>
+          @if (combateFinal(); as final) {
+            <a class="boton ver-podio" [routerLink]="['combates', final.id, 'podio']"
+              ><span aria-hidden="true">🏆</span> Ver podio</a
+            >
+          }
+        </div>
+      } @else if (avance(); as a) {
+        <div class="avance">
+          <span>{{ a.ronda }} · {{ a.jugados }} de {{ a.total }} combates jugados</span>
+          <div
+            class="barra"
+            role="progressbar"
+            aria-label="Combates jugados"
+            [attr.aria-valuenow]="a.jugados"
+            aria-valuemin="0"
+            [attr.aria-valuemax]="a.total"
+          >
+            <i [style.width.%]="(a.jugados / a.total) * 100"></i>
+          </div>
+        </div>
+      }
     </div>
 
-    @if (t.campeon) {
-      <p class="campeon">👑 Campeón: {{ t.campeon.nick }}</p>
-      <p class="ayuda">El torneo está finalizado y no admite más cambios.</p>
-    }
-
-    <h3>Participantes ({{ t.num_participantes }})</h3>
-    <!-- Cada participante es un «cromo» con su icono (aprobado por Eva el 17/11/2026) -->
-    <ul class="inscritos" role="list">
-      @for (p of t.participantes; track p.id; let i = $index) {
-        <li class="cromo" [style.--orden]="i">
-          <app-icono-usuario [icono]="iconoDe(p)" [nombre]="p.nick" [tam]="44" />
-          <span class="nick">{{ p.nick }}</span>
-          @if (p.id === miParticipante()) {
-            <span class="tu">tú</span>
-          }
-        </li>
-      }
-    </ul>
-
     @if (t.estado === 'preparacion') {
+      <h3>Participantes ({{ t.num_participantes }})</h3>
+      <!-- Cada participante es un «cromo» con su icono (aprobado por Eva el 17/11/2026) -->
+      <ul class="inscritos" role="list">
+        @for (p of t.participantes; track p.id; let i = $index) {
+          <li class="cromo" [style.--orden]="i">
+            <app-icono-usuario [icono]="iconoDe(p)" [nombre]="p.nick" [tam]="44" />
+            <span class="nick">{{ p.nick }}</span>
+            @if (p.id === miParticipante()) {
+              <span class="tu">tú</span>
+            }
+          </li>
+        }
+      </ul>
+
       <div class="caja-generar">
         <p class="listos">
           ¡Todo listo! <strong>{{ t.num_participantes }} participantes</strong> ·
@@ -52,29 +88,50 @@
         ><span aria-hidden="true">✎</span> Editar torneo</a
       >
     } @else {
-      <h3>Cuadro</h3>
-      @if (t.estado === 'cuadro_generado') {
-        <p class="ayuda">
-          Cada combate pendiente se decide con su <strong>Duelo</strong> de ritmo, o pulsando el
-          nombre del ganador. Cuando una ronda se completa, se genera la siguiente.
-        </p>
-      }
+      <div class="seccion">
+        <h3>Cuadro</h3>
+        <small>{{
+          t.estado === 'cuadro_generado'
+            ? 'Juega el duelo o elige el ganador a mano. Al completar una ronda se genera la siguiente.'
+            : 'Así quedó el torneo'
+        }}</small>
+      </div>
       <app-cuadro
         [combates]="t.combates"
         [totalRondas]="t.total_rondas"
+        [participantes]="t.participantes"
         [editable]="t.estado === 'cuadro_generado' && !registrando()"
         (ganadorElegido)="registrarGanador($event)"
       />
 
-      <h3>Historial de combates</h3>
-      @for (r of historial(); track r.nombre) {
-        <h4>{{ r.nombre }}</h4>
-        <ul class="historial">
-          @for (c of r.combates; track c.id) {
-            <li [class.pendiente]="c.estado === 'pendiente'">{{ resultado(c) }}</li>
-          }
-        </ul>
-      }
+      <div class="seccion">
+        <h3>Participantes</h3>
+        <small>Los que ya han caído salen más claros</small>
+      </div>
+      <ul class="mini-lista" role="list">
+        @for (p of t.participantes; track p.id) {
+          <li class="mini" [class.fuera]="eliminados().has(p.id)">
+            <app-icono-usuario [icono]="iconoDe(p)" [nombre]="p.nick" [tam]="26" />
+            {{ p.nick }}
+            @if (p.id === miParticipante()) {
+              <span class="tu">tú</span>
+            }
+          </li>
+        }
+      </ul>
+
+      <!-- El historial repite lo que cuenta el cuadro: va plegado -->
+      <details class="historial">
+        <summary>Historial de combates</summary>
+        @for (r of historial(); track r.nombre) {
+          <h4>{{ r.nombre }}</h4>
+          <ul>
+            @for (c of r.combates; track c.id) {
+              <li [class.pendiente]="c.estado === 'pendiente'">{{ resultado(c) }}</li>
+            }
+          </ul>
+        }
+      </details>
     }
   }
 </section>

@@ -1,27 +1,142 @@
-.cabecera {
+/* Cabecera en una tarjeta con una franja de colores arriba (rediseño aprobado el 17/11/2026) */
+.hero {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 2rem;
+  margin: 0.8rem 0 1.4rem;
+  padding: 1.4rem 1.6rem;
+  overflow: hidden;
+  border-radius: 28px;
+  background: var(--tarjeta);
+  box-shadow: 0 6px 0 var(--sombra-tarjeta);
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 8px;
+  background: linear-gradient(90deg, var(--coral), var(--amarillo), var(--menta), var(--azul));
+}
+.titulo {
+  flex: 1 1 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.titulo h2 {
+  margin: 0;
+  font-size: 2.3rem;
+  overflow-wrap: anywhere;
+}
+.datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.dato {
+  padding: 0.2rem 0.8rem;
+  border-radius: var(--redondo);
+  background: var(--fondo);
+  font:
+    700 0.9rem 'Fredoka',
+    sans-serif;
+}
+.avance {
+  flex: 1 1 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font:
+    600 1rem 'Fredoka',
+    sans-serif;
+}
+.barra {
+  height: 14px;
+  overflow: hidden;
+  border-radius: var(--redondo);
+  background: var(--fondo);
+}
+.barra i {
+  display: block;
+  height: 100%;
+  border-radius: var(--redondo);
+  background: linear-gradient(90deg, var(--menta-oscuro), var(--menta));
+  transition: width 0.4s;
+}
+/* El campeón, con su icono, en una tarjeta amarilla dentro de la cabecera */
+.campeon {
+  flex: 1 1 280px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
-}
-.cabecera h2 {
-  margin: 0.5rem 0;
-}
-.acciones {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-/* El campeón se anuncia en una pastilla amarilla grande */
-.campeon {
-  display: inline-block;
-  padding: 0.6rem 1.5rem;
-  border-radius: var(--redondo);
+  padding: 0.8rem 1.2rem;
+  border-radius: 24px;
   background: var(--amarillo);
   box-shadow: 0 6px 0 var(--amarillo-oscuro);
+}
+.quien {
+  display: flex;
+  flex-direction: column;
+}
+.quien small {
   font:
-    700 1.4rem 'Fredoka',
+    700 0.8rem 'Fredoka',
     sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.quien b {
+  font:
+    700 1.8rem 'Fredoka',
+    sans-serif;
+  line-height: 1.1;
+}
+.ver-podio {
+  margin-left: auto;
+}
+/* Título de cada parte con su explicación a la derecha */
+.seccion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.2rem 1rem;
+  margin: 1.2rem 0 0.4rem;
+}
+.seccion h3 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+.seccion small {
+  color: var(--tinta-suave);
+  font-size: 0.95rem;
+}
+/* Participantes en pequeño; los eliminados, más claros */
+.mini-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.4rem;
+  padding: 0;
+  list-style: none;
+}
+.mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.7rem 0.2rem 0.25rem;
+  border-radius: var(--redondo);
+  background: var(--tarjeta);
+  box-shadow: 0 3px 0 var(--sombra-tarjeta);
+  font:
+    700 0.95rem 'Fredoka',
+    sans-serif;
+}
+.mini.fuera {
+  opacity: 0.5;
 }
 /* Participantes como cromos: icono y nombre en grande; entran uno detrás de otro */
 .inscritos {
@@ -129,11 +244,24 @@ button.generar:disabled {
     animation: none;
   }
 }
-h4 {
+/* Historial plegado */
+.historial {
+  padding: 0.9rem 1.2rem;
+  border-radius: 22px;
+  background: var(--tarjeta);
+  box-shadow: 0 4px 0 var(--sombra-tarjeta);
+}
+.historial summary {
+  cursor: pointer;
+  font:
+    700 1.1rem 'Fredoka',
+    sans-serif;
+}
+.historial h4 {
   margin: 1rem 0 0.4rem;
 }
-.historial {
-  margin-top: 0;
+.historial ul {
+  margin: 0;
   padding-left: 1.25rem;
   line-height: 1.7;
 }

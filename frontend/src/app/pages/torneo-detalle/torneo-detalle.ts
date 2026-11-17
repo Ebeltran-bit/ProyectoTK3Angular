@@ -44,6 +44,39 @@ export class TorneoDetalle implements OnInit {
   /** Pregunta que se está enseñando en la ventana de confirmación (null = ninguna). */
   protected readonly pregunta = signal<Pregunta | null>(null);
 
+  /** Ronda en juego y combates jugados (sin contar los BYE), para la barra de la cabecera. */
+  protected readonly avance = computed(() => {
+    const t = this.torneo();
+    if (!t || t.combates.length === 0) return null;
+    const ronda = Math.max(...t.combates.map((c) => c.ronda));
+    return {
+      ronda: nombreRonda(ronda, t.total_rondas),
+      jugados: t.combates.filter((c) => c.estado === 'resuelto' && !c.es_bye).length,
+      // En un KO hay un combate de verdad menos que participantes (los BYE no cuentan)
+      total: t.num_participantes - 1,
+    };
+  });
+
+  protected readonly combateFinal = computed(
+    () => this.torneo()?.combates.find((c) => c.ronda === this.torneo()!.total_rondas) ?? null,
+  );
+
+  /** El combate solo trae id y nick: el icono sale de la lista de inscritos. */
+  protected iconoDeCampeon(id: number): string {
+    const inscrito = this.torneo()?.participantes.find((p) => p.id === id);
+    return iconoDe({ id, icono: inscrito?.icono ?? null });
+  }
+
+  /** Participantes que ya han perdido un combate. */
+  protected readonly eliminados = computed(() => {
+    const perdedores = new Set<number>();
+    for (const c of this.torneo()?.combates ?? []) {
+      if (c.id_ganador === null || c.participante2 === null) continue;
+      perdedores.add(c.id_ganador === c.participante1.id ? c.participante2.id : c.participante1.id);
+    }
+    return perdedores;
+  });
+
   /** Historial de combates agrupado por rondas, en el orden del cuadro (fase 4). */
   protected readonly historial = computed(() => {
     const t = this.torneo();

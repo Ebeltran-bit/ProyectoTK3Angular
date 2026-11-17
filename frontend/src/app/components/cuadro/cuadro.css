@@ -1,97 +1,213 @@
-/* Cuadro KO: una columna por ronda; cada combate es una tarjeta redondeada */
+/*
+ * Cuadro KO (rediseño aprobado por Eva el 17/11/2026): una columna por ronda, combates con
+ * iconos y líneas entre rondas. Cada pareja de combates dibuja a su derecha un corchete que
+ * llega al combate siguiente, y ese combate dibuja a su izquierda el trocito que falta.
+ */
 .cuadro {
+  --hueco: 2.6rem;
+  --linea: 3px solid #e8d7ae;
   display: flex;
-  gap: 2rem;
+  gap: var(--hueco);
   overflow-x: auto;
-  padding: 0.5rem 0.25rem 1.25rem;
+  padding: 0.5rem 0.9rem 1.4rem;
 }
 .ronda {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  min-width: 190px;
+  gap: 0.9rem;
+  min-width: 220px;
 }
-.combates {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  gap: 1.1rem;
-}
-.ronda h3 {
+h4 {
   margin: 0;
-  padding: 0.25rem 0.75rem;
+  padding: 0.3rem 0.9rem;
   border-radius: var(--redondo);
-  background: var(--coral);
-  color: #fff;
+  color: #ffffff;
   font-size: 1rem;
   text-align: center;
 }
+/*
+ * Rejilla con filas iguales (1fr): cada pareja ocupa la misma altura y, dentro, cada casilla
+ * la mitad, aunque las tarjetas midan distinto (un BYE es más bajo, un pendiente más alto).
+ * Así el centro de cada combate cae justo donde llegan las líneas.
+ */
+.parejas {
+  flex: 1;
+  display: grid;
+  grid-auto-rows: 1fr;
+}
+.pareja {
+  position: relative;
+  display: grid;
+  grid-auto-rows: 1fr;
+}
+.casilla {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.6rem 0;
+}
+.pareja.con-linea::after {
+  content: '';
+  position: absolute;
+  right: calc(var(--hueco) / -2);
+  top: 25%;
+  bottom: 25%;
+  width: calc(var(--hueco) / 2);
+  border: var(--linea);
+  border-left: none;
+  border-radius: 0 14px 14px 0;
+}
 .combate {
-  overflow: hidden;
-  border-radius: 20px;
+  position: relative;
+  border-radius: 22px;
   background: var(--tarjeta);
   box-shadow: 0 5px 0 var(--sombra-tarjeta);
 }
-.jugador {
-  padding: 0.45rem 0.9rem;
-  font-weight: 700;
+.combate.entrada::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--hueco) / -2);
+  top: 50%;
+  width: calc(var(--hueco) / 2);
+  border-top: var(--linea);
 }
-.jugador + .jugador {
+.fila {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.8rem 0.45rem 0.45rem;
+  font:
+    700 1.05rem 'Fredoka',
+    sans-serif;
+}
+.fila + .fila {
   border-top: 2px dashed var(--sombra-tarjeta);
 }
-/* El ganador lleva corona y fondo amarillo */
+.fila:first-child {
+  border-radius: 22px 22px 0 0;
+}
+.combate:not(.pendiente) .fila:nth-child(2) {
+  border-radius: 0 0 22px 22px;
+}
+.nick {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* El ganador lleva fondo amarillo y corona; el que pierde se aclara (sin tachar) */
 .ganador {
   background: #fff1c4;
 }
-.ganador::after {
-  content: ' 👑';
-}
 .perdedor {
-  text-decoration: line-through;
-  color: var(--tinta-suave);
+  opacity: 0.45;
 }
-button.jugador {
-  display: block;
-  width: 100%;
-  justify-content: flex-start;
-  text-align: left;
+.bye {
+  padding-left: 0.9rem;
   font:
-    700 1rem 'Nunito',
+    600 0.85rem 'Nunito',
     sans-serif;
-  background: none;
-  border-radius: 0;
-  box-shadow: none;
-}
-button.jugador:hover:not(:disabled),
-button.jugador:focus-visible {
-  transform: none;
-  background: #ffe1e1;
-}
-button.jugador:active:not(:disabled) {
-  transform: none;
-  box-shadow: none;
-}
-.marca-bye {
-  font-style: italic;
-  font-weight: 500;
   color: var(--tinta-suave);
 }
 .combate.vacio {
   background: transparent;
   box-shadow: none;
   border: 2px dashed var(--sombra-tarjeta);
+}
+.hueco {
+  font:
+    500 1rem 'Nunito',
+    sans-serif;
   color: var(--tinta-suave);
 }
-.duelo {
-  display: block;
-  padding: 0.35rem 0.5rem;
-  background: var(--menta);
-  color: #1d5e46;
-  font-size: 0.9rem;
-  text-align: center;
-  text-decoration: none;
+.sin-icono {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px dashed #e0cfa6;
 }
-.duelo:hover {
-  background: var(--menta-oscuro);
+/* Combate pendiente: borde coral, «VS» y los dos botones */
+.combate.pendiente {
+  outline: 3px solid var(--coral);
+  outline-offset: 2px;
+}
+.vs {
+  position: absolute;
+  right: -0.6rem;
+  top: 2.6rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--redondo);
+  background: var(--coral);
+  color: #ffffff;
+  font:
+    700 0.75rem 'Fredoka',
+    sans-serif;
+}
+.acciones {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem 0.7rem;
+  border-top: 2px dashed var(--sombra-tarjeta);
+}
+.acciones .duelo,
+.acciones .mano {
+  flex: 1;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.9rem;
+}
+.acciones .duelo {
+  color: #ffffff;
+  background: var(--coral);
+  box-shadow: 0 4px 0 var(--coral-oscuro);
+}
+.acciones .mano {
+  background: var(--fondo);
+}
+/* Eligiendo a mano: cada fila es un botón que dice «Gana» */
+button.fila {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  background: none;
+  box-shadow: none;
+}
+button.fila:hover:not(:disabled),
+button.fila:focus-visible {
+  transform: none;
+  background: #ffe1e1;
+}
+button.fila:active:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+}
+.gana {
+  margin-left: auto;
+  padding: 0.05rem 0.6rem;
+  border-radius: var(--redondo);
+  background: var(--coral);
+  color: #ffffff;
+  font-size: 0.8rem;
+}
+/* La final, con borde dorado; mientras no hay campeón, un trofeo debajo (sin moverla del centro) */
+.final .combate {
+  border: 3px solid var(--amarillo);
+  box-shadow: 0 6px 0 var(--amarillo-oscuro);
+}
+.final .combate.vacio {
+  border-style: dashed;
+  box-shadow: none;
+}
+.centro {
+  position: relative;
+}
+.final .parejas {
+  min-height: 19rem;
+}
+.trofeo {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 2.4rem;
 }
