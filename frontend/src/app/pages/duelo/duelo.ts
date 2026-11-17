@@ -1,5 +1,5 @@
-import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Component, computed, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { IconoUsuario } from '../../components/icono-usuario/icono-usuario';
 import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
@@ -18,6 +18,9 @@ import { DuelosService } from '../../services/duelos.service';
 import { mensajeError } from '../../services/mensaje-error';
 import { iconoDe } from '../../models/iconos';
 
+/** Segundos que se ve la tarjeta del resultado antes de ir al podio. */
+const ESPERA_PODIO_MS = 4000;
+
 /**
  * Duelo de ritmo de un combate del torneo.
  * Cada participante toca la canción cuando puede; por los que no tienen cuenta
@@ -30,11 +33,12 @@ import { iconoDe } from '../../models/iconos';
   templateUrl: './duelo.html',
   styleUrl: './duelo.css',
 })
-export class Duelo implements OnInit {
+export class Duelo implements OnInit, OnDestroy {
   protected readonly iconoDe = iconoDe;
   private readonly servicio = inject(DuelosService);
   private readonly canciones = inject(CancionesService);
   private readonly ruta = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
 
   protected readonly idTorneo = Number(this.ruta.snapshot.paramMap.get('id'));
@@ -54,6 +58,8 @@ export class Duelo implements OnInit {
   protected readonly nombreNivel = NOMBRE_NIVEL;
   protected readonly conEspacios = conEspacios;
   private pulsaciones: Pulsacion[] = [];
+  /** Espera antes de ir al podio, para que dé tiempo a ver la tarjeta del resultado. */
+  private esperaPodio: ReturnType<typeof setTimeout> | null = null;
   /** Para leer «Tu ritmo» y el oro de la partida que se acaba de tocar. */
   protected readonly reproductor = viewChild(ReproductorRitmo);
 
@@ -71,11 +77,24 @@ export class Duelo implements OnInit {
     this.cargar();
   }
 
+  ngOnDestroy(): void {
+    if (this.esperaPodio !== null) clearTimeout(this.esperaPodio);
+  }
+
+  /** Cuando ya se sabe quién gana, el duelo lleva al podio; replaceUrl hace que «atrás» vuelva al torneo. */
+  private irAlPodio(): void {
+    void this.router.navigate(this.rutaPodio, { replaceUrl: true });
+  }
+
   cargar(): void {
     this.cargando.set(true);
     this.error.set(null);
     this.servicio.obtener(this.idTorneo, this.idCombate).subscribe({
-      next: (d) => this.mostrar(d),
+      next: (d) => {
+        // Si al abrirlo ya tiene ganador (o la IA lo acaba de decidir), se va directo al podio
+        if (d.id_ganador !== null) this.irAlPodio();
+        else this.mostrar(d);
+      },
       error: (e) => {
         this.error.set(mensajeError(e));
         this.cargando.set(false);
@@ -117,6 +136,8 @@ export class Duelo implements OnInit {
         this.enviando.set(false);
         this.enviado.set(true);
         this.mostrar(d);
+        if (d.id_ganador !== null)
+          this.esperaPodio = setTimeout(() => this.irAlPodio(), ESPERA_PODIO_MS);
       },
       error: (e) => {
         this.errorEnvio.set(mensajeError(e));

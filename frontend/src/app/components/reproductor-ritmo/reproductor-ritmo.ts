@@ -15,6 +15,9 @@ import {
 
 import { BotonSonido } from '../boton-sonido/boton-sonido';
 import { PantallaCarga } from '../pantalla-carga/pantalla-carga';
+import { escenarioAbierto, escenarioCerrado } from '../../sonido/interfaz';
+import { ReglaRitmo } from '../regla-ritmo/regla-ritmo';
+import { modoPrincipiante } from '../../juego/principiante';
 import { RotulosPartida } from '../rotulos-partida/rotulos-partida';
 import { TarjetaInicio } from '../tarjeta-inicio/tarjeta-inicio';
 import { TarjetaPausa } from '../tarjeta-pausa/tarjeta-pausa';
@@ -106,7 +109,7 @@ function calidadGuardada(): Calidad | null {
  */
 @Component({
   selector: 'app-reproductor-ritmo',
-  imports: [PantallaCarga, TarjetaInicio, TarjetaPausa, BotonSonido, RotulosPartida],
+  imports: [PantallaCarga, TarjetaInicio, TarjetaPausa, BotonSonido, RotulosPartida, ReglaRitmo],
   templateUrl: './reproductor-ritmo.html',
   styleUrl: './reproductor-ritmo.css',
 })
@@ -126,6 +129,9 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
 
   private readonly lienzo = viewChild<ElementRef<HTMLCanvasElement>>('lienzo');
   private readonly marco3d = viewChild<ElementRef<HTMLDivElement>>('marco3d');
+  /** Regla del modo principiante (solo existe con el modo encendido y la canción sonando). */
+  private readonly regla = viewChild('regla', { read: ElementRef<HTMLElement> });
+  protected readonly modoPrincipiante = modoPrincipiante;
 
   readonly fase = signal<Fase>('preparada');
   readonly marcador = signal<Marcador>(marcadorInicial());
@@ -230,9 +236,12 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.animacion = requestAnimationFrame(this.fotograma);
+    // Con un escenario en pantalla, la canción de fondo de la aplicación calla
+    escenarioAbierto();
   }
 
   ngOnDestroy(): void {
+    escenarioCerrado();
     cancelAnimationFrame(this.animacion);
     this.soltarEscena3d();
     this.musica?.parar();
@@ -368,6 +377,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
         n.tecla,
         escenario.aviso,
         escenario.grabados?.aviso,
+        !Number.isInteger(n.pulso),
       );
       const generado = escenario.acierto
         ? (m: Musica, t: number) => escenario.acierto!(m, t, n.tecla)
@@ -696,6 +706,7 @@ export class ReproductorRitmo implements OnInit, OnDestroy {
       this.mostrar('miss');
     }
     const pulso = (ms / 60000) * cancion.bpm;
+    this.regla()?.nativeElement.style.setProperty('--pulso', pulso.toFixed(3));
     this.dibujar(
       {
         segundos: ms / 1000,

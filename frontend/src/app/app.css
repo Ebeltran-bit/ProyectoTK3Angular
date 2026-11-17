@@ -119,3 +119,22 @@ main {
   margin: 0 auto;
   padding: 0.5rem 1.5rem 3rem;
 }
+/* Botón del altavoz: abre las barras de Música y Efectos (la canción de fondo y la burbuja) */
+.altavoz {
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0;
+  color: var(--tinta);
+}
+.altavoz svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+.selector.sonido {
+  font-size: 1rem;
+}
+.nota-sonido {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--tinta-suave);
+}

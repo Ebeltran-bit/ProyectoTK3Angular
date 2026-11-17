@@ -1,0 +1,11 @@
+<div class="tira">
+  @for (r of rayas(); track r.pulso) {
+    <i class="raya" [class.compas]="r.compas" [style.--x]="r.pulso"></i>
+  }
+  @for (m of marcas(); track $index) {
+    <b class="marca" [class.urgente]="m.aContratiempo" [style.--x]="m.pulso">{{
+      m.tecla === 'accion' ? 'J' : 'K'
+    }}</b>
+  }
+</div>
+<span class="ahora"></span>

@@ -1,8 +1,11 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { Confirmacion } from '../../components/confirmacion/confirmacion';
 import { Cuadro, GanadorElegido } from '../../components/cuadro/cuadro';
+import { IconoUsuario } from '../../components/icono-usuario/icono-usuario';
+import { iconoDe } from '../../models/iconos';
+import { AuthService } from '../../services/auth.service';
 import { Combate, NOMBRE_ESTADO, nombreRonda, TorneoDetalle as Torneo } from '../../models/torneo';
 import { mensajeError } from '../../services/mensaje-error';
 import { TorneosService } from '../../services/torneos.service';
@@ -18,13 +21,19 @@ interface Pregunta {
 
 @Component({
   selector: 'app-torneo-detalle',
-  imports: [RouterLink, Cuadro, Confirmacion, PantallaCarga],
+  imports: [RouterLink, Cuadro, Confirmacion, PantallaCarga, IconoUsuario],
   templateUrl: './torneo-detalle.html',
   styleUrl: './torneo-detalle.css',
 })
 export class TorneoDetalle implements OnInit {
   private readonly servicio = inject(TorneosService);
   private readonly ruta = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
+
+  protected readonly iconoDe = iconoDe;
+  /** Para poner «tú» en el cromo del participante del usuario. */
+  protected readonly miParticipante = computed(() => this.auth.usuario()?.id_participante ?? null);
 
   protected readonly torneo = signal<Torneo | null>(null);
   protected readonly cargando = signal(true);
@@ -130,6 +139,8 @@ export class TorneoDetalle implements OnInit {
       next: (t) => {
         this.torneo.set(t);
         this.registrando.set(false);
+        // Con el ganador ya decidido se va directo al podio del combate (o al del torneo, si era la final)
+        void this.router.navigate(['/torneos', this.id, 'combates', combate.id, 'podio']);
       },
       error: (e) => {
         this.error.set(mensajeError(e));

@@ -72,6 +72,7 @@ base de datos y **las reglas del torneo viven en el backend**.
 | Pantallas | `frontend/src/app/pages/` | Mostrar datos y recoger lo que escribe el usuario | Llamar a la API directamente |
 | Componentes | `frontend/src/app/components/` | Piezas visuales reutilizables (el cuadro) | Llamar a la API |
 | Servicios Angular | `frontend/src/app/services/` | Peticiones HTTP a la API | Contener reglas del torneo |
+| Sonido de la interfaz | `frontend/src/app/sonido/` | Canción de fondo y «burbuja» de los botones | Llamar a la API |
 | Modelos | `frontend/src/app/models/`, `backend/app/modelos.py` | Forma de los datos | — |
 | Routers | `backend/app/routers/` | Traducir HTTP: recibir, responder, códigos de estado | Escribir SQL o decidir reglas |
 | Servicios Python | `backend/app/servicios/` | Reglas del torneo, validaciones, estados, sorteo | Saber de HTTP o de SQL |

@@ -21,25 +21,36 @@
     }
 
     <h3>Participantes ({{ t.num_participantes }})</h3>
-    <p class="inscritos">
-      @for (p of t.participantes; track p.id; let ultimo = $last) {
-        {{ p.nick }}{{ ultimo ? '' : ', ' }}
+    <!-- Cada participante es un «cromo» con su icono (aprobado por Eva el 17/11/2026) -->
+    <ul class="inscritos" role="list">
+      @for (p of t.participantes; track p.id; let i = $index) {
+        <li class="cromo" [style.--orden]="i">
+          <app-icono-usuario [icono]="iconoDe(p)" [nombre]="p.nick" [tam]="44" />
+          <span class="nick">{{ p.nick }}</span>
+          @if (p.id === miParticipante()) {
+            <span class="tu">tú</span>
+          }
+        </li>
       }
-    </p>
+    </ul>
 
     @if (t.estado === 'preparacion') {
-      <div class="acciones">
-        <a class="secundario" [routerLink]="['/torneos', t.id, 'editar']"
-          ><span aria-hidden="true">✎</span> Editar torneo</a
-        >
-        <button type="button" (click)="generarCuadro()" [disabled]="generando()">
+      <div class="caja-generar">
+        <p class="listos">
+          ¡Todo listo! <strong>{{ t.num_participantes }} participantes</strong> ·
+          {{ t.total_rondas }} {{ t.total_rondas === 1 ? 'ronda' : 'rondas' }}
+        </p>
+        <button type="button" class="generar" (click)="generarCuadro()" [disabled]="generando()">
+          <span class="dado" aria-hidden="true">🎲</span>
           {{ generando() ? 'Sorteando…' : 'Generar cuadro' }}
         </button>
+        <p class="ayuda">
+          El cuadro se sortea al azar. Después ya no se pueden cambiar los participantes.
+        </p>
       </div>
-      <p class="ayuda">
-        El cuadro se sortea al azar. Con {{ t.num_participantes }} participantes habrá
-        {{ t.total_rondas }} rondas.
-      </p>
+      <a class="secundario" [routerLink]="['/torneos', t.id, 'editar']"
+        ><span aria-hidden="true">✎</span> Editar torneo</a
+      >
     } @else {
       <h3>Cuadro</h3>
       @if (t.estado === 'cuadro_generado') {

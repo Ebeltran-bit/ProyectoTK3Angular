@@ -1,0 +1,82 @@
+/*
+ * Medidas en cqw (centésimas del ancho del escenario), como el resto de cosas sobre la escena.
+ * Cada pulso ocupa --paso; la tira entera se desplaza --pulso pasos hacia la izquierda.
+ */
+:host {
+  --ancho: 64cqw;
+  --alto: 4.4cqw;
+  --paso: calc(var(--ancho) * 0.8 / var(--pulsos));
+  position: absolute;
+  left: calc((100cqw - var(--ancho)) / 2);
+  width: var(--ancho);
+  bottom: 8cqw;
+  height: var(--alto);
+  border-radius: calc(var(--alto) / 2);
+  background: rgb(40 28 56 / 0.78);
+  overflow: hidden;
+  pointer-events: none;
+  /* Lo que ya ha pasado se va apagando hacia la izquierda */
+  mask-image: linear-gradient(to right, transparent 0, #000 16%);
+}
+.tira {
+  position: absolute;
+  inset: 0;
+  left: 20%;
+  transform: translateX(calc(var(--pulso, 0) * var(--paso) * -1));
+  will-change: transform;
+}
+.raya,
+.marca {
+  position: absolute;
+  left: calc(var(--x) * var(--paso));
+}
+.raya {
+  top: 30%;
+  bottom: 30%;
+  width: 0.18cqw;
+  background: rgb(255 255 255 / 0.25);
+}
+.raya.compas {
+  top: 14%;
+  bottom: 14%;
+  background: rgb(255 255 255 / 0.55);
+}
+.marca {
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 3cqw;
+  height: 3cqw;
+  margin: -1.5cqw 0 0 -1.5cqw;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #3a2e4a;
+  font:
+    700 1.4cqw 'Fredoka',
+    'Nunito',
+    sans-serif;
+}
+.marca.urgente {
+  background: #ff6b6b;
+  color: #ffffff;
+}
+/* Momento de pulsar */
+.ahora {
+  position: absolute;
+  left: 20%;
+  top: 10%;
+  bottom: 10%;
+  width: 0.5cqw;
+  margin-left: -0.25cqw;
+  border-radius: 1cqw;
+  background: #ffc93c;
+}
+
+/* En el móvil el escenario es pequeño: la regla ocupa más ancho y es más alta */
+@media (max-width: 640px) {
+  :host {
+    --ancho: 86cqw;
+    --alto: 8cqw;
+    bottom: 11cqw;
+  }
+}

@@ -37,3 +37,24 @@ export const PREMIOS_COMBO = { bronce: 10, plata: 25, oro: 50 } as const;
  */
 export const RITMO_CLAVADO_MS = 10;
 export const RITMO_CLAVADO_PERFECT = 0.8;
+
+/**
+ * Que se oiga cuándo pulsar (aprobado por Eva el 17/11/2026, «una mezcla» entre los arreglos
+ * de la etapa 4 y una versión más simple). Las pistas de acompañamiento que rellenan
+ * corcheas suenan más flojas en los contratiempos donde no hay nota: así un golpe fuerte a
+ * contratiempo casi siempre significa «aquí hay que pulsar». La melodía no se toca.
+ */
+export const INSTRUMENTOS_DE_RELLENO = [
+  'maraca',
+  'charles',
+  'bajo_redondo',
+  'caja',
+  'pulsado',
+  'campana',
+] as const;
+/** Volumen de esas notas de relleno (1 = como estaban; 0 = calladas). */
+export const RELLENO_SIN_NOTA = 0.3;
+/** Cuánto suben los avisos de las notas sobre el resto de efectos (2 = +6 dB). */
+export const SUBIDA_AVISOS = 2;
+/** Cuánto sube la música respecto a la etapa 4 (petición de Eva del 17/11/2026: «un pelín»). */
+export const SUBIDA_MUSICA = 1.2;

@@ -19,6 +19,16 @@
       <span class="c-tecla"><kbd class="k">K</kbd>{{ alterna.texto }}</span>
     }
   </div>
+  <label class="c-principiante">
+    <input
+      type="checkbox"
+      role="switch"
+      [checked]="principiante()"
+      (change)="alternarPrincipiante($event)"
+    />
+    <span class="interruptor" aria-hidden="true"></span>
+    <span>Modo principiante <small>una regla con las notas que vienen</small></span>
+  </label>
   <!-- Y aquí, el aviso de que solo cuenta el primer intento -->
   <ng-content select="[abajo]" />
   <button type="button" class="boton-juego" (click)="jugar.emit()">

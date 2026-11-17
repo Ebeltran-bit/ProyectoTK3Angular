@@ -23,11 +23,111 @@
     700 1.4rem 'Fredoka',
     sans-serif;
 }
+/* Participantes como cromos: icono y nombre en grande; entran uno detrás de otro */
 .inscritos {
-  padding: 0.8rem 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.8rem;
+  margin: 0;
+  padding: 1rem;
+  list-style: none;
   border-radius: 24px;
   background: var(--tarjeta);
   box-shadow: 0 4px 0 var(--sombra-tarjeta);
+}
+.cromo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  padding: 0.5rem 0.9rem 0.5rem 0.5rem;
+  border-radius: 20px;
+  background: var(--fondo);
+  box-shadow: 0 4px 0 var(--sombra-tarjeta);
+  animation: cromo-entra 0.4s calc(var(--orden) * 70ms) both cubic-bezier(0.3, 1.6, 0.6, 1);
+}
+.cromo .nick {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font:
+    700 1.25rem 'Fredoka',
+    sans-serif;
+}
+.tu {
+  padding: 0.05rem 0.55rem;
+  border-radius: var(--redondo);
+  background: var(--amarillo);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+@keyframes cromo-entra {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+/* Tarjeta propia para el botón de generar: lo más importante de la pantalla en preparación */
+.caja-generar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1.4rem 0;
+  padding: 1.4rem 1rem;
+  border-radius: 28px;
+  text-align: center;
+  background: var(--tarjeta);
+  box-shadow: 0 6px 0 var(--sombra-tarjeta);
+}
+.caja-generar p {
+  margin: 0;
+}
+.listos {
+  font:
+    600 1.15rem 'Fredoka',
+    sans-serif;
+}
+button.generar {
+  padding: 0.9rem 2.6rem;
+  white-space: nowrap;
+  font-size: 1.7rem;
+  color: #ffffff;
+  background: var(--coral);
+  box-shadow: 0 8px 0 var(--coral-oscuro);
+  animation: latido 1.6s ease-in-out infinite;
+}
+button.generar:disabled {
+  animation: none;
+}
+.dado {
+  font-size: 1.6rem;
+}
+@keyframes latido {
+  50% {
+    transform: scale(1.05);
+  }
+}
+@media (max-width: 560px) {
+  .inscritos {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    padding: 0.7rem;
+  }
+  .cromo .nick {
+    font-size: 1.05rem;
+  }
+  button.generar {
+    padding: 0.8rem 1.6rem;
+    font-size: 1.35rem;
+  }
+}
+/* Quien prefiere menos movimiento ve los cromos y el botón quietos */
+@media (prefers-reduced-motion: reduce) {
+  .cromo,
+  button.generar {
+    animation: none;
+  }
 }
 h4 {
   margin: 1rem 0 0.4rem;

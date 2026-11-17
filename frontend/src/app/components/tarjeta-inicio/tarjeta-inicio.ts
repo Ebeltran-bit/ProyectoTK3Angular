@@ -1,12 +1,14 @@
 import { Component, input, output } from '@angular/core';
 
 import { Escenario } from '../../juego/escenarios/tipos';
+import { cambiarModoPrincipiante, modoPrincipiante } from '../../juego/principiante';
 import { Cancion, NOMBRE_NIVEL } from '../../models/cancion';
 
 /**
  * Tarjeta que sale sobre el escenario antes de empezar (propuestas A y B): nivel, título,
  * tempo, número de notas, explicación corta, qué hace cada tecla y el botón de jugar.
  * Solo enseña datos y avisa con «jugar»; quien empieza la canción es el reproductor.
+ * Debajo de las teclas va el interruptor del «Modo principiante» (regla con las notas).
  * La pantalla del duelo añade arriba quién juega contra quién y abajo el aviso del intento.
  */
 @Component({
@@ -27,4 +29,9 @@ export class TarjetaInicio {
   readonly jugar = output<void>();
 
   protected readonly nombreNivel = NOMBRE_NIVEL;
+  protected readonly principiante = modoPrincipiante;
+
+  protected alternarPrincipiante(evento: Event): void {
+    cambiarModoPrincipiante((evento.target as HTMLInputElement).checked);
+  }
 }

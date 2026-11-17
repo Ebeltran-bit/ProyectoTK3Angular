@@ -14,6 +14,49 @@
     <div class="sesion">
       <button
         type="button"
+        class="altavoz"
+        [attr.aria-expanded]="panelSonido()"
+        aria-controls="panel-sonido-general"
+        [attr.aria-label]="volumen().silencio ? 'Sonido (silenciado)' : 'Sonido'"
+        title="Música y sonidos"
+        (click)="panelSonido.set(!panelSonido())"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" />
+          @if (volumen().silencio) {
+            <path
+              d="M16 9l5 6M21 9l-5 6"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+            />
+          } @else {
+            <path
+              d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+            />
+          }
+        </svg>
+      </button>
+      @if (panelSonido()) {
+        <div class="selector sonido" id="panel-sonido-general" role="group" aria-label="Sonido">
+          <p class="titulo-selector">Música y sonidos</p>
+          <app-controles-sonido />
+          <p class="nota-sonido">
+            «Música» es la canción de fondo y la del juego; «Efectos», los botones y los avisos. Se
+            guarda en este navegador.
+          </p>
+          <div class="pie-selector">
+            <button type="button" (click)="panelSonido.set(false)">Cerrar</button>
+          </div>
+        </div>
+      }
+      <button
+        type="button"
         class="usuario"
         [attr.aria-expanded]="eligiendo()"
         aria-controls="selector-icono"

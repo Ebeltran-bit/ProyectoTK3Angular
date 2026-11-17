@@ -126,6 +126,11 @@
     </div>
   }
 
+  <!-- Modo principiante: regla con las notas que vienen, encima de las teclas -->
+  @if (fase() === 'jugando' && modoPrincipiante()) {
+    <app-regla-ritmo #regla [cancion]="cancion()" />
+  }
+
   @if (fase() === 'preparada' && !cargando3d() && !reiniciando()) {
     <!-- Tarjeta de inicio (propuestas A y B): la escena sigue viva detrás, solo algo oscurecida -->
     <div class="capa inicio" animate.enter="entra" animate.leave="sale">

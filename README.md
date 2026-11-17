@@ -40,6 +40,7 @@ tk3/
         ├── guards/            Bloquean pantallas si no hay sesión
         ├── interceptors/      Añaden el token a cada petición
         ├── juego/             Duelo de ritmo: reglas, evaluación, música, escenarios planos y escenas 3D
+        ├── sonido/            Canción de fondo y «burbuja» de los botones de las pantallas de gestión
         ├── components/        Piezas reutilizables (cuadro KO, reproductor de ritmo, iconos, carga, confirmación…)
         └── pages/             Pantallas (componentes con vista)
 ```
@@ -762,6 +763,51 @@ Detalles que decidí yo (Claude) en esta etapa:
 - Aparte (no es de esta etapa): en el duelo, si alguien va mal, puede cambiar de pestaña o recargar y
   repetirlo, porque no se guarda nada hasta el final. Cerrarlo sería una regla nueva del backend y queda
   como propuesta para Eva.
+
+**Cambios del 17/11/2026**
+
+Aprobados por Eva sobre las propuestas [Cambios del 17 de noviembre](https://claude.ai/artifact/3hvnuzqNS5Fvd6zd2kmhFM):
+- **Participantes en dos columnas** al crear o editar un torneo (una en el móvil).
+- **Detalle del torneo en preparación:** los participantes son «cromos» con su icono y el nombre en
+  grande, que entran uno detrás de otro. «Generar cuadro» va en una tarjeta propia, coral, grande y con un
+  dado, y late despacio (quieto si el sistema pide menos movimiento).
+- **Sonido en las pantallas de gestión:** una «burbuja» al pasar el ratón o el foco del teclado por un
+  botón (más fuerte al pulsarlo) y una canción de fondo tranquila hecha por código. La canción calla
+  mientras hay un escenario del juego en pantalla, es decir, al abrir una canción de práctica o un duelo,
+  y sigue al salir. Usan las barras de la etapa 4: «Música» para la canción y «Efectos» para la burbuja,
+  con un botón de altavoz nuevo en la barra de arriba. El audio empieza con el primer clic o tecla porque
+  los navegadores no dejan sonar nada antes.
+- **Que se oiga cuándo pulsar** (Eva pidió «una mezcla» entre los arreglos de la etapa 4 y una versión más
+  simple, y la música «un pelín más fuerte»): el acompañamiento de relleno (maraca, platillos, bajo, caja,
+  arpegios y campana) suena al 30 % en los contratiempos donde no hay nota; la melodía no cambia. Los avisos
+  de las notas suben 6 dB y, si la nota va a contratiempo, llevan además un «ding» de timbre. La música sube
+  un 20 %. Medido en Correos: en los agudos, el aviso de una carta urgente destaca 19 dB sobre un
+  contratiempo vacío (antes, 1 dB). Ninguna canción satura (pico máximo 0,0 dB en el observatorio, por dos
+  muestras sueltas; el resto por debajo de −0,4 dB).
+- **«Modo principiante»:** un interruptor en la tarjeta de inicio enseña, mientras suena la canción, una
+  regla encima de las teclas con las notas de los dos compases siguientes (blancas en el pulso, rojas a
+  contratiempo) que llegan a una línea amarilla. Se guarda en el navegador. Solo se ve: no cambia la
+  puntuación, así que también se puede usar en los duelos.
+- **Directo al podio:** al elegir a mano el ganador de un combate se abre su podio (el del torneo si era la
+  final). En el duelo, si al abrirlo ya tiene ganador (por ejemplo, porque la IA acaba de jugar por dos
+  bots) se va al podio, y tras tocar tu partida, si con ella se decide el ganador, se va a los 4 segundos,
+  después de ver la tarjeta del resultado.
+
+| Pieza | Archivo |
+| --- | --- |
+| Números de la mezcla (relleno, avisos, música) | `juego/reglas.ts` |
+| Mezcla y «ding» de los contratiempos (`volumenEnLaMezcla`, con Vitest) | `juego/musica.ts` |
+| Modo principiante y marcas de la regla (con Vitest) | `juego/principiante.ts` |
+| Regla de ritmo | `components/regla-ritmo/` |
+| Canción de fondo (las notas) | `sonido/cancion-fondo.ts` |
+| Burbuja, canción de fondo y cuándo calla | `sonido/interfaz.ts` |
+| Botón del altavoz y sonidos al pasar por los botones | `app.ts`, `app.html` |
+
+Detalles que decidí yo (Claude):
+- La regla del modo principiante se mueve cambiando una variable CSS en cada fotograma, sin pasar por
+  Angular: redibujar la plantilla 60 veces por segundo sería mucho trabajo para nada.
+- La burbuja no suena dentro del escenario del juego, que ya tiene sus sonidos.
+- Al podio desde el duelo se va con `replaceUrl`, así «atrás» vuelve al torneo y no a un duelo ya cerrado.
 
 ## Estado por fases
 

@@ -8,6 +8,7 @@
 import { Cancion, Pista } from '../models/cancion';
 import type { Premio } from './evaluacion';
 import { Sonidos } from './sonidos';
+import { INSTRUMENTOS_DE_RELLENO, RELLENO_SIN_NOTA, SUBIDA_AVISOS, SUBIDA_MUSICA } from './reglas';
 import { Volumen } from './volumen';
 
 /** Sonido que avisa de una nota que llega. Lo define cada escenario. */
@@ -38,11 +39,28 @@ export function pulsosCuentaAlVolver(pulso: number, pulsosPorCompas: number): nu
   return Array.from({ length: pulsosPorCompas }, (_, i) => ultimo - pulsosPorCompas + 1 + i);
 }
 
+/**
+ * Volumen relativo de una nota de la música. Las notas de relleno (maraca, platillos, bajo…)
+ * que caen a contratiempo donde no hay nota que pulsar suenan más flojas; todo lo demás, igual.
+ * `pulso` es el pulso de la canción (el mismo que el de las notas del juego).
+ */
+export function volumenEnLaMezcla(
+  instrumento: string,
+  pulso: number,
+  pulsosConNota: ReadonlySet<number>,
+): number {
+  const relleno = (INSTRUMENTOS_DE_RELLENO as readonly string[]).includes(instrumento);
+  if (!relleno || Number.isInteger(pulso) || pulsosConNota.has(pulso)) return 1;
+  return RELLENO_SIN_NOTA;
+}
+
 export class Musica {
   /** Todo pasa por aquí: la barra de Música, la de Efectos y el silencio. */
   private readonly maestro: GainNode;
   private readonly salidaMusica: GainNode;
   private readonly salidaEfectos: GainNode;
+  /** Los avisos de las notas van por aquí: dentro de Efectos, pero más fuertes. */
+  private readonly salidaAvisos: GainNode;
   /**
    * Por dónde salen los sonidos que se crean ahora. Casi siempre es Efectos (avisos, aciertos,
    * fallos…); solo al programar las pistas de la canción y el final pasa a Música.
@@ -85,6 +103,9 @@ export class Musica {
     this.salidaMusica.connect(this.maestro);
     this.salidaEfectos = ctx.createGain();
     this.salidaEfectos.connect(this.maestro);
+    this.salidaAvisos = ctx.createGain();
+    this.salidaAvisos.gain.value = SUBIDA_AVISOS;
+    this.salidaAvisos.connect(this.salidaEfectos);
     this.salida = this.salidaEfectos;
     const eco = ctx.createConvolver();
     eco.buffer = this.respuestaDeSala(1.4);
@@ -99,7 +120,7 @@ export class Musica {
 
   /** Aplica el volumen elegido en el panel de sonido. Funciona también con la música sonando. */
   ajustarVolumen(v: Volumen): void {
-    this.salidaMusica.gain.value = v.musica;
+    this.salidaMusica.gain.value = v.musica * SUBIDA_MUSICA;
     this.salidaEfectos.gain.value = v.efectos;
     this.salaMusica.gain.value = ECO * v.musica;
     this.salaEfectos.gain.value = ECO * v.efectos;
@@ -139,12 +160,15 @@ export class Musica {
     for (let p = 0; p < cancion.cuenta_atras; p++) this.cuenta(inicio + p * spb, p === 0);
     // El patrón de la música se repite desde el final de la cuenta atrás hasta el final
     const { repetir_cada, pistas } = cancion.musica;
+    const pulsosConNota = new Set(cancion.notas.map((n) => n.pulso));
     this.comoMusica(() => {
       for (let base = cancion.cuenta_atras; base < cancion.fin; base += repetir_cada) {
         for (const pista of pistas) {
           for (const [altura, pulso, duracion] of pista.notas) {
             if (base + pulso >= cancion.fin) continue;
-            this.instrumento(pista, altura, inicio + (base + pulso) * spb, duracion * spb);
+            const mezcla = volumenEnLaMezcla(pista.instrumento, base + pulso, pulsosConNota);
+            const p = mezcla === 1 ? pista : { ...pista, volumen: pista.volumen * mezcla };
+            this.instrumento(p, altura, inicio + (base + pulso) * spb, duracion * spb);
           }
         }
       }
@@ -160,19 +184,34 @@ export class Musica {
         nota.tecla,
         aviso,
         archivoAviso,
+        !Number.isInteger(nota.pulso),
       );
     }
   }
 
-  /** Aviso de una nota en el instante t: el MP3 grabado si lo hay, o el generado del escenario. */
+  /**
+   * Aviso de una nota en el instante t: el MP3 grabado si lo hay, o el generado del escenario.
+   * Si la nota va a contratiempo, encima suena un «ding» de timbre, el mismo en todas las
+   * escenas: así se oye el ritmo un pulso antes de tocarlo.
+   */
   avisar(
     t: number,
     tecla: 'accion' | 'alterna',
     aviso: SonidoAviso,
     archivoAviso?: (tecla: 'accion' | 'alterna') => string | undefined,
+    aContratiempo = false,
   ): void {
-    const archivo = archivoAviso?.(tecla);
-    if (!archivo || !this.grabado(archivo, t)) aviso(this, t, tecla);
+    this.salida = this.salidaAvisos;
+    try {
+      const archivo = archivoAviso?.(tecla);
+      if (!archivo || !this.grabado(archivo, t)) aviso(this, t, tecla);
+      if (aContratiempo) {
+        this.tono('sine', 2350, t, 0.25, 0.08, true, 0.002);
+        this.tono('sine', 3520, t, 0.12, 0.03, false, 0.002);
+      }
+    } finally {
+      this.salida = this.salidaEfectos;
+    }
   }
 
   /** Golpe de bloque de madera de la cuenta de entrada (el primero, más agudo). */
