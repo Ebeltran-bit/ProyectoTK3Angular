@@ -833,10 +833,13 @@ Detalles que decidí yo (Claude):
   cuenta sigue tocando la IA en el backend, pero en la pantalla se ve como cualquier otro.
 - **«Guardando el ganador…»** junto al cuadro mientras se guarda, para que se sepa por qué desaparecen los
   botones.
-- **Lentitud al guardar un ganador** (decidido por mí, Claude): `DB_HOST=localhost` pasa a `127.0.0.1`
-  (en `config.py` y en `.env.example`). En Windows, «localhost» prueba antes IPv6 (`::1`); si MariaDB solo
-  escucha en IPv4, cada conexión espera unos segundos, y cada consulta abre la suya. Es una hipótesis: falta
-  que Eva confirme que ahora va rápido.
+- **Lentitud al guardar un ganador** (decidido por mí, Claude): medido desde el portátil de Eva contra la
+  base de datos del instituto, abrir una conexión tarda unos 600 ms y cada consulta unos 190 ms. Como cada
+  consulta abría y cerraba su propia conexión, guardar un ganador (unas diez consultas) y abrir el podio
+  sumaban más de diez segundos. Ahora `database.py` guarda hasta cinco conexiones libres y las reutiliza
+  (con commit o rollback al terminar cada consulta, así vuelven limpias; si una lleva más de un minuto
+  quieta se comprueba antes de usarla). Con pruebas en `tests/test_database.py`. Además, si alguien pone
+  `DB_HOST=localhost`, se usa `127.0.0.1`, que en Windows evita esperar a IPv6.
 
 ## Estado por fases
 
