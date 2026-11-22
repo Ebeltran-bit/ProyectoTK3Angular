@@ -66,8 +66,11 @@
 
       <!-- Pedido por Eva (22/11/2026): volver al cuadro o a la lista de torneos -->
       <div class="acciones">
-        <a class="boton" [routerLink]="['/torneos', idTorneo]">Volver al cuadro</a>
-        <a class="secundario" routerLink="/torneos">Volver a los torneos</a>
+        <a class="secundario" [routerLink]="['/torneos', idTorneo]">Volver al cuadro</a>
+        <!-- A la lista de torneos solo desde el podio final (Eva, 22/11/2026) -->
+        @if (esFinal()) {
+          <a class="secundario" routerLink="/torneos">Volver a los torneos</a>
+        }
       </div>
     }
   }
