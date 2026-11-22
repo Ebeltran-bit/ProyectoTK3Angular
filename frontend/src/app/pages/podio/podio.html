@@ -1,5 +1,8 @@
 <section>
-  <a [routerLink]="['/torneos', idTorneo]" class="volver">← Volver al cuadro</a>
+  <!-- Con el podio a la vista, «Volver al cuadro» ya está abajo (Eva, 22/11/2026) -->
+  @if (error() || cargando() || !combate()?.id_ganador) {
+    <a [routerLink]="['/torneos', idTorneo]" class="volver">← Volver al cuadro</a>
+  }
 
   @if (error()) {
     <p class="mensaje-error">
@@ -41,16 +44,20 @@
                 </div>
               }
             </div>
-            @if (e.resultado; as r) {
-              <p class="puntos">
-                <strong>{{ r.puntos }}</strong> puntos
-                <span>{{ r.perfect }} PERFECT · {{ r.great }} GREAT · {{ r.miss }} MISS</span>
-              </p>
-            }
             <div class="bloque">
               <span class="numero">{{ e.puesto }}</span>
               @if (nombrePuesto(e.puesto); as n) {
                 <span class="etiqueta">{{ n }}</span>
+              }
+              <!-- Resultado del duelo dentro del escalón (Eva, 22/11/2026) -->
+              @if (e.resultado; as r) {
+                <p class="puntos">
+                  <strong>{{ r.puntos }}</strong> puntos
+                  <span>{{ r.perfect }} PERFECT · {{ r.great }} GREAT · {{ r.miss }} MISS</span>
+                  <span>Combo máximo ×{{ r.combo_maximo }}</span>
+                </p>
+              } @else if (e.puesto < 3) {
+                <p class="puntos sin-duelo">Ganador elegido a mano</p>
               }
             </div>
           </li>
@@ -59,7 +66,7 @@
 
       <!-- Pedido por Eva (22/11/2026): volver al cuadro o a la lista de torneos -->
       <div class="acciones">
-        <a class="principal" [routerLink]="['/torneos', idTorneo]">Volver al cuadro</a>
+        <a class="boton" [routerLink]="['/torneos', idTorneo]">Volver al cuadro</a>
         <a class="secundario" routerLink="/torneos">Volver a los torneos</a>
       </div>
     }

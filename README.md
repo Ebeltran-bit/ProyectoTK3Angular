@@ -823,7 +823,10 @@ Detalles que decidí yo (Claude):
 - **Podio también sin duelo:** si el ganador se eligió a mano, el podio salía con el error «Este combate se
   resolvió sin duelo». Ahora el podio lee el combate del torneo y, si hubo duelo, añade los puntos; si no,
   sale igual pero sin puntos. Pasaba también con «Ver podio» de un torneo cuya final se decidió a mano.
-- **Botones del podio:** «Volver al cuadro» y «Volver a los torneos».
+- **Botones del podio:** «Volver al cuadro» (menta, para no confundirse con el escalón amarillo del
+  ganador) y «Volver a los torneos». Con el podio a la vista no se repite el enlace de arriba.
+- **Resultados dentro del escalón:** puntos, PERFECT, GREAT, MISS y combo máximo de cada uno; si el ganador
+  se eligió a mano, «Ganador elegido a mano».
 - **Del duelo, directo al podio:** en cuanto el backend decide el ganador con tu partida, se abre el podio
   (antes se veía 4 segundos la tarjeta del resultado con dos botones).
 - **Sin rastro de la IA en pantalla:** el duelo ya no dice «(la IA)» ni «jugó la IA»; por un participante sin
