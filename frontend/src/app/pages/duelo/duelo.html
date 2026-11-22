@@ -36,12 +36,10 @@
           @if (j.resultado; as r) {
             <span>
               {{ r.puntos }} puntos · {{ r.perfect }} PERFECT · {{ r.great }} GREAT ·
-              {{ r.miss }} MISS{{ j.es_ia ? ' · jugó la IA' : '' }}
+              {{ r.miss }} MISS
             </span>
           } @else if (j.ha_jugado) {
-            <span class="ayuda">
-              Ya ha jugado{{ j.es_ia ? ' (la IA)' : '' }}. Su puntuación se verá al terminar.
-            </span>
+            <span class="ayuda"> Ya ha jugado. Su puntuación se verá al terminar. </span>
           } @else if (d.estado === 'pendiente') {
             <span class="ayuda">
               Todavía no ha jugado. Si no llega a jugar, se puede elegir el ganador en el cuadro.
@@ -60,10 +58,7 @@
     }
 
     @if (d.estado === 'pendiente' && !d.puedo_jugar && !enviado()) {
-      <p class="ayuda">
-        Solo pueden tocar este duelo los usuarios de estos dos participantes. Por los que no tienen
-        cuenta juega la IA.
-      </p>
+      <p class="ayuda">Solo pueden tocar este duelo los usuarios de estos dos participantes.</p>
     }
 
     @if (cancion(); as c) {

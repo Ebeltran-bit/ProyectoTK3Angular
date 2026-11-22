@@ -139,6 +139,8 @@
 .acciones {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
   margin-top: 1rem;
 }
 @keyframes botar {

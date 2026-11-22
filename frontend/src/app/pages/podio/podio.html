@@ -1,5 +1,5 @@
 <section>
-  <a [routerLink]="['/torneos', idTorneo]" class="volver">← Volver al torneo</a>
+  <a [routerLink]="['/torneos', idTorneo]" class="volver">← Volver al cuadro</a>
 
   @if (error()) {
     <p class="mensaje-error">
@@ -7,16 +7,16 @@
     </p>
   } @else if (cargando()) {
     <app-pantalla-carga titulo="Podio" texto="Preparando el podio…" />
-  } @else if (duelo(); as d) {
-    @if (d.id_ganador === null) {
-      <p class="aviso">Este duelo todavía no tiene ganador: el podio sale cuando termina.</p>
+  } @else if (combate(); as c) {
+    @if (c.id_ganador === null) {
+      <p class="aviso">Este combate todavía no tiene ganador: el podio sale cuando termina.</p>
       <a class="principal" [routerLink]="['/torneos', idTorneo, 'combates', idCombate, 'duelo']"
         >Ir al duelo</a
       >
     } @else {
       <h2 class="titulo">{{ titulo() }}</h2>
-      @if (torneo(); as t) {
-        <p class="subtitulo">{{ t.nombre }}</p>
+      @if (esFinal()) {
+        <p class="subtitulo">{{ torneo()?.nombre }}</p>
       }
       <ol class="podio" role="list">
         @for (e of escalones(); track e.puesto; let i = $index) {
@@ -57,8 +57,10 @@
         }
       </ol>
 
+      <!-- Pedido por Eva (22/11/2026): volver al cuadro o a la lista de torneos -->
       <div class="acciones">
-        <a class="principal" [routerLink]="['/torneos', idTorneo]">Ver el cuadro</a>
+        <a class="principal" [routerLink]="['/torneos', idTorneo]">Volver al cuadro</a>
+        <a class="secundario" routerLink="/torneos">Volver a los torneos</a>
       </div>
     }
   }

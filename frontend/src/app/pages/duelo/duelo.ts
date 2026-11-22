@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { IconoUsuario } from '../../components/icono-usuario/icono-usuario';
@@ -18,9 +18,6 @@ import { DuelosService } from '../../services/duelos.service';
 import { mensajeError } from '../../services/mensaje-error';
 import { iconoDe } from '../../models/iconos';
 
-/** Segundos que se ve la tarjeta del resultado antes de ir al podio. */
-const ESPERA_PODIO_MS = 4000;
-
 /**
  * Duelo de ritmo de un combate del torneo.
  * Cada participante toca la canción cuando puede; por los que no tienen cuenta
@@ -33,7 +30,7 @@ const ESPERA_PODIO_MS = 4000;
   templateUrl: './duelo.html',
   styleUrl: './duelo.css',
 })
-export class Duelo implements OnInit, OnDestroy {
+export class Duelo implements OnInit {
   protected readonly iconoDe = iconoDe;
   private readonly servicio = inject(DuelosService);
   private readonly canciones = inject(CancionesService);
@@ -58,8 +55,6 @@ export class Duelo implements OnInit, OnDestroy {
   protected readonly nombreNivel = NOMBRE_NIVEL;
   protected readonly conEspacios = conEspacios;
   private pulsaciones: Pulsacion[] = [];
-  /** Espera antes de ir al podio, para que dé tiempo a ver la tarjeta del resultado. */
-  private esperaPodio: ReturnType<typeof setTimeout> | null = null;
   /** Para leer «Tu ritmo» y el oro de la partida que se acaba de tocar. */
   protected readonly reproductor = viewChild(ReproductorRitmo);
 
@@ -75,10 +70,6 @@ export class Duelo implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.cargar();
-  }
-
-  ngOnDestroy(): void {
-    if (this.esperaPodio !== null) clearTimeout(this.esperaPodio);
   }
 
   /** Cuando ya se sabe quién gana, el duelo lleva al podio; replaceUrl hace que «atrás» vuelva al torneo. */
@@ -136,8 +127,8 @@ export class Duelo implements OnInit, OnDestroy {
         this.enviando.set(false);
         this.enviado.set(true);
         this.mostrar(d);
-        if (d.id_ganador !== null)
-          this.esperaPodio = setTimeout(() => this.irAlPodio(), ESPERA_PODIO_MS);
+        // Si con esta partida ya hay ganador, directo al podio (lo pidió Eva el 22/11/2026)
+        if (d.id_ganador !== null) this.irAlPodio();
       },
       error: (e) => {
         this.errorEnvio.set(mensajeError(e));

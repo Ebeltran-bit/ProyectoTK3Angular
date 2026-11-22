@@ -819,6 +819,22 @@ Detalles que decidí yo (Claude):
 - La burbuja no suena dentro del escenario del juego, que ya tiene sus sonidos.
 - Al podio desde el duelo se va con `replaceUrl`, así «atrás» vuelve al torneo y no a un duelo ya cerrado.
 
+**Cambios del 22/11/2026** (pedidos por Eva tras probar el torneo)
+- **Podio también sin duelo:** si el ganador se eligió a mano, el podio salía con el error «Este combate se
+  resolvió sin duelo». Ahora el podio lee el combate del torneo y, si hubo duelo, añade los puntos; si no,
+  sale igual pero sin puntos. Pasaba también con «Ver podio» de un torneo cuya final se decidió a mano.
+- **Botones del podio:** «Volver al cuadro» y «Volver a los torneos».
+- **Del duelo, directo al podio:** en cuanto el backend decide el ganador con tu partida, se abre el podio
+  (antes se veía 4 segundos la tarjeta del resultado con dos botones).
+- **Sin rastro de la IA en pantalla:** el duelo ya no dice «(la IA)» ni «jugó la IA»; por un participante sin
+  cuenta sigue tocando la IA en el backend, pero en la pantalla se ve como cualquier otro.
+- **«Guardando el ganador…»** junto al cuadro mientras se guarda, para que se sepa por qué desaparecen los
+  botones.
+- **Lentitud al guardar un ganador** (decidido por mí, Claude): `DB_HOST=localhost` pasa a `127.0.0.1`
+  (en `config.py` y en `.env.example`). En Windows, «localhost» prueba antes IPv6 (`::1`); si MariaDB solo
+  escucha en IPv4, cada conexión espera unos segundos, y cada consulta abre la suya. Es una hipótesis: falta
+  que Eva confirme que ahora va rápido.
+
 ## Estado por fases
 
 - [x] Fase 1 · Participantes: crear, consultar, editar, activar/desactivar, persistencia.

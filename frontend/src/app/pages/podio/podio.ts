@@ -1,10 +1,11 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { IconoUsuario } from '../../components/icono-usuario/icono-usuario';
 import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
 import { Duelo, ResultadoDuelo } from '../../models/duelo';
-import { nombreRonda, ParticipanteResumen, TorneoDetalle } from '../../models/torneo';
+import { Combate, nombreRonda, ParticipanteResumen, TorneoDetalle } from '../../models/torneo';
 import { DuelosService } from '../../services/duelos.service';
 import { mensajeError } from '../../services/mensaje-error';
 import { TorneosService } from '../../services/torneos.service';
@@ -19,9 +20,11 @@ export interface Escalon {
 }
 
 /**
- * Podio que se ve al terminar un duelo (decisión de Eva, 12/11/2026).
- * En un duelo cualquiera: el ganador en el escalón alto y el perdedor en el segundo.
- * Si el duelo era la final: el podio del torneo, con campeón, subcampeón y semifinalistas.
+ * Podio que se ve al terminar un combate (decisión de Eva, 12/11/2026; desde el 22/11/2026
+ * también si el ganador se eligió a mano, sin duelo).
+ * En un combate cualquiera: el ganador en el escalón alto y el perdedor en el segundo, con
+ * sus puntos si hubo duelo.
+ * Si era la final: el podio del torneo, con campeón, subcampeón y semifinalistas.
  * Solo enseña datos que ya ha decidido el backend; aquí no se calcula ningún ganador.
  */
 @Component({
@@ -39,22 +42,27 @@ export class Podio implements OnInit {
   protected readonly idTorneo = Number(this.ruta.snapshot.paramMap.get('id'));
   protected readonly idCombate = Number(this.ruta.snapshot.paramMap.get('idCombate'));
 
-  protected readonly duelo = signal<Duelo | null>(null);
-  /** Solo se pide si el duelo era la final. */
+  /** El torneo trae el combate y su ganador, haya habido duelo o no. */
   protected readonly torneo = signal<TorneoDetalle | null>(null);
+  /** Solo si el combate se jugó con duelo: de aquí salen los puntos. */
+  protected readonly duelo = signal<Duelo | null>(null);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
 
+  protected readonly combate = computed(
+    () => this.torneo()?.combates.find((c) => c.id === this.idCombate) ?? null,
+  );
+
   protected readonly esFinal = computed(() => {
-    const d = this.duelo();
-    return d !== null && d.ronda === d.total_rondas;
+    const c = this.combate();
+    return c !== null && c.ronda === this.torneo()!.total_rondas;
   });
 
   protected readonly titulo = computed(() => {
-    const d = this.duelo();
-    if (!d) return '';
-    if (this.esFinal() && d.id_ganador !== null) return '¡Tenemos campeón!';
-    return `${nombreRonda(d.ronda, d.total_rondas)} · Podio`;
+    const c = this.combate();
+    if (!c) return '';
+    if (this.esFinal() && c.id_ganador !== null) return '¡Tenemos campeón!';
+    return `${nombreRonda(c.ronda, this.torneo()!.total_rondas)} · Podio`;
   });
 
   /**
@@ -62,15 +70,15 @@ export class Podio implements OnInit {
    * recoloca para pintar el 1.º en medio.
    */
   protected readonly escalones = computed<Escalon[]>(() => {
-    const d = this.duelo();
-    if (!d || d.id_ganador === null) return [];
     const t = this.torneo();
-    if (!t) return podioDelDuelo(d);
-    // En la final, el campeón y el subcampeón llevan también sus puntos del duelo
+    const c = this.combate();
+    if (!t || !c || c.id_ganador === null) return [];
+    const d = this.duelo();
+    if (!this.esFinal()) return d ? podioDelDuelo(d) : podioDelCombate(t, c);
+    // En la final, el campeón y el subcampeón llevan también sus puntos, si hubo duelo
     const puntos = (e: Escalon) =>
-      d.jugadores.find((j) => j.participante.id === e.participantes[0].id)?.resultado;
-    const lista = podioDelTorneo(t).map((e) => (e.puesto < 3 ? { ...e, resultado: puntos(e) } : e));
-    return lista.length > 0 ? lista : podioDelDuelo(d);
+      d?.jugadores.find((j) => j.participante.id === e.participantes[0].id)?.resultado;
+    return podioDelTorneo(t).map((e) => (e.puesto < 3 ? { ...e, resultado: puntos(e) } : e));
   });
 
   ngOnInit(): void {
@@ -80,33 +88,42 @@ export class Podio implements OnInit {
   cargar(): void {
     this.cargando.set(true);
     this.error.set(null);
-    this.duelos.obtener(this.idTorneo, this.idCombate).subscribe({
-      next: (d) => {
-        this.duelo.set(d);
-        if (!this.esFinal() || d.id_ganador === null) {
+    this.torneos.obtener(this.idTorneo).subscribe({
+      next: (t) => {
+        this.torneo.set(t);
+        const c = this.combate();
+        if (!c) {
+          this.fallo(null, 'Este combate no está en el torneo');
+          return;
+        }
+        if (c.id_ganador === null) {
           this.cargando.set(false);
           return;
         }
-        // Era la final: hace falta el torneo entero para saber quién perdió las semifinales
-        this.torneos.obtener(this.idTorneo).subscribe({
-          next: (t) => {
-            this.torneo.set(t);
+        // Los puntos salen del duelo. Si el ganador se eligió a mano no hay duelo (la API
+        // responde 409) y el podio sale igual, sin puntos.
+        this.duelos.obtener(this.idTorneo, this.idCombate).subscribe({
+          next: (d) => {
+            this.duelo.set(d);
             this.cargando.set(false);
           },
-          error: (e) => this.fallo(e),
+          error: (e) => {
+            if (e instanceof HttpErrorResponse && e.status === 409) this.cargando.set(false);
+            else this.fallo(e);
+          },
         });
       },
       error: (e) => this.fallo(e),
     });
   }
 
-  private fallo(e: unknown): void {
-    this.error.set(mensajeError(e));
+  private fallo(e: unknown, mensaje?: string): void {
+    this.error.set(mensaje ?? mensajeError(e));
     this.cargando.set(false);
   }
 
   protected nombrePuesto(puesto: number): string {
-    if (this.torneo()) return ['', 'Campeón', 'Subcampeón', 'Semifinales'][puesto];
+    if (this.esFinal()) return ['', 'Campeón', 'Subcampeón', 'Semifinales'][puesto];
     return ['', 'Gana', 'Pierde', ''][puesto];
   }
 
@@ -124,6 +141,21 @@ export function podioDelDuelo(d: Duelo): Escalon[] {
       puesto: (j.participante.id === d.id_ganador ? 1 : 2) as 1 | 2,
       participantes: [j.participante],
       resultado: j.resultado,
+    }))
+    .sort((a, b) => a.puesto - b.puesto);
+}
+
+/** Combate sin duelo (ganador elegido a mano): los mismos escalones, sin puntos. */
+export function podioDelCombate(t: TorneoDetalle, c: Combate): Escalon[] {
+  const conIcono = (p: ParticipanteResumen): ParticipanteResumen => ({
+    ...p,
+    icono: t.participantes.find((i) => i.id === p.id)?.icono ?? null,
+  });
+  return [c.participante1, c.participante2]
+    .filter((p): p is ParticipanteResumen => p !== null)
+    .map((p) => ({
+      puesto: (p.id === c.id_ganador ? 1 : 2) as 1 | 2,
+      participantes: [conIcono(p)],
     }))
     .sort((a, b) => a.puesto - b.puesto);
 }

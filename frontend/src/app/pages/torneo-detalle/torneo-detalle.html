@@ -90,11 +90,16 @@
     } @else {
       <div class="seccion">
         <h3>Cuadro</h3>
-        <small>{{
-          t.estado === 'cuadro_generado'
-            ? 'Juega el duelo o elige el ganador a mano. Al completar una ronda se genera la siguiente.'
-            : 'Así quedó el torneo'
-        }}</small>
+        @if (registrando()) {
+          <!-- Mientras se guarda el ganador, el cuadro pierde los botones: que se sepa por qué -->
+          <small class="guardando" role="status">Guardando el ganador…</small>
+        } @else {
+          <small>{{
+            t.estado === 'cuadro_generado'
+              ? 'Juega el duelo o elige el ganador a mano. Al completar una ronda se genera la siguiente.'
+              : 'Así quedó el torneo'
+          }}</small>
+        }
       </div>
       <app-cuadro
         [combates]="t.combates"

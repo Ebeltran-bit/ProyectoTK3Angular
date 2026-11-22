@@ -268,3 +268,8 @@ button.generar:disabled {
 .historial .pendiente {
   color: var(--tinta-suave);
 }
+
+.seccion small.guardando {
+  color: var(--coral);
+  font-weight: 700;
+}
