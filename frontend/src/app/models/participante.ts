@@ -15,4 +15,6 @@ export interface Participante {
 export interface ParticipanteEntrada {
   nick: string;
   logo: string | null;
+  /** Solo cuenta si no tiene cuenta: si la tiene, manda el icono de su usuario. */
+  icono: string | null;
 }

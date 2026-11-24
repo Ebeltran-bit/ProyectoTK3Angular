@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
@@ -131,10 +132,48 @@ export class Duelo implements OnInit {
         if (d.id_ganador !== null) this.irAlPodio();
       },
       error: (e) => {
+        // 409: mientras tocabas, la IA tocó por ti (lo pidió tu rival) o el combate ya se decidió.
+        // Se vuelve a cargar el duelo, que lleva al podio si ya hay ganador.
+        if (this.esConflicto(e)) {
+          this.enviando.set(false);
+          this.cargar();
+          return;
+        }
         this.errorEnvio.set(mensajeError(e));
         this.enviando.set(false);
       },
     });
+  }
+
+  /** La IA está tocando por el rival (el botón se desactiva mientras). */
+  protected readonly pidiendoIa = signal(false);
+  protected readonly errorIa = signal<string | null>(null);
+
+  /** «Que juegue la IA»: toca por el rival que no aparece y, si así hay ganador, al podio. */
+  protected pedirIa(): void {
+    this.pidiendoIa.set(true);
+    this.errorIa.set(null);
+    this.servicio.jugarIa(this.idTorneo, this.idCombate).subscribe({
+      next: (d) => {
+        this.pidiendoIa.set(false);
+        this.mostrar(d);
+        if (d.id_ganador !== null) this.irAlPodio();
+      },
+      error: (e) => {
+        // 409: tu rival acaba de tocar; se recarga y, si ya hay ganador, al podio
+        if (this.esConflicto(e)) {
+          this.pidiendoIa.set(false);
+          this.cargar();
+          return;
+        }
+        this.errorIa.set(mensajeError(e));
+        this.pidiendoIa.set(false);
+      },
+    });
+  }
+
+  private esConflicto(e: unknown): boolean {
+    return e instanceof HttpErrorResponse && e.status === 409;
   }
 
   /** Participante con el que juega el usuario de la sesión. */

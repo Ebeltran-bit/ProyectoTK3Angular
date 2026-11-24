@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 
 import pymysql
 
+# Iconos que se pueden elegir (aprobados por Eva el 05/11/2026): la lista vive con los modelos
+from app.modelos import ICONOS
 from app.repositorios import usuarios_repo
 from app.servicios import seguridad
 from app.servicios.errores import Conflicto, ErrorDeNegocio, NoAutenticado
@@ -12,11 +14,6 @@ DURACION_SESION = timedelta(days=7)
 LONGITUD_MINIMA_CONTRASENA = 8
 # Letras, números, guion y guion bajo; de 3 a 30 caracteres
 PATRON_NOMBRE = re.compile(r"^[A-Za-z0-9_-]{3,30}$")
-# Iconos que se pueden elegir (los dibuja el frontend). Aprobados por Eva el 05/11/2026
-ICONOS = (
-    "gato", "rana", "patito", "gaviota", "zorro", "oso", "pulpo", "robot",
-    "estrella", "nota", "fantasma", "seta", "calabaza", "ramen", "trofeo",
-)
 
 
 def _publico(usuario: dict) -> dict:

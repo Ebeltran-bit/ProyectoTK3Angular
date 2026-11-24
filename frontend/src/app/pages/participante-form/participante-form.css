@@ -14,15 +14,13 @@ label {
   flex-direction: column;
   gap: 0.35rem;
 }
-.vista-previa {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  border: 4px solid var(--azul);
-  object-fit: cover;
-}
 .acciones {
   display: flex;
   gap: 1rem;
   align-items: center;
+}
+
+.etiqueta-icono {
+  margin: 0.4rem 0 0.4rem;
+  font-weight: 600;
 }

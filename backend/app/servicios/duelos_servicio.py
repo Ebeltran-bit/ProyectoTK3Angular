@@ -5,9 +5,11 @@ misma canción, cada uno cuando puede, y cuando están los dos
 resultados el backend decide el ganador y llama a la regla de siempre,
 torneos_servicio.registrar_ganador, que hace avanzar el cuadro.
 
-Un participante con cuenta de usuario siempre toca él mismo. Uno sin cuenta
-(un «bot») no puede jugar, así que la IA toca por él en cuanto se abre el
-duelo, sin preguntar a nadie (decisión de Eva, 12/11/2026).
+Un participante sin cuenta (un «bot») no puede jugar, así que la IA toca por
+él en cuanto se abre el duelo, sin preguntar a nadie (decisión de Eva,
+12/11/2026). Uno con cuenta toca él mismo; pero si su dueño no aparece, el
+rival que ya ha tocado puede pedir que la IA toque por él, para que el torneo
+no se pare (decisión de Eva, 24/11/2026).
 """
 import random
 
@@ -131,8 +133,30 @@ def _vista(torneo: dict, combate: dict, duelo: dict, usuario: dict, mensaje: str
         "jugadores": jugadores,
         "puedo_jugar": (not terminado and usuario["id_participante"] in ids
                         and usuario["id_participante"] not in resultados),
+        "puedo_pedir_ia": puede_pedir_ia(combate, set(resultados), usuario["id_participante"]),
         "mensaje": mensaje,
     }
+
+
+def puede_pedir_ia(combate: dict, han_jugado: set[int], id_participante: int | None) -> bool:
+    """Regla del botón «Que juegue la IA» (Eva, 24/11/2026): solo uno de los dos
+    participantes, cuando él ya ha tocado y su rival todavía no, y el combate sigue pendiente."""
+    ids = (combate["id_participante1"], combate["id_participante2"])
+    if combate["estado"] != "pendiente" or id_participante not in ids:
+        return False
+    rival = ids[1] if id_participante == ids[0] else ids[0]
+    return id_participante in han_jugado and rival not in han_jugado
+
+
+def jugar_ia_por_el_rival(id_torneo: int, id_combate: int, usuario: dict) -> dict:
+    """La IA toca por el rival del usuario de la sesión, que tiene cuenta pero no ha jugado."""
+    torneo, combate = _combate(id_torneo, id_combate)
+    han_jugado = {r["id_participante"] for r in duelos_repo.resultados(combate["id"])}
+    if not puede_pedir_ia(combate, han_jugado, usuario["id_participante"]):
+        raise Conflicto("Solo puedes pedir que juegue la IA cuando tú ya has tocado y tu rival todavía no")
+    ids = (combate["id_participante1"], combate["id_participante2"])
+    rival = ids[1] if usuario["id_participante"] == ids[0] else ids[0]
+    return _guardar(torneo, combate, usuario, rival, es_ia=True)
 
 
 def obtener(id_torneo: int, id_combate: int, usuario: dict) -> dict:

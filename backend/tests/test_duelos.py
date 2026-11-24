@@ -471,3 +471,47 @@ def test_eliminar_un_torneo_que_no_existe_es_404(monkeypatch):
     monkeypatch.setattr(torneos_servicio.torneos_repo, "eliminar", lambda _id: False)
     with pytest.raises(NoEncontrado):
         torneos_servicio.eliminar(999)
+
+
+
+# ---------------------------------------------------------------------
+# «Que juegue la IA» por un rival con cuenta que no aparece (Eva, 24/11/2026)
+# ---------------------------------------------------------------------
+
+
+def test_tras_tocar_puedo_pedir_que_la_ia_toque_por_mi_rival(entorno):
+    torneos, _ = entorno()
+    combate = primer_pendiente(torneos)
+    p1, p2 = combate["id_participante1"], combate["id_participante2"]
+    vista = duelos_servicio.obtener(1, combate["id"], usuario(p1))
+    assert vista["puedo_pedir_ia"] is False  # todavía no he tocado
+    vista = duelos_servicio.jugar(1, combate["id"], usuario(p1), pulsaciones_perfectas(vista["cancion"]["id"]))
+    assert vista["puedo_pedir_ia"] is True
+    assert duelos_servicio.obtener(1, combate["id"], usuario(p2))["puedo_pedir_ia"] is False
+
+    vista = duelos_servicio.jugar_ia_por_el_rival(1, combate["id"], usuario(p1))
+    rival = vista["jugadores"][1]
+    assert rival["es_ia"] and vista["estado"] == "resuelto" and vista["id_ganador"] == p1
+    assert vista["puedo_pedir_ia"] is False
+
+
+def test_no_se_puede_pedir_la_ia_sin_haber_tocado_ni_desde_fuera(entorno):
+    torneos, _ = entorno()
+    combate = primer_pendiente(torneos)
+    p1 = combate["id_participante1"]
+    fuera = next(i for i in range(1, 6) if i not in (p1, combate["id_participante2"]))
+    with pytest.raises(Conflicto):
+        duelos_servicio.jugar_ia_por_el_rival(1, combate["id"], usuario(p1))
+    with pytest.raises(Conflicto):
+        duelos_servicio.jugar_ia_por_el_rival(1, combate["id"], usuario(fuera))
+
+
+def test_si_el_rival_ya_toco_no_se_pide_la_ia(entorno):
+    torneos, _ = entorno()
+    combate = primer_pendiente(torneos)
+    p1, p2 = combate["id_participante1"], combate["id_participante2"]
+    cancion = duelos_servicio.obtener(1, combate["id"], usuario(p1))["cancion"]["id"]
+    duelos_servicio.jugar(1, combate["id"], usuario(p1), pulsaciones_perfectas(cancion))
+    duelos_servicio.jugar(1, combate["id"], usuario(p2), pulsaciones_perfectas(cancion, desfase=60))
+    with pytest.raises(Conflicto):
+        duelos_servicio.jugar_ia_por_el_rival(1, combate["id"], usuario(p1))

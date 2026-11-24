@@ -23,6 +23,11 @@ export class DuelosService {
     return this.http.get<Duelo>(this.url(idTorneo, idCombate));
   }
 
+  /** La IA toca por el rival, que tiene cuenta pero no aparece (Eva, 24/11/2026). */
+  jugarIa(idTorneo: number, idCombate: number): Observable<Duelo> {
+    return this.http.post<Duelo>(`${this.url(idTorneo, idCombate)}/ia`, {});
+  }
+
   /** Manda las pulsaciones del usuario de la sesión. */
   jugar(idTorneo: number, idCombate: number, pulsaciones: Pulsacion[]): Observable<Duelo> {
     return this.http.post<Duelo>(this.url(idTorneo, idCombate), { pulsaciones });

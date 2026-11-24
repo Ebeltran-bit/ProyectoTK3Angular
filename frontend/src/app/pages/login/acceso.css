@@ -25,3 +25,8 @@ label {
 .ayuda {
   margin: 0;
 }
+
+.etiqueta-icono {
+  margin: 0.2rem 0 0;
+  font-weight: 600;
+}

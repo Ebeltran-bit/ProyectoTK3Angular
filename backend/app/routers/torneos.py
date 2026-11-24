@@ -64,6 +64,13 @@ def obtener_duelo(id_torneo: int, id_combate: int, usuario: dict = Depends(usuar
     return duelos_servicio.obtener(id_torneo, id_combate, usuario)
 
 
+@router.post("/{id_torneo}/combates/{id_combate}/duelo/ia", response_model=Duelo, status_code=status.HTTP_201_CREATED)
+def jugar_ia_por_el_rival(id_torneo: int, id_combate: int, usuario: dict = Depends(usuario_actual)):
+    """La IA toca por el rival del usuario, que ya ha tocado; para que el torneo no se pare si
+    el dueño de la otra cuenta no aparece. 409 si el usuario no ha tocado o el rival ya lo hizo."""
+    return duelos_servicio.jugar_ia_por_el_rival(id_torneo, id_combate, usuario)
+
+
 @router.post("/{id_torneo}/combates/{id_combate}/duelo", response_model=Duelo, status_code=status.HTTP_201_CREATED)
 def jugar_duelo(id_torneo: int, id_combate: int, datos: PartidaEntrada, usuario: dict = Depends(usuario_actual)):
     """El usuario de la sesión manda sus pulsaciones. Con los dos resultados, el backend decide el ganador."""

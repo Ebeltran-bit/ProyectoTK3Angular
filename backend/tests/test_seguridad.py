@@ -1,4 +1,5 @@
 """Pruebas del cifrado de contraseñas y de los tokens."""
+import pytest
 from app.servicios.seguridad import cifrar_contrasena, generar_token, hash_token, verificar_contrasena
 
 
@@ -29,3 +30,14 @@ def test_tokens():
     assert a != b and len(a) >= 40
     assert hash_token(a) == hash_token(a)
     assert len(hash_token(a)) == 64 and hash_token(a) != a
+
+
+def test_el_icono_del_participante_tiene_que_ser_de_la_lista():
+    import pydantic
+
+    from app.modelos import ParticipanteEntrada
+
+    assert ParticipanteEntrada(nick="Loli", icono="gato").icono == "gato"
+    assert ParticipanteEntrada(nick="Loli").icono is None
+    with pytest.raises(pydantic.ValidationError):
+        ParticipanteEntrada(nick="Loli", icono="<script>")

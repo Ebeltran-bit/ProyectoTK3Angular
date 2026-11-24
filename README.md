@@ -141,6 +141,7 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | POST | `/api/torneos/{id}/cuadro` | Sortea la primera ronda con BYE y cierra las inscripciones |
 | POST | `/api/torneos/{id}/combates/{idCombate}/ganador` | Guarda el ganador (`{"id_ganador": 3}`). Si la ronda queda completa, genera la siguiente o cierra el torneo con su campeón |
 | GET | `/api/torneos/{id}/combates/{idCombate}/duelo` | Duelo de ritmo del combate: canción, quién ha jugado y si le toca al usuario. La primera vez elige la canción según la ronda. Si un participante no tiene cuenta (un bot), la IA toca por él aquí mismo |
+| POST | `/api/torneos/{id}/combates/{idCombate}/duelo/ia` | La IA toca por el rival del usuario, que ya ha tocado (24/11/2026). 409 si el usuario no ha tocado o el rival ya lo hizo |
 | POST | `/api/torneos/{id}/combates/{idCombate}/duelo` | El usuario de la sesión manda sus pulsaciones (`{"pulsaciones": [...]}`). Con los dos resultados, el backend decide el ganador y el cuadro avanza. 403 si no es uno de los dos participantes; 409 si ya ha jugado |
 | GET | `/api/canciones` | Canciones del duelo de ritmo, sin notas: título, nivel, BPM y escenario (etapa 3) |
 | GET | `/api/canciones/{id}` | Beatmap completo: notas que hay que pulsar y pistas de la música (etapa 3) |
@@ -842,6 +843,28 @@ Detalles que decidí yo (Claude):
   (con commit o rollback al terminar cada consulta, así vuelven limpias; si una lleva más de un minuto
   quieta se comprueba antes de usarla). Con pruebas en `tests/test_database.py`. Además, si alguien pone
   `DB_HOST=localhost`, se usa `127.0.0.1`, que en Windows evita esperar a IPv6.
+
+**Cambios del 24/11/2026** (pedidos por Eva)
+- **Eliminar un torneo:** botón al final de su pantalla, que pregunta antes. Borra el torneo con su cuadro,
+  combates y duelos; los participantes se quedan (`DELETE /api/torneos/{id}`).
+- **Icono al crear un participante y al registrarse:** la misma rejilla de animales que la barra de arriba. El campo del logo (URL) ya no sale en el formulario; si un participante antiguo tenía logo, se conserva.
+  Los participantes sin cuenta guardan su icono en la columna nueva `tk3_participantes.icono` (**hay que
+  volver a ejecutar `database/01_esquema.sql`**); si el participante tiene cuenta, manda el icono de su
+  usuario y el formulario no enseña la rejilla. Al registrarse, el icono se guarda justo después de crear
+  la cuenta con `PATCH /api/auth/yo/icono`, sin cambiar el registro. La lista de iconos válidos está en
+  `backend/app/modelos.py` (`ICONOS`).
+
+- **«Que juegue la IA»** (Eva eligió esta opción entre tres): si tu rival tiene cuenta pero no aparece, cuando
+  tú ya has tocado te sale un botón para que la IA toque por él; con eso se decide el ganador y se va al
+  podio. Solo lo ve uno de los dos participantes, y solo si él ya ha tocado y el rival no
+  (`POST /api/torneos/{id}/combates/{idCombate}/duelo/ia`, regla `puede_pedir_ia` en `duelos_servicio.py`,
+  con pytest). La aplicación no sabe quién está conectado, por eso lo decide la persona que espera.
+
+| Pieza | Archivo |
+| --- | --- |
+| Rejilla de iconos | `components/selector-icono/` |
+| Icono del participante (COALESCE del usuario y del participante) | `repositorios/participantes_repo.py`, `torneos_repo.py` |
+| Botón «Que juegue la IA» | `pages/duelo/`, `servicios/duelos_servicio.py` |
 
 ## Estado por fases
 

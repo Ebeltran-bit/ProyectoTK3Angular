@@ -45,7 +45,7 @@ def participantes_inscritos(id_torneo: int) -> list[dict]:
         cursor.execute(
             """
             SELECT p.id, p.nick, p.logo, p.activo, p.creado_en,
-                   u.icono, u.id IS NOT NULL AS tiene_usuario
+                   COALESCE(u.icono, p.icono) AS icono, u.id IS NOT NULL AS tiene_usuario
             FROM tk3_inscripciones i
             JOIN tk3_participantes p ON p.id = i.id_participante
             LEFT JOIN tk3_usuarios u ON u.id_participante = p.id

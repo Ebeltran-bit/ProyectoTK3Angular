@@ -114,6 +114,10 @@ CREATE TABLE IF NOT EXISTS tk3_usuarios (
 -- así el script se puede ejecutar varias veces sin errores.
 ALTER TABLE tk3_usuarios ADD COLUMN IF NOT EXISTS icono VARCHAR(20) NULL AFTER id_participante;
 
+-- Icono de los participantes sin cuenta (24/11/2026). Si el participante tiene usuario,
+-- manda el icono del usuario. NULL = se pinta un animal según su id.
+ALTER TABLE tk3_participantes ADD COLUMN IF NOT EXISTS icono VARCHAR(20) NULL AFTER logo;
+
 -- ---------------------------------------------------------------------
 -- Sesiones abiertas. Se guarda el hash SHA-256 del token, no el token:
 -- si alguien leyera la tabla, no podría usar esos valores para entrar.

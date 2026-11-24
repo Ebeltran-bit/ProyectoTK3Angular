@@ -2,7 +2,7 @@
  * Iconos que puede elegir cada usuario (aprobados por Eva el 05/11/2026).
  * Cada uno es el interior de un SVG de 100x100: el componente IconoUsuario
  * pone alrededor el círculo de fondo y el borde de color. El backend guarda
- * solo el id (lista ICONOS de auth_servicio.py).
+ * solo el id (lista ICONOS de backend/app/modelos.py).
  */
 export interface Icono {
   id: string;

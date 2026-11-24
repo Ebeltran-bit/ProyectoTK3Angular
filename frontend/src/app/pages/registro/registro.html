@@ -10,6 +10,8 @@
       <input type="password" formControlName="contrasena" autocomplete="new-password" />
     </label>
     <p class="ayuda">Tu nombre de usuario será también tu nick en los torneos.</p>
+    <p class="etiqueta-icono">Elige tu icono</p>
+    <app-selector-icono titulo="Tu icono" [elegido]="icono()" (elegir)="icono.set($event)" />
     @if (formulario.touched && formulario.invalid) {
       <p class="mensaje-error">Escribe un usuario y una contraseña de al menos 8 caracteres.</p>
     }

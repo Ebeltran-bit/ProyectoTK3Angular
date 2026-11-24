@@ -241,3 +241,8 @@
     animation: none;
   }
 }
+
+/* «Que juegue la IA» al volver a un duelo en el que ya has tocado */
+.pedir-ia {
+  margin: 1rem 0;
+}

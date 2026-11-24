@@ -30,6 +30,8 @@ export interface Duelo {
   jugadores: JugadorDuelo[];
   /** true si el usuario de la sesión está en este combate y todavía no ha jugado. */
   puedo_jugar: boolean;
+  /** true si el usuario ya ha tocado y su rival no: puede pedir que la IA toque por él. */
+  puedo_pedir_ia: boolean;
   /** Aviso del backend, por ejemplo cuando un empate total repite el duelo. */
   mensaje: string | null;
 }

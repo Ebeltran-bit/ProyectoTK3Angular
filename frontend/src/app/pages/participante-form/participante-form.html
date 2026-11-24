@@ -13,15 +13,13 @@
         <p class="mensaje-error">El nick es obligatorio (máximo 30 caracteres).</p>
       }
 
-      <label>
-        Logo (URL de una imagen, opcional)
-        <input type="url" formControlName="logo" placeholder="https://…" />
-      </label>
-      @if (formulario.controls.logo.value) {
-        <img
-          [src]="formulario.controls.logo.value"
-          alt="Vista previa del logo"
-          class="vista-previa"
+      @if (!tieneCuenta()) {
+        <!-- Icono de animal (pedido por Eva el 24/11/2026) -->
+        <p class="etiqueta-icono">Icono</p>
+        <app-selector-icono
+          titulo="Icono del participante"
+          [elegido]="icono()"
+          (elegir)="icono.set($event)"
         />
       }
 

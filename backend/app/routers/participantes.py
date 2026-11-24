@@ -41,7 +41,7 @@ def obtener_participante(id_participante: int):
 @router.post("", response_model=Participante, status_code=status.HTTP_201_CREATED)
 def crear_participante(datos: ParticipanteEntrada):
     try:
-        nuevo_id = participantes_repo.crear(datos.nick, datos.logo)
+        nuevo_id = participantes_repo.crear(datos.nick, datos.logo, datos.icono)
     except pymysql.err.IntegrityError as error:
         raise _nick_duplicado(error)
     return _obtener_o_404(nuevo_id)
@@ -51,7 +51,7 @@ def crear_participante(datos: ParticipanteEntrada):
 def editar_participante(id_participante: int, datos: ParticipanteEntrada):
     _obtener_o_404(id_participante)
     try:
-        participantes_repo.editar(id_participante, datos.nick, datos.logo)
+        participantes_repo.editar(id_participante, datos.nick, datos.logo, datos.icono)
     except pymysql.err.IntegrityError as error:
         raise _nick_duplicado(error)
     return _obtener_o_404(id_participante)

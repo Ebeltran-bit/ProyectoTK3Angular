@@ -5,9 +5,12 @@ Los valores siempre van como parámetros (%s) para evitar inyección SQL.
 """
 from app.database import obtener_conexion
 
-# El icono y si tiene cuenta vienen del usuario vinculado (si lo hay). Un participante
-# sin usuario es un «bot»: en los duelos juega siempre la IA por él.
-COLUMNAS = "p.id, p.nick, p.logo, p.activo, p.creado_en, u.icono, u.id IS NOT NULL AS tiene_usuario"
+# Si tiene cuenta, manda el icono de su usuario; si no, el que se le eligió al crearlo.
+# Un participante sin usuario es un «bot»: en los duelos juega la IA por él.
+COLUMNAS = (
+    "p.id, p.nick, p.logo, p.activo, p.creado_en, COALESCE(u.icono, p.icono) AS icono, "
+    "u.id IS NOT NULL AS tiene_usuario"
+)
 DESDE = "tk3_participantes p LEFT JOIN tk3_usuarios u ON u.id_participante = p.id"
 
 
@@ -40,21 +43,21 @@ def obtener(id_participante: int) -> dict | None:
         return _a_participante(cursor.fetchone())
 
 
-def crear(nick: str, logo: str | None) -> int:
+def crear(nick: str, logo: str | None, icono: str | None = None) -> int:
     """Inserta un participante activo y devuelve su id."""
     with obtener_conexion() as conexion, conexion.cursor() as cursor:
         cursor.execute(
-            "INSERT INTO tk3_participantes (nick, logo) VALUES (%s, %s)",
-            (nick, logo),
+            "INSERT INTO tk3_participantes (nick, logo, icono) VALUES (%s, %s, %s)",
+            (nick, logo, icono),
         )
         return cursor.lastrowid
 
 
-def editar(id_participante: int, nick: str, logo: str | None) -> None:
+def editar(id_participante: int, nick: str, logo: str | None, icono: str | None = None) -> None:
     with obtener_conexion() as conexion, conexion.cursor() as cursor:
         cursor.execute(
-            "UPDATE tk3_participantes SET nick = %s, logo = %s WHERE id = %s",
-            (nick, logo, id_participante),
+            "UPDATE tk3_participantes SET nick = %s, logo = %s, icono = %s WHERE id = %s",
+            (nick, logo, icono, id_participante),
         )
 
 

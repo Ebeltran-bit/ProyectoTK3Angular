@@ -5,11 +5,28 @@ from typing import Literal
 from pydantic import BaseModel, Field, field_validator
 
 
+# Iconos que se pueden elegir (ids de frontend/src/app/models/iconos.ts). Los usan el usuario
+# (auth_servicio.cambiar_icono) y, desde el 24/11/2026, los participantes sin cuenta.
+ICONOS = (
+    "gato", "rana", "patito", "gaviota", "zorro", "oso", "pulpo", "robot",
+    "estrella", "nota", "fantasma", "seta", "calabaza", "ramen", "trofeo",
+)
+
+
 class ParticipanteEntrada(BaseModel):
     """Datos para crear o editar un participante."""
 
     nick: str = Field(min_length=1, max_length=30)
     logo: str | None = Field(default=None, max_length=500)
+    # Icono de la lista ICONOS; null = se pinta un animal según su id
+    icono: str | None = None
+
+    @field_validator("icono")
+    @classmethod
+    def icono_de_la_lista(cls, valor: str | None) -> str | None:
+        if valor is not None and valor not in ICONOS:
+            raise ValueError("Ese icono no existe")
+        return valor
 
     @field_validator("nick")
     @classmethod
@@ -312,4 +329,6 @@ class Duelo(BaseModel):
     id_ganador: int | None
     jugadores: list[JugadorDuelo]
     puedo_jugar: bool
+    # El usuario ya ha tocado y su rival no: puede pedir que la IA toque por él (24/11/2026)
+    puedo_pedir_ia: bool = False
     mensaje: str | None = None
