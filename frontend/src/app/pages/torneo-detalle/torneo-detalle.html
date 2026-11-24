@@ -138,6 +138,16 @@
         }
       </details>
     }
+
+    <!-- Al final de la pantalla, lejos de los demás botones, para no pulsarlo sin querer -->
+    <div class="zona-eliminar">
+      @if (errorEliminar(); as e) {
+        <p class="mensaje-error" role="alert">{{ e }}</p>
+      }
+      <button type="button" class="eliminar" [disabled]="eliminando()" (click)="eliminarTorneo()">
+        <span aria-hidden="true">🗑</span> {{ eliminando() ? 'Eliminando…' : 'Eliminar torneo' }}
+      </button>
+    </div>
   }
 </section>
 

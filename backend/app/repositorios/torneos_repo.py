@@ -203,3 +203,28 @@ def finalizar(id_torneo: int, id_campeon: int) -> None:
             """,
             (id_campeon, id_torneo),
         )
+
+
+# ---------------------------------------------------------------------
+# Eliminar un torneo (pedido por Eva el 24/11/2026)
+# ---------------------------------------------------------------------
+
+
+def eliminar(id_torneo: int) -> bool:
+    """Borra el torneo con todo lo suyo, en una sola transacción: resultados de los duelos,
+    duelos, combates, inscripciones y el torneo. Se borra en ese orden por las claves ajenas.
+    Los participantes no se tocan. Devuelve False si el torneo no existía."""
+    with obtener_conexion() as conexion, conexion.cursor() as cursor:
+        cursor.execute(
+            "DELETE r FROM tk3_duelo_resultados r JOIN tk3_combates c ON c.id = r.id_combate "
+            "WHERE c.id_torneo = %s",
+            (id_torneo,),
+        )
+        cursor.execute(
+            "DELETE d FROM tk3_duelos d JOIN tk3_combates c ON c.id = d.id_combate WHERE c.id_torneo = %s",
+            (id_torneo,),
+        )
+        cursor.execute("DELETE FROM tk3_combates WHERE id_torneo = %s", (id_torneo,))
+        cursor.execute("DELETE FROM tk3_inscripciones WHERE id_torneo = %s", (id_torneo,))
+        cursor.execute("DELETE FROM tk3_torneos WHERE id = %s", (id_torneo,))
+        return cursor.rowcount == 1

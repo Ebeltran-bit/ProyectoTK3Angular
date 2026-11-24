@@ -34,6 +34,12 @@ def editar_torneo(id_torneo: int, datos: TorneoEntrada):
     return torneos_servicio.editar(id_torneo, datos.nombre, datos.participantes)
 
 
+@router.delete("/{id_torneo}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_torneo(id_torneo: int):
+    """Elimina el torneo con sus combates y duelos. Los participantes no se borran."""
+    torneos_servicio.eliminar(id_torneo)
+
+
 @router.post("/{id_torneo}/cuadro", response_model=TorneoDetalle)
 def generar_cuadro(id_torneo: int):
     """Sortea la primera ronda (con BYE si hace falta) y cierra las inscripciones."""

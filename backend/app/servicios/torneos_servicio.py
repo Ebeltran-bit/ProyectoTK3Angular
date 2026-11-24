@@ -144,3 +144,10 @@ def _avanzar_si_ronda_completa(id_torneo: int, ronda: int) -> None:
         torneos_repo.guardar_ronda(id_torneo, siguiente)
     else:
         torneos_repo.finalizar(id_torneo, combates[0]["id_ganador"])
+
+
+def eliminar(id_torneo: int) -> None:
+    """Elimina un torneo en cualquier estado, con sus combates y duelos (pedido por Eva el
+    24/11/2026, para dejar los datos limpios antes de grabar el vídeo). Los participantes se quedan."""
+    if not torneos_repo.eliminar(id_torneo):
+        raise NoEncontrado("Torneo no encontrado")

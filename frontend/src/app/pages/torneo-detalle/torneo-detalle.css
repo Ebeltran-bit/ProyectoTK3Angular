@@ -273,3 +273,16 @@ button.generar:disabled {
   color: var(--coral);
   font-weight: 700;
 }
+
+/* Eliminar el torneo: al final y discreto, en coral solo el texto */
+.zona-eliminar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  margin-top: 2rem;
+}
+.eliminar {
+  color: var(--coral-oscuro);
+}

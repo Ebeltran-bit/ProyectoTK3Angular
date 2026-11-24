@@ -39,6 +39,9 @@ export class TorneoDetalle implements OnInit {
   protected readonly cargando = signal(true);
   protected readonly generando = signal(false);
   protected readonly registrando = signal(false);
+  protected readonly eliminando = signal(false);
+  /** El error al eliminar sale junto al botón, que está al final de la pantalla. */
+  protected readonly errorEliminar = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly nombreEstado = NOMBRE_ESTADO;
   /** Pregunta que se está enseñando en la ventana de confirmación (null = ninguna). */
@@ -149,6 +152,31 @@ export class TorneoDetalle implements OnInit {
       error: (e) => {
         this.error.set(mensajeError(e));
         this.generando.set(false);
+      },
+    });
+  }
+
+  /** Eliminar el torneo (pedido por Eva el 24/11/2026): pregunta antes, porque no se deshace. */
+  eliminarTorneo(): void {
+    const t = this.torneo();
+    if (!t) return;
+    this.pregunta.set({
+      titulo: `¿Eliminar «${t.nombre}»?`,
+      texto:
+        'Se borran el torneo, su cuadro y sus duelos, y dejan de contar en las estadísticas. Los participantes se quedan. No se puede deshacer.',
+      textoAceptar: 'Sí, eliminar',
+      alAceptar: () => this.borrar(),
+    });
+  }
+
+  private borrar(): void {
+    this.eliminando.set(true);
+    this.errorEliminar.set(null);
+    this.servicio.eliminar(this.id).subscribe({
+      next: () => void this.router.navigate(['/torneos']),
+      error: (e) => {
+        this.errorEliminar.set(mensajeError(e));
+        this.eliminando.set(false);
       },
     });
   }

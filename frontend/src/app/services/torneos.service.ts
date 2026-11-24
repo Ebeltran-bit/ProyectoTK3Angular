@@ -27,6 +27,11 @@ export class TorneosService {
     return this.http.put<TorneoDetalle>(`${this.url}/${id}`, datos);
   }
 
+  /** Borra el torneo con sus combates y duelos; los participantes se quedan. */
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
   /** Sortea la primera ronda. El sorteo lo hace el backend. */
   generarCuadro(id: number): Observable<TorneoDetalle> {
     return this.http.post<TorneoDetalle>(`${this.url}/${id}/cuadro`, {});

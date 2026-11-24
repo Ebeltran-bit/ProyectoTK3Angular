@@ -137,6 +137,7 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | GET | `/api/torneos/{id}` | Torneo completo: inscritos, nº de rondas y combates |
 | POST | `/api/torneos` | Crea un torneo en preparación (`{"nombre": "...", "participantes": [1, 2, 3]}`) |
 | PUT | `/api/torneos/{id}` | Cambia nombre y participantes (solo en preparación) |
+| DELETE | `/api/torneos/{id}` | Elimina el torneo con sus combates y duelos, en cualquier estado (204; 404 si no existe). Los participantes se quedan (pedido por Eva el 24/11/2026) |
 | POST | `/api/torneos/{id}/cuadro` | Sortea la primera ronda con BYE y cierra las inscripciones |
 | POST | `/api/torneos/{id}/combates/{idCombate}/ganador` | Guarda el ganador (`{"id_ganador": 3}`). Si la ronda queda completa, genera la siguiente o cierra el torneo con su campeón |
 | GET | `/api/torneos/{id}/combates/{idCombate}/duelo` | Duelo de ritmo del combate: canción, quién ha jugado y si le toca al usuario. La primera vez elige la canción según la ronda. Si un participante no tiene cuenta (un bot), la IA toca por él aquí mismo |
@@ -148,7 +149,8 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | GET | `/api/estadisticas/canciones/{id}` | Top 10 de una canción, una marca por usuario (404 si la canción no existe) |
 | GET | `/api/estadisticas/participantes` | Combates, victorias, derrotas y torneos ganados de cada participante (fase 4). Los BYE no cuentan |
 
-No hay DELETE a propósito: el enunciado dice que desactivar no es borrar.
+No hay DELETE de participantes a propósito: el enunciado dice que desactivar no es borrar. Los torneos sí
+se pueden eliminar, desde un botón al final de su pantalla, que pregunta antes.
 
 Errores de la base de datos (decidido por mí, Claude, el 17/11/2026, al investigar un duelo que no
 abría): si MariaDB no está, rechaza el usuario, el equipo o la contraseña, no tiene la base de datos o

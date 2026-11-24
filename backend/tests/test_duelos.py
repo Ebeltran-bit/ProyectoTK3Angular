@@ -463,3 +463,11 @@ def test_torneo_entero_a_base_de_duelos_hasta_el_campeon(entorno, participantes)
     final = max(torneos.combates.values(), key=lambda c: c["ronda"])
     assert torneos.torneo["id_campeon"] == final["id_ganador"] == 1
     assert final["ronda"] == total
+
+
+def test_eliminar_un_torneo_que_no_existe_es_404(monkeypatch):
+    from app.servicios.errores import NoEncontrado
+
+    monkeypatch.setattr(torneos_servicio.torneos_repo, "eliminar", lambda _id: False)
+    with pytest.raises(NoEncontrado):
+        torneos_servicio.eliminar(999)
