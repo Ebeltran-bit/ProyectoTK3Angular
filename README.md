@@ -32,9 +32,12 @@ tk3/
 │       └── repositorios/      Consultas SQL (lo único que toca la base de datos)
 │   └── tests/                 Pruebas automáticas (cuadro, sesión, estadísticas, ritmo y duelos)
 │
+├── compartir-con-enlace.bat   Actualiza, arranca API y web y da un enlace de Cloudflare (Windows)
+│
 └── frontend/                  Aplicación Angular
+    ├── proxy.conf.json        Reenvía /api a la API (http://127.0.0.1:8000) cuando se usa ng serve
     └── src/app/
-        ├── api.config.ts      Dirección de la API
+        ├── api.config.ts      Dirección de la API («/api», relativa; ng serve la reenvía con proxy.conf.json)
         ├── models/            Interfaces TypeScript (forma de los datos)
         ├── services/          Comunicación con la API (HttpClient) y sesión
         ├── guards/            Bloquean pantallas si no hay sesión
@@ -114,6 +117,30 @@ npx ng serve
 
 Abre <http://localhost:4200>. La primera vez, pulsa **Regístrate** para crear tu cuenta: tu nombre de
 usuario será también tu nick en los torneos.
+
+### 4. Compartir la app con un enlace (Cloudflare)
+
+Haz doble clic en `compartir-con-enlace.bat` (en la raíz del proyecto), con MariaDB ya arrancada. El
+archivo:
+
+1. Descarga la última versión con `git pull --ff-only`. Si tienes cambios sin subir, no actualiza para
+   no pisarlos y arranca lo que ya tienes.
+2. Revisa las dependencias (`pip install` en `backend\venv` y `npm install`).
+3. Abre dos ventanas: la API (`uvicorn`, puerto 8000) y la web (`ng serve`, puerto 4200).
+4. Abre un **túnel rápido de Cloudflare** (`cloudflared tunnel --url http://127.0.0.1:4200`), muestra el
+   enlace `https://….trycloudflare.com`, lo copia al portapapeles y lo abre en el navegador. Si no tienes
+   `cloudflared`, lo instala con `winget` la primera vez.
+
+El enlace vale mientras estén abiertas las tres ventanas (API, web y túnel) y cambia cada vez que se
+arranca. El túnel rápido **no necesita cuenta** de Cloudflare.
+
+Para que funcione a través del enlace, Angular llama a la API con la ruta relativa `/api` y `ng serve` la
+reenvía a FastAPI (`frontend/proxy.conf.json`). Así quien abre el enlace solo habla con una dirección y la
+API no queda expuesta por separado. `angular.json` permite además las direcciones `*.trycloudflare.com`
+(`allowedHosts`), porque el servidor de Angular rechaza por seguridad los nombres que no conoce.
+
+> Pedido por Eva el 26/11/2026. El proxy, la ruta relativa y el túnel rápido son detalles técnicos
+> decididos por Claude.
 
 ## API disponible
 
