@@ -100,3 +100,16 @@
 <main>
   <router-outlet />
 </main>
+
+<!-- Contenedor fijo y vacío: así los lectores de pantalla anuncian el aviso cuando aparece -->
+<div role="status">
+  @if (auth.conectado() && !enUnDuelo()) {
+    @if (avisos()[0]; as a) {
+      <app-aviso-duelo
+        [aviso]="a"
+        [otros]="avisos().length - 1"
+        (cerrar)="cerrarAviso(a.id_combate)"
+      />
+    }
+  }
+</div>

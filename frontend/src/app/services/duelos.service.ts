@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { API_URL } from '../api.config';
 import { Pulsacion } from '../models/cancion';
-import { Duelo } from '../models/duelo';
+import { Duelo, DueloPendiente } from '../models/duelo';
 
 /** Duelo de ritmo de un combate del torneo. Quién gana lo decide el backend. */
 @Injectable({ providedIn: 'root' })
@@ -23,13 +23,13 @@ export class DuelosService {
     return this.http.get<Duelo>(this.url(idTorneo, idCombate));
   }
 
-  /** La IA toca por el rival, que tiene cuenta pero no aparece (Eva, 24/11/2026). */
-  jugarIa(idTorneo: number, idCombate: number): Observable<Duelo> {
-    return this.http.post<Duelo>(`${this.url(idTorneo, idCombate)}/ia`, {});
-  }
-
   /** Manda las pulsaciones del usuario de la sesión. */
   jugar(idTorneo: number, idCombate: number, pulsaciones: Pulsacion[]): Observable<Duelo> {
     return this.http.post<Duelo>(this.url(idTorneo, idCombate), { pulsaciones });
+  }
+
+  /** Duelos de cualquier torneo en los que le toca tocar al usuario de la sesión. */
+  misPendientes(): Observable<DueloPendiente[]> {
+    return this.http.get<DueloPendiente[]>(`${API_URL}/torneos/mis-duelos`);
   }
 }

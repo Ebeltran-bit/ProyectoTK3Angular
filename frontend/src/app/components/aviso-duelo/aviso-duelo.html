@@ -1,0 +1,22 @@
+<aside class="aviso" aria-label="Te toca jugar un duelo">
+  <button type="button" class="cerrar" (click)="cerrar.emit()" aria-label="Cerrar el aviso">
+    ×
+  </button>
+  <app-icono-usuario
+    class="rival"
+    [icono]="iconoDe(aviso().rival)"
+    [nombre]="aviso().rival.nick"
+    [tam]="56"
+  />
+  <div class="texto">
+    <p class="titulo">¡Te toca jugar!</p>
+    <p class="detalle">
+      {{ ronda() }} de «{{ aviso().nombre_torneo }}» contra
+      <strong>{{ aviso().rival.nick }}</strong>
+    </p>
+    @if (otros() > 0) {
+      <p class="mas">y {{ otros() }} duelo{{ otros() === 1 ? '' : 's' }} más esperando</p>
+    }
+    <a class="principal" [routerLink]="ruta()"> <span aria-hidden="true">♪</span> Jugar ahora </a>
+  </div>
+</aside>

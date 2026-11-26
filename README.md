@@ -167,8 +167,8 @@ Todas las rutas, salvo `/api/auth/registro`, `/api/auth/login` y `/api/salud`, e
 | DELETE | `/api/torneos/{id}` | Elimina el torneo con sus combates y duelos, en cualquier estado (204; 404 si no existe). Los participantes se quedan (pedido por Eva el 24/11/2026) |
 | POST | `/api/torneos/{id}/cuadro` | Sortea la primera ronda con BYE y cierra las inscripciones |
 | POST | `/api/torneos/{id}/combates/{idCombate}/ganador` | Guarda el ganador (`{"id_ganador": 3}`). Si la ronda queda completa, genera la siguiente o cierra el torneo con su campeón |
+| GET | `/api/torneos/mis-duelos` | Duelos de cualquier torneo en los que le toca tocar al usuario de la sesión: torneo, ronda y rival (26/11/2026). Alimenta el aviso «¡Te toca jugar!» |
 | GET | `/api/torneos/{id}/combates/{idCombate}/duelo` | Duelo de ritmo del combate: canción, quién ha jugado y si le toca al usuario. La primera vez elige la canción según la ronda. Si un participante no tiene cuenta (un bot), la IA toca por él aquí mismo |
-| POST | `/api/torneos/{id}/combates/{idCombate}/duelo/ia` | La IA toca por el rival del usuario, que ya ha tocado (24/11/2026). 409 si el usuario no ha tocado o el rival ya lo hizo |
 | POST | `/api/torneos/{id}/combates/{idCombate}/duelo` | El usuario de la sesión manda sus pulsaciones (`{"pulsaciones": [...]}`). Con los dos resultados, el backend decide el ganador y el cuadro avanza. 403 si no es uno de los dos participantes; 409 si ya ha jugado |
 | GET | `/api/canciones` | Canciones del duelo de ritmo, sin notas: título, nivel, BPM y escenario (etapa 3) |
 | GET | `/api/canciones/{id}` | Beatmap completo: notas que hay que pulsar y pistas de la música (etapa 3) |
@@ -881,7 +881,7 @@ Detalles que decidí yo (Claude):
   la cuenta con `PATCH /api/auth/yo/icono`, sin cambiar el registro. La lista de iconos válidos está en
   `backend/app/modelos.py` (`ICONOS`).
 
-- **«Que juegue la IA»** (Eva eligió esta opción entre tres): si tu rival tiene cuenta pero no aparece, cuando
+- ~~**«Que juegue la IA»**~~ (retirado por Eva el 26/11/2026, ver «Cambios del 26/11/2026»): si tu rival tiene cuenta pero no aparece, cuando
   tú ya has tocado te sale un botón para que la IA toque por él; con eso se decide el ganador y se va al
   podio. Solo lo ve uno de los dos participantes, y solo si él ya ha tocado y el rival no
   (`POST /api/torneos/{id}/combates/{idCombate}/duelo/ia`, regla `puede_pedir_ia` en `duelos_servicio.py`,
@@ -891,7 +891,28 @@ Detalles que decidí yo (Claude):
 | --- | --- |
 | Rejilla de iconos | `components/selector-icono/` |
 | Icono del participante (COALESCE del usuario y del participante) | `repositorios/participantes_repo.py`, `torneos_repo.py` |
-| Botón «Que juegue la IA» | `pages/duelo/`, `servicios/duelos_servicio.py` |
+
+**Cambios del 26/11/2026** (pedidos por Eva)
+- **Fuera el botón «Que juegue la IA»:** un rival con cuenta siempre toca él mismo. Se retiran
+  `POST .../duelo/ia` y la regla `puede_pedir_ia`. Los bots (sin cuenta) siguen tocando con la IA como antes.
+- **Del duelo al podio solo:** cuando ya has tocado y falta tu rival, la pantalla del duelo dice «Cuando
+  juegue, irás al podio» y, en cuanto él toca, te lleva al podio sin pulsar nada.
+  *Detalle de implementación (Claude):* la pantalla vuelve a pedir el duelo cada 5 s mientras está abierta
+  y deja de hacerlo al salir (`ngOnDestroy`). Sin partidas en directo no hay forma de que el backend avise.
+- **Aviso «¡Te toca jugar!»:** si tienes un duelo pendiente en algún torneo, en cualquier pantalla sale
+  una tarjeta abajo a la derecha con el torneo, la ronda y el icono del rival, un botón «Jugar ahora» que
+  abre el duelo y una × para cerrarla. Si tienes más de uno, dice cuántos más quedan.
+  *Detalles de implementación (Claude):* `app.ts` pide `GET /api/torneos/mis-duelos` al cambiar de pantalla
+  y cada 20 s; la tarjeta (`components/aviso-duelo/`) solo pinta. No sale dentro de un duelo para no tapar
+  el juego, y la × lo esconde para ese combate hasta cerrar la pestaña (`sessionStorage`). La consulta
+  solo trae combates pendientes, sin BYE, de torneos con el cuadro generado y en los que el usuario aún no
+  ha tocado (`duelos_repo.pendientes_de`). Sin cambios en el esquema.
+
+| Pieza | Archivo |
+| --- | --- |
+| Esperar al rival e ir al podio | `pages/duelo/duelo.ts` |
+| Aviso «¡Te toca jugar!» | `components/aviso-duelo/`, `app.ts`, `app.html` |
+| Duelos pendientes del usuario | `routers/torneos.py`, `servicios/duelos_servicio.py`, `repositorios/duelos_repo.py` |
 
 ## Estado por fases
 

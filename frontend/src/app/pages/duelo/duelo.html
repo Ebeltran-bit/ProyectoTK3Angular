@@ -49,21 +49,6 @@
       }
     </ul>
 
-    @if (d.puedo_pedir_ia && !enviado()) {
-      <div class="pedir-ia">
-        <button type="button" class="principal" [disabled]="pidiendoIa()" (click)="pedirIa()">
-          {{
-            pidiendoIa()
-              ? 'Tocando…'
-              : 'Que juegue la IA por ' + (rival()?.participante?.nick ?? 'tu rival')
-          }}
-        </button>
-        @if (errorIa(); as e) {
-          <p class="mensaje-error">{{ e }}</p>
-        }
-      </div>
-    }
-
     @if (ganador()) {
       <div class="ver-podio">
         <a class="principal grande" [routerLink]="rutaPodio"
@@ -72,7 +57,7 @@
       </div>
     }
 
-    @if (d.estado === 'pendiente' && !d.puedo_jugar && !d.puedo_pedir_ia && !enviado()) {
+    @if (d.estado === 'pendiente' && !d.puedo_jugar && !enviado()) {
       <p class="ayuda">Solo pueden tocar este duelo los usuarios de estos dos participantes.</p>
     }
 
@@ -140,7 +125,7 @@
               <!-- E1: falta el rival -->
               <p class="espera">
                 <i></i><i></i><i></i>Falta que juegue
-                {{ rival()?.participante?.nick ?? 'tu rival' }}
+                {{ rival()?.participante?.nick ?? 'tu rival' }}. Cuando juegue, irás al podio.
               </p>
             } @else if (errorEnvio()) {
               <p class="error-envio">
@@ -159,24 +144,10 @@
               </div>
             } @else if (misDatos()) {
               <div class="acciones">
-                @if (d.puedo_pedir_ia) {
-                  <!-- Si el rival no aparece, la IA toca por él (Eva, 24/11/2026) -->
-                  <button
-                    type="button"
-                    class="boton-juego"
-                    [disabled]="pidiendoIa()"
-                    (click)="pedirIa()"
-                  >
-                    {{ pidiendoIa() ? 'Tocando…' : 'Que juegue la IA' }}
-                  </button>
-                }
                 <a class="boton-juego claro" [routerLink]="['/torneos', idTorneo]"
                   >Volver al torneo</a
                 >
               </div>
-              @if (errorIa(); as e) {
-                <p class="error-envio">{{ e }}</p>
-              }
             }
           </app-tarjeta-resultado>
         </app-reproductor-ritmo>

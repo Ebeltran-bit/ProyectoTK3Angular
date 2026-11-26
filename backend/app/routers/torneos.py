@@ -6,7 +6,8 @@ el servicio lanza un ErrorDeNegocio y main.py lo convierte en respuesta HTTP.
 from fastapi import APIRouter, Depends, status
 
 from app.dependencias import usuario_actual
-from app.modelos import Duelo, GanadorEntrada, PartidaEntrada, TorneoDetalle, TorneoEntrada, TorneoResumen
+from app.modelos import (Duelo, DueloPendiente, GanadorEntrada, PartidaEntrada, TorneoDetalle, TorneoEntrada,
+                         TorneoResumen)
 from app.servicios import duelos_servicio, torneos_servicio
 
 router = APIRouter(prefix="/api/torneos", tags=["Torneos"])
@@ -15,6 +16,13 @@ router = APIRouter(prefix="/api/torneos", tags=["Torneos"])
 @router.get("", response_model=list[TorneoResumen])
 def listar_torneos():
     return torneos_servicio.listar()
+
+
+@router.get("/mis-duelos", response_model=list[DueloPendiente])
+def mis_duelos_pendientes(usuario: dict = Depends(usuario_actual)):
+    """Duelos en los que le toca tocar al usuario de la sesión (para el aviso «¡Te toca jugar!»).
+    Va antes de /{id_torneo} para que «mis-duelos» no se tome por un id."""
+    return duelos_servicio.pendientes(usuario)
 
 
 @router.get("/{id_torneo}", response_model=TorneoDetalle)
@@ -62,13 +70,6 @@ def obtener_duelo(id_torneo: int, id_combate: int, usuario: dict = Depends(usuar
     """Canción del duelo y quién ha jugado. La primera vez se elige la canción según la ronda.
     Si en el combate hay un participante sin cuenta (un bot), la IA toca por él aquí mismo."""
     return duelos_servicio.obtener(id_torneo, id_combate, usuario)
-
-
-@router.post("/{id_torneo}/combates/{id_combate}/duelo/ia", response_model=Duelo, status_code=status.HTTP_201_CREATED)
-def jugar_ia_por_el_rival(id_torneo: int, id_combate: int, usuario: dict = Depends(usuario_actual)):
-    """La IA toca por el rival del usuario, que ya ha tocado; para que el torneo no se pare si
-    el dueño de la otra cuenta no aparece. 409 si el usuario no ha tocado o el rival ya lo hizo."""
-    return duelos_servicio.jugar_ia_por_el_rival(id_torneo, id_combate, usuario)
 
 
 @router.post("/{id_torneo}/combates/{id_combate}/duelo", response_model=Duelo, status_code=status.HTTP_201_CREATED)

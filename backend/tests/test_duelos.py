@@ -473,45 +473,35 @@ def test_eliminar_un_torneo_que_no_existe_es_404(monkeypatch):
         torneos_servicio.eliminar(999)
 
 
-
 # ---------------------------------------------------------------------
-# «Que juegue la IA» por un rival con cuenta que no aparece (Eva, 24/11/2026)
+# Aviso «¡Te toca jugar!» (Eva, 26/11/2026)
 # ---------------------------------------------------------------------
 
 
-def test_tras_tocar_puedo_pedir_que_la_ia_toque_por_mi_rival(entorno):
-    torneos, _ = entorno()
-    combate = primer_pendiente(torneos)
-    p1, p2 = combate["id_participante1"], combate["id_participante2"]
-    vista = duelos_servicio.obtener(1, combate["id"], usuario(p1))
-    assert vista["puedo_pedir_ia"] is False  # todavía no he tocado
-    vista = duelos_servicio.jugar(1, combate["id"], usuario(p1), pulsaciones_perfectas(vista["cancion"]["id"]))
-    assert vista["puedo_pedir_ia"] is True
-    assert duelos_servicio.obtener(1, combate["id"], usuario(p2))["puedo_pedir_ia"] is False
-
-    vista = duelos_servicio.jugar_ia_por_el_rival(1, combate["id"], usuario(p1))
-    rival = vista["jugadores"][1]
-    assert rival["es_ia"] and vista["estado"] == "resuelto" and vista["id_ganador"] == p1
-    assert vista["puedo_pedir_ia"] is False
+def test_mis_duelos_pendientes_traen_torneo_ronda_y_rival(monkeypatch):
+    filas = [{"id_combate": 7, "ronda": 1, "id_torneo": 3, "nombre_torneo": "Prueba", "num_participantes": 2,
+              "rival_id": 9, "rival_nick": "DeiwiX", "rival_logo": None, "rival_icono": "zorro"},
+             {"id_combate": 8, "ronda": 1, "id_torneo": 4, "nombre_torneo": "Copa", "num_participantes": 5,
+              "rival_id": 2, "rival_nick": "Bot", "rival_logo": None, "rival_icono": None}]
+    pedido = []
+    monkeypatch.setattr(duelos_servicio.duelos_repo, "pendientes_de", lambda id_p: pedido.append(id_p) or filas)
+    avisos = duelos_servicio.pendientes(usuario(5))
+    assert pedido == [5]  # solo los del participante del usuario de la sesión
+    assert avisos[0]["total_rondas"] == 1  # con 2 participantes solo hay final
+    assert avisos[1]["total_rondas"] == 3
+    assert avisos[0]["rival"] == {"id": 9, "nick": "DeiwiX", "logo": None, "icono": "zorro"}
 
 
-def test_no_se_puede_pedir_la_ia_sin_haber_tocado_ni_desde_fuera(entorno):
-    torneos, _ = entorno()
-    combate = primer_pendiente(torneos)
-    p1 = combate["id_participante1"]
-    fuera = next(i for i in range(1, 6) if i not in (p1, combate["id_participante2"]))
-    with pytest.raises(Conflicto):
-        duelos_servicio.jugar_ia_por_el_rival(1, combate["id"], usuario(p1))
-    with pytest.raises(Conflicto):
-        duelos_servicio.jugar_ia_por_el_rival(1, combate["id"], usuario(fuera))
+def test_la_ruta_mis_duelos_no_se_confunde_con_un_id_de_torneo(monkeypatch):
+    from fastapi.testclient import TestClient
 
+    from app.dependencias import usuario_actual
+    from app.main import app
 
-def test_si_el_rival_ya_toco_no_se_pide_la_ia(entorno):
-    torneos, _ = entorno()
-    combate = primer_pendiente(torneos)
-    p1, p2 = combate["id_participante1"], combate["id_participante2"]
-    cancion = duelos_servicio.obtener(1, combate["id"], usuario(p1))["cancion"]["id"]
-    duelos_servicio.jugar(1, combate["id"], usuario(p1), pulsaciones_perfectas(cancion))
-    duelos_servicio.jugar(1, combate["id"], usuario(p2), pulsaciones_perfectas(cancion, desfase=60))
-    with pytest.raises(Conflicto):
-        duelos_servicio.jugar_ia_por_el_rival(1, combate["id"], usuario(p1))
+    monkeypatch.setattr(duelos_servicio.duelos_repo, "pendientes_de", lambda id_p: [])
+    app.dependency_overrides[usuario_actual] = lambda: usuario(5)
+    try:
+        respuesta = TestClient(app).get("/api/torneos/mis-duelos")
+    finally:
+        app.dependency_overrides.clear()
+    assert respuesta.status_code == 200 and respuesta.json() == []

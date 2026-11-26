@@ -57,3 +57,34 @@ def repetir(id_combate: int, id_cancion: str) -> None:
     with obtener_conexion() as conexion, conexion.cursor() as cursor:
         cursor.execute("DELETE FROM tk3_duelo_resultados WHERE id_combate = %s", (id_combate,))
         cursor.execute("UPDATE tk3_duelos SET id_cancion = %s WHERE id_combate = %s", (id_cancion, id_combate))
+
+
+def pendientes_de(id_participante: int) -> list[dict]:
+    """Combates sin decidir de torneos en juego en los que el participante todavía no ha tocado.
+
+    Trae también el nombre del torneo, cuántos inscritos tiene (para saber la ronda) y el rival.
+    """
+    with obtener_conexion() as conexion, conexion.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT cb.id AS id_combate, cb.ronda, t.id AS id_torneo, t.nombre AS nombre_torneo,
+                   (SELECT COUNT(*) FROM tk3_inscripciones i WHERE i.id_torneo = t.id) AS num_participantes,
+                   rp.id AS rival_id, rp.nick AS rival_nick, rp.logo AS rival_logo,
+                   COALESCE(ru.icono, rp.icono) AS rival_icono
+            FROM tk3_combates cb
+            JOIN tk3_torneos t ON t.id = cb.id_torneo
+            JOIN tk3_participantes rp
+              ON rp.id = IF(cb.id_participante1 = %s, cb.id_participante2, cb.id_participante1)
+            LEFT JOIN tk3_usuarios ru ON ru.id_participante = rp.id
+            LEFT JOIN tk3_duelo_resultados r
+              ON r.id_combate = cb.id AND r.id_participante = %s
+            WHERE t.estado = 'cuadro_generado'
+              AND cb.estado = 'pendiente'
+              AND cb.es_bye = FALSE
+              AND %s IN (cb.id_participante1, cb.id_participante2)
+              AND r.id_combate IS NULL
+            ORDER BY t.creado_en, cb.ronda, cb.posicion
+            """,
+            (id_participante, id_participante, id_participante),
+        )
+        return cursor.fetchall()

@@ -133,30 +133,25 @@ def _vista(torneo: dict, combate: dict, duelo: dict, usuario: dict, mensaje: str
         "jugadores": jugadores,
         "puedo_jugar": (not terminado and usuario["id_participante"] in ids
                         and usuario["id_participante"] not in resultados),
-        "puedo_pedir_ia": puede_pedir_ia(combate, set(resultados), usuario["id_participante"]),
         "mensaje": mensaje,
     }
 
 
-def puede_pedir_ia(combate: dict, han_jugado: set[int], id_participante: int | None) -> bool:
-    """Regla del botón «Que juegue la IA» (Eva, 24/11/2026): solo uno de los dos
-    participantes, cuando él ya ha tocado y su rival todavía no, y el combate sigue pendiente."""
-    ids = (combate["id_participante1"], combate["id_participante2"])
-    if combate["estado"] != "pendiente" or id_participante not in ids:
-        return False
-    rival = ids[1] if id_participante == ids[0] else ids[0]
-    return id_participante in han_jugado and rival not in han_jugado
-
-
-def jugar_ia_por_el_rival(id_torneo: int, id_combate: int, usuario: dict) -> dict:
-    """La IA toca por el rival del usuario de la sesión, que tiene cuenta pero no ha jugado."""
-    torneo, combate = _combate(id_torneo, id_combate)
-    han_jugado = {r["id_participante"] for r in duelos_repo.resultados(combate["id"])}
-    if not puede_pedir_ia(combate, han_jugado, usuario["id_participante"]):
-        raise Conflicto("Solo puedes pedir que juegue la IA cuando tú ya has tocado y tu rival todavía no")
-    ids = (combate["id_participante1"], combate["id_participante2"])
-    rival = ids[1] if usuario["id_participante"] == ids[0] else ids[0]
-    return _guardar(torneo, combate, usuario, rival, es_ia=True)
+def pendientes(usuario: dict) -> list[dict]:
+    """Duelos en los que le toca tocar al usuario de la sesión, para avisarle en cualquier
+    pantalla (Eva, 26/11/2026). Solo los suyos: un bot no tiene sesión y por él ya toca la IA."""
+    return [
+        {
+            "id_torneo": f["id_torneo"],
+            "nombre_torneo": f["nombre_torneo"],
+            "id_combate": f["id_combate"],
+            "ronda": f["ronda"],
+            "total_rondas": cuadro.total_rondas(max(f["num_participantes"], 2)),
+            "rival": {"id": f["rival_id"], "nick": f["rival_nick"], "logo": f["rival_logo"],
+                      "icono": f["rival_icono"]},
+        }
+        for f in duelos_repo.pendientes_de(usuario["id_participante"])
+    ]
 
 
 def obtener(id_torneo: int, id_combate: int, usuario: dict) -> dict:

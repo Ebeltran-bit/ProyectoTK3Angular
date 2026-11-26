@@ -329,6 +329,15 @@ class Duelo(BaseModel):
     id_ganador: int | None
     jugadores: list[JugadorDuelo]
     puedo_jugar: bool
-    # El usuario ya ha tocado y su rival no: puede pedir que la IA toque por él (24/11/2026)
-    puedo_pedir_ia: bool = False
     mensaje: str | None = None
+
+
+class DueloPendiente(BaseModel):
+    """Un duelo en el que le toca tocar al usuario: lo que enseña el aviso «¡Te toca jugar!»."""
+
+    id_torneo: int
+    nombre_torneo: str
+    id_combate: int
+    ronda: int
+    total_rondas: int
+    rival: ParticipanteResumen

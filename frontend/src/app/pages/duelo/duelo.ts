@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { IconoUsuario } from '../../components/icono-usuario/icono-usuario';
 import { PantallaCarga } from '../../components/pantalla-carga/pantalla-carga';
@@ -31,7 +32,7 @@ import { iconoDe } from '../../models/iconos';
   templateUrl: './duelo.html',
   styleUrl: './duelo.css',
 })
-export class Duelo implements OnInit {
+export class Duelo implements OnInit, OnDestroy {
   protected readonly iconoDe = iconoDe;
   private readonly servicio = inject(DuelosService);
   private readonly canciones = inject(CancionesService);
@@ -97,6 +98,7 @@ export class Duelo implements OnInit {
   /** Guarda el duelo que devuelve la API y, si le toca jugar al usuario, pide la canción. */
   private mostrar(d: DatosDuelo): void {
     this.duelo.set(d);
+    this.esperarAlRival(d);
     if (d.puedo_jugar && this.cancion()?.id !== d.cancion.id) {
       this.canciones.obtener(d.cancion.id).subscribe({
         next: (c) => {
@@ -132,7 +134,7 @@ export class Duelo implements OnInit {
         if (d.id_ganador !== null) this.irAlPodio();
       },
       error: (e) => {
-        // 409: mientras tocabas, la IA tocó por ti (lo pidió tu rival) o el combate ya se decidió.
+        // 409: el combate se decidió mientras tocabas (por ejemplo, alguien eligió el ganador en el cuadro).
         // Se vuelve a cargar el duelo, que lleva al podio si ya hay ganador.
         if (this.esConflicto(e)) {
           this.enviando.set(false);
@@ -145,31 +147,58 @@ export class Duelo implements OnInit {
     });
   }
 
-  /** La IA está tocando por el rival (el botón se desactiva mientras). */
-  protected readonly pidiendoIa = signal(false);
-  protected readonly errorIa = signal<string | null>(null);
+  /** Cada cuánto se mira si el rival ya ha tocado mientras esperas. */
+  private static readonly ESPERA_MS = 5000;
+  private temporizador: ReturnType<typeof setInterval> | null = null;
+  /** Consulta en marcha: se cancela al salir, para no llevar al podio a quien ya se fue. */
+  private consulta: Subscription | null = null;
 
-  /** «Que juegue la IA»: toca por el rival que no aparece y, si así hay ganador, al podio. */
-  protected pedirIa(): void {
-    this.pidiendoIa.set(true);
-    this.errorIa.set(null);
-    this.servicio.jugarIa(this.idTorneo, this.idCombate).subscribe({
-      next: (d) => {
-        this.pidiendoIa.set(false);
-        this.mostrar(d);
-        if (d.id_ganador !== null) this.irAlPodio();
-      },
-      error: (e) => {
-        // 409: tu rival acaba de tocar; se recarga y, si ya hay ganador, al podio
-        if (this.esConflicto(e)) {
-          this.pidiendoIa.set(false);
-          this.cargar();
-          return;
-        }
-        this.errorIa.set(mensajeError(e));
-        this.pidiendoIa.set(false);
-      },
-    });
+  /**
+   * Si ya he tocado y falta mi rival, se pregunta a la API cada pocos segundos; en cuanto él
+   * toca y hay ganador, se va sola al podio (Eva, 26/11/2026). Sin partidas en directo: solo
+   * se consulta el mismo duelo de siempre.
+   */
+  private esperarAlRival(d: DatosDuelo): void {
+    const yo = d.jugadores.find((j) => j.participante.id === this.miParticipante());
+    const esperando = d.estado === 'pendiente' && !!yo?.ha_jugado;
+    if (!esperando) {
+      this.dejarDeEsperar();
+    } else if (this.temporizador === null) {
+      this.temporizador = setInterval(() => {
+        if (this.consulta && !this.consulta.closed) return; // la anterior aún no ha contestado
+        this.consulta = this.servicio.obtener(this.idTorneo, this.idCombate).subscribe({
+          next: (nuevo) => {
+            if (nuevo.id_ganador !== null) {
+              this.dejarDeEsperar();
+              this.irAlPodio();
+              return;
+            }
+            // Si vuelve a tocarme sin ganador es que hubo empate total y el duelo se repite
+            if (nuevo.puedo_jugar && !nuevo.mensaje) {
+              nuevo = { ...nuevo, mensaje: 'Empate total: el duelo se repite con otra canción' };
+            }
+            this.mostrar(nuevo);
+          },
+          error: (e) => {
+            // 404: el torneo ya no existe y no tiene sentido seguir; otro fallo se reintenta
+            if (e instanceof HttpErrorResponse && e.status === 404) this.dejarDeEsperar();
+          },
+        });
+      }, Duelo.ESPERA_MS);
+    }
+  }
+
+  private dejarDeEsperar(): void {
+    if (this.temporizador !== null) {
+      clearInterval(this.temporizador);
+      this.temporizador = null;
+    }
+    this.consulta?.unsubscribe();
+    this.consulta = null;
+  }
+
+  ngOnDestroy(): void {
+    this.dejarDeEsperar();
   }
 
   private esConflicto(e: unknown): boolean {

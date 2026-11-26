@@ -1,0 +1,66 @@
+/* Tarjeta Pop Ritmo pegada abajo a la derecha, por encima de todo, que entra con un rebote */
+.aviso {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 90;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  max-width: 22rem;
+  padding: 1rem 1.25rem 1.1rem 1rem;
+  background: var(--tarjeta);
+  border-radius: 28px;
+  box-shadow:
+    0 6px 0 var(--amarillo-oscuro),
+    0 12px 24px rgb(58 46 74 / 0.18);
+  border: 3px solid var(--amarillo);
+  animation: entrar 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.rival {
+  flex: none;
+}
+.texto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.titulo {
+  margin: 0;
+  font:
+    700 1.3rem 'Fredoka',
+    sans-serif;
+}
+.detalle,
+.mas {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.mas {
+  font-size: 0.85rem;
+  color: var(--tinta-suave);
+}
+.principal {
+  margin-top: 0.4rem;
+}
+/* La × es un botón pequeño y redondo en la esquina */
+.cerrar {
+  position: absolute;
+  top: -0.6rem;
+  right: -0.6rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+@media (max-width: 520px) {
+  .aviso {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    max-width: none;
+  }
+}
